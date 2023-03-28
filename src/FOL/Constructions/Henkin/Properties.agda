@@ -4,7 +4,7 @@ open import FOL.Language
 module FOL.Constructions.Henkin.Properties (ℒ : Language {u}) where
 
 open import FOL.Constructions.Henkin using (∞-language; ∞-theory)
-open import FOL.Bounded.TheoryProperties (∞-language ℒ) using (maximal)
+open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ) using (maximal)
 
 open import Function using (_$_)
 

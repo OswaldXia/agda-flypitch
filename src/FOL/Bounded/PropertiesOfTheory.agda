@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.TheoryProperties (ℒ : Language {u}) where
+module FOL.Bounded.PropertiesOfTheory (ℒ : Language {u}) where
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Substitution ℒ
