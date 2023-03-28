@@ -1,0 +1,6 @@
+name: agda-flypitch
+depend:
+  standard-library
+  cubical
+include: src
+flags: -W noUnsupportedIndexedMatch
