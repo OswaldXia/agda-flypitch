@@ -151,9 +151,11 @@ henkinization _ = languageCanonicalMorph 0
 formulaChain : ∀ {ℒ : Language} (n l : ℕ) → DirectedDiagram ℕᴰ
 formulaChain {ℒ} n l = record
   { obj = λ k → Formulaₗ ([ k ]-language ℒ) n l
-  ; morph = λ i≤j → LHom.Bounded.formulaMorph (LanguageChain.morph i≤j)
-  ; functorial = {! LanguageChain.functorial  !} --LanguageChain.functorial
-  }
+  ; morph = λ i≤j → formulaMorph (morph i≤j)
+  ; functorial = trans (cong (λ x → formulaMorph x) functorial) (formulaMorphComp _ _)
+  } where open LanguageChain using (morph; functorial)
+          open LHom.Bounded using (formulaMorph)
+          open LHom.BoundedComp using (formulaMorphComp)
 ```
 
 ## Henkin化理论
