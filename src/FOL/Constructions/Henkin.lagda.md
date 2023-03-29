@@ -15,8 +15,9 @@ zhihu-tags: Agda, 数理逻辑
 
 module FOL.Constructions.Henkin {u} where
 open import FOL.Language hiding (u)
-open import FOL.Bounded.Base using (Formula; Sentence; Theory)
+open import FOL.Bounded.Base using (Formulaₗ; Formula; Sentence; Theory)
 open import FOL.Language.DirectedDiagram
+open import Tools.DirectedDiagram using (DirectedDiagram)
 ```
 
 ```agda
@@ -37,13 +38,15 @@ open import Tools.DirectedDiagram using (DirectedType)
 open import Data.Nat.Properties
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
-open import Data.Product using (_,_; proj₁; proj₂)
+open import Data.Product using (_,_; proj₁; proj₂; Σ-syntax)
 open import Function using (_∘_; _$_; id)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
 open import StdlibExt.Data.Nat
 open import StdlibExt.Relation.Unary using (_∪_; _⟦_⟧; ⋃_; replacement-syntax)
 ```
+
+## 语言链
 
 ```agda
 data Functions ℒ : ℕ → Type u where
@@ -142,6 +145,19 @@ henkinization : (ℒ : Language) → ℒ ⟶ ∞-language ℒ
 henkinization _ = languageCanonicalMorph 0
 ```
 
+## 公式链
+
+```agda
+formulaChain : ∀ {ℒ : Language} (n l : ℕ) → DirectedDiagram ℕᴰ
+formulaChain {ℒ} n l = record
+  { obj = λ k → Formulaₗ ([ k ]-language ℒ) n l
+  ; morph = λ i≤j → LHom.Bounded.formulaMorph (LanguageChain.morph i≤j)
+  ; functorial = {! LanguageChain.functorial  !} --LanguageChain.functorial
+  }
+```
+
+## Henkin化理论
+
 ```agda
 witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
 witnessOf = Functions.witness
@@ -176,3 +192,17 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf φ witnessing formulaMo
 ∞-theory : Theory ℒ → Theory $ ∞-language ℒ
 ∞-theory T = ⋃ (λ n → [ n ]-∞-theory T)
 ```
+
+```agda
+∞-witness : ∀ {T : Theory ℒ} (φ : Formula (∞-language ℒ) 1) →
+  Σ[ c ∈ Constant $ ∞-language ℒ ] c ≡ c
+∞-witness = {!   !}
+```
+
+noncomputable def wit_infty {L} {T : Theory L} {hT : is_consistent T} (f : bounded_formula (@henkin_language L T hT) 1) :
+  Σ c : (@henkin_language L T hT).constants,
+    Σ (f' : Σ' (x : colimit (@henkin_bounded_formula_chain' L)), bounded_formula'_comparison x = f),
+      Σ' (f'' : coproduct_of_directed_diagram (@henkin_bounded_formula_chain' L)),
+        ⟦f''⟧ = f'.fst ∧
+          c = (henkin_language_canonical_map (f''.fst + 1)).on_function (wit' f''.snd) :=
+ 

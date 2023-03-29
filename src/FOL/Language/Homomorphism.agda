@@ -4,13 +4,16 @@ module FOL.Language.Homomorphism {u} where
 open import FOL.Language hiding (u)
 
 open import Cubical.Core.Everything using (Type)
+open import Cubical.Data.Equality using (funExt)
+
 open import Data.Nat using (ℕ)
-open import Function using () renaming (id to ⟨id⟩; _∘_ to _⟨∘⟩_)
-open import Relation.Binary.PropositionalEquality using (_≡_)
+open import Function using (_$_; _∘₂_) renaming (id to ⟨id⟩; _∘_ to _⟨∘⟩_)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import StdlibExt.Relation.Unary using (_⟦_⟧)
 
 private variable
   ℒ₁ ℒ₂ ℒ₃ ℒ₄ : Language
+  n l : ℕ
 
 record _⟶_ (ℒ₁ : Language) (ℒ₂ : Language) : Type u where
   open Language {u}
@@ -29,9 +32,6 @@ F ∘ G = record
 module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   open import FOL.Bounded.Base {u} hiding (l)
   open _⟶_ {ℒ₁} {ℒ₂} F
-
-  private variable
-    n l : ℕ
 
   termMorph : Termₗ ℒ₁ n l → Termₗ ℒ₂ n l
   termMorph (var k)     = var k
@@ -54,3 +54,39 @@ module Bounded (F : ℒ₁ ⟶ ℒ₂) where
 
   theoryMorph : Theory ℒ₁ → Theory ℒ₂
   theoryMorph Γ = sentenceMorph ⟦ Γ ⟧
+
+module BoundedComp where
+  open import FOL.Bounded.Base {u} hiding (l)
+  open Bounded
+
+  termMorphCompApp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) → (t : Termₗ ℒ₁ n l) →
+    termMorph (G ∘ F) t ≡ termMorph G (termMorph F t)
+  termMorphCompApp G F (var k) = refl
+  termMorphCompApp G F (func f) = refl
+  termMorphCompApp G F (app t₁ t₂)
+    rewrite termMorphCompApp G F t₁
+          | termMorphCompApp G F t₂ = refl
+
+  termMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
+    termMorph (G ∘ F) {n} {l} ≡ termMorph G ⟨∘⟩ termMorph F
+  termMorphComp = funExt ∘₂ termMorphCompApp
+
+  formulaMorphCompApp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) → (φ : Formulaₗ ℒ₁ n l) →
+    formulaMorph (G ∘ F) φ ≡ (formulaMorph G ⟨∘⟩ formulaMorph F) φ
+  formulaMorphCompApp G F ⊥ = refl
+  formulaMorphCompApp G F (rel R) = refl
+  formulaMorphCompApp G F (appᵣ φ t)
+    rewrite formulaMorphCompApp G F φ
+          | termMorphCompApp G F t = refl
+  formulaMorphCompApp G F (t₁ ≈ t₂)
+    rewrite termMorphCompApp G F t₁
+          | termMorphCompApp G F t₂ = refl
+  formulaMorphCompApp G F (φ₁ ⇒ φ₂)
+    rewrite formulaMorphCompApp G F φ₁
+          | formulaMorphCompApp G F φ₂ = refl
+  formulaMorphCompApp G F (∀' φ)
+    rewrite formulaMorphCompApp G F φ = refl
+
+  formulaMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
+    formulaMorph (G ∘ F) {n} {l} ≡ formulaMorph G ⟨∘⟩ formulaMorph F
+  formulaMorphComp = funExt ∘₂ formulaMorphCompApp

@@ -10,4 +10,4 @@ open import Function using (_$_)
 open import Data.Product using (_,_)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
-∞-theory-hasEnoughConstants T = {!   !}
+∞-theory-hasEnoughConstants T φ = {!   !}
