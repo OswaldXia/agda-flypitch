@@ -23,11 +23,11 @@ private variable
 ¬Con→Completeness : ¬Con T → T ⊨ φ → T ⊢ φ
 ¬Con→Completeness T⊢⊥ _ = exfalso T⊢⊥
 
-modelExistence→Con : modelExistence T → Con T
-modelExistence→Con (ℳ , x , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ (soundness T⊢⊥ ℳ x ℳ⊨T)
+existsModel→Con : existsModel T → Con T
+existsModel→Con (ℳ , x , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ (soundness T⊢⊥ ℳ x ℳ⊨T)
 
-Con→modelExistence : Con T → modelExistence T
-Con→modelExistence T⊭⊥ =
+Con→existsModel : Con T → existsModel T
+Con→existsModel T⊭⊥ =
     reduct termModel
   , reductId (nonemptyDomain {!   !})
   , {!   !}

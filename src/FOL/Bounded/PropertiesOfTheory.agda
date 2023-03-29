@@ -25,18 +25,17 @@ Con T = ¬ T ⊢ ⊥
 ¬Con : Theory → Type (ℓ-suc u)
 ¬Con T = T ⊢ ⊥
 
--- 理论的极大性
-
-maximal : Theory → Type (ℓ-suc u)
-maximal T = Σ[ C ∈ (Formula 1 → Constant) ]
-  (∀ φ → T ⊢ ∃' φ ⇒ φ [ const (C φ) / 0 ])
-
 -- 理论的完全性
 
 complete : Theory → Type (ℓ-suc u)
 complete T = Con T × ∀ φ → φ ∈ T ⊎ ¬ φ ∈ T
 
--- 理论存在模型
+-- 有足够常元的理论
 
-modelExistence : ∀ {v} → Theory → Type (ℓ-max u $ ℓ-suc v)
-modelExistence {v} T = Σ[ ℳ ∈ Structure ℒ {v} ] Domain ℳ × ℳ ⊨ᵀ T
+hasEnoughConstants : Theory → Type (ℓ-suc u)
+hasEnoughConstants T = ∀ (φ : Formula 1) → Σ[ c ∈ Constant ] T ⊢ ∃' φ ⇒ φ [ const c / 0 ]
+
+-- 存在模型的理论
+
+existsModel : ∀ {v} → Theory → Type (ℓ-max u $ ℓ-suc v)
+existsModel {v} T = Σ[ ℳ ∈ Structure ℒ {v} ] Domain ℳ × ℳ ⊨ᵀ T

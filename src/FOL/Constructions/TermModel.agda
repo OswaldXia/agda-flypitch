@@ -29,7 +29,7 @@ module TermModel where
 
   Domain = ClosedTerm / _≋_
 
-  nonemptyDomain : maximal T → Domain
+  nonemptyDomain : hasEnoughConstants T → Domain
   nonemptyDomain (C , _) = [ const $ C (var (fromℕ 0) ≈ var (fromℕ 0)) ]
 
   preFunc : ClosedTermₗ l → Vec ClosedTerm l → Domain
