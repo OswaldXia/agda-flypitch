@@ -87,3 +87,16 @@ module ExampleLanguagePA where
 variable
   ℒ : Language
 ```
+
+```agda
+open import Cubical.Foundations.Prelude
+open import Cubical.Relation.Nullary
+
+discreteLanguage : Discrete (Language {u})
+discreteLanguage
+  record { functions = functions₁ ; relations = relations₁ }
+  record { functions = functions₂ ; relations = relations₂ } = {!   !}
+
+isSetLanguage : isSet (Language {u})
+isSetLanguage = Discrete→isSet discreteLanguage
+```

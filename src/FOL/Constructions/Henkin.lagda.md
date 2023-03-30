@@ -17,19 +17,22 @@ module FOL.Constructions.Henkin {u} where
 open import FOL.Language hiding (u)
 open import FOL.Bounded.Base using (Formulaₗ; Formula; Sentence; Theory)
 open import FOL.Language.DirectedDiagram
-open import Tools.DirectedDiagram using (DirectedDiagram)
-```
+open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
 
-```agda
-import FOL.Language.Homomorphism as LHom
 import FOL.Bounded.Substitution
+import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_) renaming (id to idᴸ; _∘_ to _◯_)
-open DirectedDiagramLanguage using (Colimit; canonicalMorph)
+
 open Language {u}
+open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
+open DirectedDiagram using (Colimit)
+open Cocone using (universalMap)
 ```
 
 ```agda
 open import Cubical.Core.Primitives using (Type)
+open import Cubical.Data.Equality using (pathToEq)
+open import CubicalExt.HITs.SetTruncation
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
@@ -39,7 +42,7 @@ open import Data.Nat.Properties
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
 open import Data.Product using (_,_; proj₁; proj₂; Σ-syntax)
-open import Function using (_∘_; _$_; id)
+open import Function using (id; _∘_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
 open import StdlibExt.Data.Nat
@@ -129,7 +132,7 @@ languageChain ℒ = record
 
 ```agda
 ∞-language : Language → Language
-∞-language = Colimit ∘ languageChain
+∞-language = ColimitLanguage ∘ languageChain
 
 [_]-language : ℕ → Language → Language
 [ n ]-language ℒ = LanguageChain.obj ℒ n
@@ -148,14 +151,35 @@ henkinization _ = languageCanonicalMorph 0
 ## 公式链
 
 ```agda
-formulaChain : ∀ {ℒ : Language} (n l : ℕ) → DirectedDiagram ℕᴰ
-formulaChain {ℒ} n l = record
-  { obj = λ k → Formulaₗ ([ k ]-language ℒ) n l
-  ; morph = λ i≤j → formulaMorph (morph i≤j)
-  ; functorial = trans (cong (λ x → formulaMorph x) functorial) (formulaMorphComp _ _)
+formulaChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
+formulaChain ℒ n l = record
+  { obj = λ k → ∥ Formulaₗ ([ k ]-language ℒ) n l ∥₂
+  ; morph = λ i≤j → map (formulaMorph (morph i≤j))
+  ; functorial = trans (cong (map ∘ (λ φ → formulaMorph φ)) functorial)
+               $ trans (cong map $ formulaMorphComp _ _)
+               $ pathToEq $ map-functorial _ _
   } where open LanguageChain using (morph; functorial)
           open LHom.Bounded using (formulaMorph)
           open LHom.BoundedComp using (formulaMorphComp)
+```
+
+```agda
+coconeOfFormulaChain : ∀ ℒ n l → Cocone (formulaChain ℒ n l)
+coconeOfFormulaChain ℒ n l = record
+  { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
+  ; isSetVertex = isSetSetTrunc
+  ; map = λ i φ → map (formulaMorph $ languageCanonicalMorph i) φ
+  ; compat = λ {i} {j} H → trans {!   !} {!   !}
+  } where open LHom.Bounded using (formulaMorph)
+```
+
+map (formulaMorph (languageCanonicalMorph i)) ≡
+map (formulaMorph (languageCanonicalMorph j)) ∘
+map (formulaMorph (LanguageChain.morph _))
+
+```agda
+formulaComparison : ∀ ℒ n l → Colimit (formulaChain ℒ n l) → ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
+formulaComparison ℒ n l = universalMap (coconeOfFormulaChain ℒ n l)
 ```
 
 ## Henkin化理论

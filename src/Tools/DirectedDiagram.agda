@@ -92,8 +92,8 @@ record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v 
       map k (morph j~k y) ≡˘⟨ cong-app (compat j~k) y ⟩
       map j y             ∎
 
-CoconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
-CoconeOfColimit {u} {v} {D} F = record
+coconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
+coconeOfColimit {u} {v} {D} F = record
   { Vertex = Colimit
   ; isSetVertex = squash/
   ; map = λ i x → [ i , x ]

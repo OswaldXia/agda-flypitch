@@ -43,21 +43,33 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
       ; functorial = cong (λ f → relMorph f) functorial
       }
 
-  Coproduct : Language
-  Coproduct = record
-    { functions = coprod ∘ functionsᴰ
-    ; relations = coprod ∘ relationsᴰ
-    } where open DirectedDiagram renaming (Coproduct to coprod)
+  CoproductLanguage : Language
+  CoproductLanguage = record
+    { functions = Coproduct ∘ functionsᴰ
+    ; relations = Coproduct ∘ relationsᴰ
+    } where open DirectedDiagram
 
-  Colimit : Language
-  Colimit = record
+  ColimitLanguage : Language
+  ColimitLanguage = record
     { functions = λ n → funcs n / _≃_ (functionsᴰ n)
     ; relations = λ n → rels  n / _≃_ (relationsᴰ n)
     } where open DirectedDiagram using (_≃_)
-            open Language Coproduct renaming (functions to funcs; relations to rels)
+            open Language CoproductLanguage renaming (functions to funcs; relations to rels)
 
-  canonicalMorph : ∀ i → obj i ⟶ Colimit
+  canonicalMorph : ∀ i → obj i ⟶ ColimitLanguage
   canonicalMorph i = record
     { funMorph = λ {n} f → [ i , morph (functionsᴰ n) ~-refl f ]
     ; relMorph = λ {n} r → [ i , morph (relationsᴰ n) ~-refl r ]
     } where open DirectedDiagram using (morph)
+
+{--
+record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-max u $ ℓ-max v) where
+  --open DirectedType D
+  --open DirectedDiagram F
+
+  field
+    Vertex : Language
+    isSetVertex : isSet Vertex
+    map : ∀ i → obj i → Vertex
+    compat : ∀ {i j} (f : i ~ j) → map i ≡ (map j ∘ morph f)
+--}
