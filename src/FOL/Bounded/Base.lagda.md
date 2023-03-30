@@ -29,7 +29,7 @@ open Free._⊢_
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Everything using (Type; ℓ-suc; _,_)
+open import Cubical.Core.Primitives using (Type; ℓ-suc; _,_)
 
 open import Data.Nat using (ℕ; suc; _<?_; _+_; _∸_)
 open import Data.Fin using (Fin; toℕ)

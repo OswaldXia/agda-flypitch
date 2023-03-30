@@ -24,7 +24,7 @@ open import FOL.Interpretation ℒ using (Structure; v)
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Everything using (Type; Level; ℓ-suc; ℓ-max; fst; snd)
+open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max; fst; snd)
 open import Cubical.Foundations.Prelude using (isProp; subst)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)

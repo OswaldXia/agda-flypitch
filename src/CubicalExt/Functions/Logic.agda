@@ -2,7 +2,7 @@
 
 module CubicalExt.Functions.Logic where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude using (isPropIsProp)
 open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.Univalence using (ua)

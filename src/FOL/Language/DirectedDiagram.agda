@@ -6,7 +6,7 @@ open import FOL.Language hiding (u)
 open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
 
-open import Cubical.Core.Everything using (Type; Level; ℓ-suc; ℓ-max)
+open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
 open import Cubical.HITs.SetQuotients using (_/_; [_])
 
 open import Data.Nat using (ℕ)

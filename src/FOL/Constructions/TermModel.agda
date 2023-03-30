@@ -7,7 +7,7 @@ module FOL.Constructions.TermModel {ℒ : Language {u}} (T : Theory ℒ) where
 open import FOL.Structure.Base ℒ
 open import FOL.Bounded.PropertiesOfTheory ℒ
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
 open import Cubical.Foundations.Prelude using (_≡_; refl; _∙_)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)

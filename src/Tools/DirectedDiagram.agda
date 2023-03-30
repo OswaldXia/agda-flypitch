@@ -2,10 +2,10 @@
 
 module Tools.DirectedDiagram where
 
-open import Cubical.Core.Everything using (Type; Level; ℓ-zero; ℓ-suc; ℓ-max)
+open import Cubical.Core.Primitives using (Type; Level; ℓ-zero; ℓ-suc; ℓ-max)
 open import Cubical.Foundations.Prelude using (funExt)
 open import Cubical.Data.Equality using (pathToEq)
-open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/)
+open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 
 open import Data.Product using (_×_; _,_; proj₁; proj₂; ∃-syntax; Σ-syntax)
 open import Function using (_∘_; _$_)
@@ -78,15 +78,22 @@ record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v 
   open DirectedType D
   open DirectedDiagram F
   field
-    vertex : Type w
-    map : ∀ i → obj i → vertex
+    Vertex : Type w
+    map : ∀ i → obj i → Vertex
     compat : ∀ {i j} {f : i ~ j} → map i ≡ (map j ∘ morph f)
 
 CoconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
 CoconeOfColimit {u} {v} {D} F = record
-  { vertex = Colimit
+  { Vertex = Colimit
   ; map = λ i x → [ i , x ]
   ; compat = λ {i} {j} {f} → pathToEq $ funExt λ x →
       eq/ _ _ (j , morph f x , f , ~-refl , refl , (sym $ funExt⁻ functorial))
   } where open DirectedType {u} D
           open DirectedDiagram F
+
+module _ {D} {F : DirectedDiagram D} {V : Cocone {u} {v} {w} F} where
+  open DirectedDiagram F
+  open Cocone V
+
+  universalMap : Colimit → Vertex
+  universalMap = rec (λ x y → {!   !}) {!   !} {!   !}

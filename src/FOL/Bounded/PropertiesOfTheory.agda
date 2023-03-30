@@ -10,7 +10,7 @@ open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (Domain)
 
-open import Cubical.Core.Everything using (Type; ℓ-suc; ℓ-max)
+open import Cubical.Core.Primitives using (Type; ℓ-suc; ℓ-max)
 open import Data.Sum using (_⊎_)
 open import Data.Product using (_×_; Σ-syntax)
 open import Function using (_$_)

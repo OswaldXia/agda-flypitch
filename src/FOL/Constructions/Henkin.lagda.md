@@ -29,7 +29,7 @@ open Language {u}
 ```
 
 ```agda
-open import Cubical.Core.Everything using (Type)
+open import Cubical.Core.Primitives using (Type)
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```

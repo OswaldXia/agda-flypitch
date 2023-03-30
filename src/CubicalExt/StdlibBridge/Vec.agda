@@ -3,7 +3,7 @@
 module CubicalExt.StdlibBridge.Vec where
 
 open import Data.Nat using (ℕ)
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude using (refl; cong)
 open import Cubical.Foundations.Isomorphism using (Iso; iso; isoToEquiv)
 open import Cubical.Foundations.Univalence using (ua)

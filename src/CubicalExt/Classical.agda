@@ -2,7 +2,7 @@
 
 module CubicalExt.Classical where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary

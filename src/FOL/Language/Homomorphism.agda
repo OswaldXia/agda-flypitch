@@ -3,7 +3,7 @@
 module FOL.Language.Homomorphism {u} where
 open import FOL.Language hiding (u)
 
-open import Cubical.Core.Everything using (Type)
+open import Cubical.Core.Primitives using (Type)
 open import Cubical.Data.Equality using (funExt)
 
 open import Data.Nat using (ℕ)

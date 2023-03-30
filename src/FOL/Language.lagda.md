@@ -39,7 +39,7 @@ module FOL.Language where
 本篇只需要立方类型论的关于类型和宇宙的核心概念以及自然数.
 
 ```agda
-open import Cubical.Core.Everything using (Type; Level; ℓ-suc)
+open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Data.Nat using (ℕ)
 ```
 

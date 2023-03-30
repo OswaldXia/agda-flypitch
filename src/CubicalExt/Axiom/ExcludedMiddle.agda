@@ -2,7 +2,7 @@
 
 module CubicalExt.Axiom.ExcludedMiddle where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude using (isProp)
 open import Cubical.Relation.Nullary using (Dec)
 
