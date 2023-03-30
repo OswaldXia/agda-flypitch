@@ -8,10 +8,11 @@ open import Tools.DirectedDiagram
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
 open import Cubical.HITs.SetQuotients using (_/_; [_])
+open import Cubical.HITs.SetTruncation using (∥_∥₂)
 
 open import Data.Nat using (ℕ)
 open import Data.Product using (_×_; _,_; proj₁; proj₂)
-open import Function using (_∘_)
+open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality using (_≡_; cong)
 
 private variable
@@ -62,14 +63,11 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
     ; relMorph = λ {n} r → [ i , morph (relationsᴰ n) ~-refl r ]
     } where open DirectedDiagram using (morph)
 
-{--
-record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-max u $ ℓ-max v) where
-  --open DirectedType D
-  --open DirectedDiagram F
+record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-max (ℓ-suc u) (ℓ-suc v)) where
+  open DirectedType D
+  open DirectedDiagramLanguage F
 
   field
-    Vertex : Language
-    isSetVertex : isSet Vertex
-    map : ∀ i → obj i → Vertex
-    compat : ∀ {i j} (f : i ~ j) → map i ≡ (map j ∘ morph f)
---}
+    Vertex : Language {ℓ-max u v}
+    map : ∀ i → obj i ⟶ Vertex
+    --compat : ∀ {i j} (f : i ~ j) → map i ≡ (map j ∘ morph f)
