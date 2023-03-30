@@ -19,6 +19,7 @@ private variable
 record DirectedType : Type (ℓ-suc u) where
   field
     Carrier : Type u
+    isSetCarrier : isSet Carrier
     _~_ : Rel Carrier ℓ-zero
     ~-refl : Reflexive _~_
     ~-trans : Transitive _~_

@@ -7,8 +7,8 @@ open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
-open import Cubical.HITs.SetQuotients using (_/_; [_])
-open import Cubical.HITs.SetTruncation using (∥_∥₂)
+open import Cubical.Foundations.HLevels using (isSetΣ)
+open import Cubical.HITs.SetQuotients using (_/_; [_]; squash/; rec)
 
 open import Data.Nat using (ℕ)
 open import Data.Product using (_×_; _,_; proj₁; proj₂)
@@ -20,6 +20,7 @@ private variable
 
 record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u) (ℓ-suc v)) where
   open DirectedType D
+  open Language
   field
     obj : Carrier → Language {ℓ-max u v}
     morph : ∀ {i j} → .(i ~ j) → obj i ⟶ obj j
@@ -27,7 +28,6 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
       → (morph f₃) ≡ (morph f₂) ◯ (morph f₁)
 
   module _ (n : ℕ) where
-    open Language
     open _⟶_
 
     functionsᴰ : DirectedDiagram {u} {ℓ-max u v} D
@@ -48,12 +48,16 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
   CoproductLanguage = record
     { functions = Coproduct ∘ functionsᴰ
     ; relations = Coproduct ∘ relationsᴰ
-    } where open DirectedDiagram
+    ; isSetFunctions = λ n → isSetΣ isSetCarrier λ i → isSetFunctions (obj i) n
+    ; isSetRelations = λ n → isSetΣ isSetCarrier λ i → isSetRelations (obj i) n
+    } where open DirectedDiagram using (Coproduct)
 
   ColimitLanguage : Language
   ColimitLanguage = record
     { functions = λ n → funcs n / _≃_ (functionsᴰ n)
     ; relations = λ n → rels  n / _≃_ (relationsᴰ n)
+    ; isSetFunctions = λ _ → squash/
+    ; isSetRelations = λ _ → squash/
     } where open DirectedDiagram using (_≃_)
             open Language CoproductLanguage renaming (functions to funcs; relations to rels)
 
@@ -70,4 +74,11 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
   field
     Vertex : Language {ℓ-max u v}
     map : ∀ i → obj i ⟶ Vertex
-    --compat : ∀ {i j} (f : i ~ j) → map i ≡ (map j ∘ morph f)
+    compat : ∀ {i j} (f : i ~ j) → map i ≡ map j ◯ morph f
+{--
+  universalMap : ColimitLanguage ⟶ Vertex
+  universalMap = record
+    { funMorph = rec {!   !} {!   !} {!   !}
+    ; relMorph = {!   !}
+    }
+--}

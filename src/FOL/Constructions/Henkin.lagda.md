@@ -31,9 +31,12 @@ open Cocone using (universalMap)
 
 ```agda
 open import Cubical.Core.Primitives using (Type)
+open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.Data.Nat using (isSetℕ)
 open import CubicalExt.HITs.SetTruncation
 open import CubicalExt.Data.Nat using (ℕ-UIP)
+open import Cubical.Relation.Nullary using (yes; no; Discrete; Discrete→isSet)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
 
@@ -42,7 +45,7 @@ open import Data.Nat.Properties
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
 open import Data.Product using (_,_; proj₁; proj₂; Σ-syntax)
-open import Function using (id; _∘_; _$_)
+open import Function using (id; _∘_; _∘₂_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
 open import StdlibExt.Data.Nat
@@ -52,19 +55,35 @@ open import StdlibExt.Relation.Unary using (_∪_; _⟦_⟧; ⋃_; replacement-s
 ## 语言链
 
 ```agda
-data Functions ℒ : ℕ → Type u where
-  include  : ∀ {n} → ℒ .functions n → Functions ℒ n
-  witness : Formula ℒ 1 → Functions ℒ 0
+data HekinFunctions ℒ : ℕ → Type u where
+  include  : ∀ {n} → ℒ .functions n → HekinFunctions ℒ n
+  witness : Formula ℒ 1 → HekinFunctions ℒ 0
+```
+
+```agda
+discreteHekinFunctions : ∀ ℒ n → Discrete (HekinFunctions ℒ n)
+discreteHekinFunctions ℒ 0 (include x) (witness y) = {!   !}
+discreteHekinFunctions ℒ 0 (witness x) (include y) = {!   !}
+discreteHekinFunctions ℒ 0 (witness x) (witness y) = {!   !}
+discreteHekinFunctions ℒ n (include x) (include y) = {!   !}
+
+isSetHekinFunctions : ∀ ℒ n → isSet (HekinFunctions ℒ n)
+isSetHekinFunctions = Discrete→isSet ∘₂ discreteHekinFunctions
 ```
 
 ```agda
 languageStep : Language → Language
-languageStep ℒ = record { functions = Functions ℒ ; relations = ℒ .relations }
+languageStep ℒ = record
+  { functions = HekinFunctions ℒ
+  ; relations = relations ℒ
+  ; isSetFunctions = isSetHekinFunctions ℒ
+  ; isSetRelations = isSetRelations ℒ
+  }
 ```
 
 ```agda
 languageMorph : ℒ ⟶ languageStep ℒ
-languageMorph = record { funMorph = Functions.include ; relMorph = id }
+languageMorph = record { funMorph = HekinFunctions.include ; relMorph = id }
 ```
 
 ```agda
@@ -114,6 +133,7 @@ module LanguageChain where
 ℕᴰ : DirectedType
 ℕᴰ = record
   { Carrier = ℕ
+  ; isSetCarrier = isSetℕ
   ; _~_ = _≤₃_
   ; ~-refl = ≤⇒≤₃ ≤-refl
   ; ~-trans = λ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
@@ -169,7 +189,7 @@ coconeOfFormulaChain ℒ n l = record
   { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = isSetSetTrunc
   ; map = λ i φ → map (formulaMorph $ languageCanonicalMorph i) φ
-  ; compat = λ {i} {j} H → trans {!   !} {!   !}
+  ; compat = λ H → {!   !}
   } where open LHom.Bounded using (formulaMorph)
 ```
 
@@ -186,7 +206,7 @@ formulaComparison ℒ n l = universalMap (coconeOfFormulaChain ℒ n l)
 
 ```agda
 witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
-witnessOf = Functions.witness
+witnessOf = HekinFunctions.witness
 ```
 
 ```agda
@@ -231,4 +251,3 @@ noncomputable def wit_infty {L} {T : Theory L} {hT : is_consistent T} (f : bound
       Σ' (f'' : coproduct_of_directed_diagram (@henkin_bounded_formula_chain' L)),
         ⟦f''⟧ = f'.fst ∧
           c = (henkin_language_canonical_map (f''.fst + 1)).on_function (wit' f''.snd) :=
- 
