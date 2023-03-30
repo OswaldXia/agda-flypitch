@@ -2,15 +2,16 @@
 
 module Tools.DirectedDiagram where
 
-open import Cubical.Core.Primitives using (Type; Level; ℓ-zero; ℓ-suc; ℓ-max)
-open import Cubical.Foundations.Prelude using (funExt)
-open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.Core.Primitives hiding (_≡_)
+open import Cubical.Foundations.Prelude using (isSet; funExt)
+open import Cubical.Data.Equality using (pathToEq; eqToPath)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 
-open import Data.Product using (_×_; _,_; proj₁; proj₂; ∃-syntax; Σ-syntax)
+open import Data.Product using (_×_; ∃-syntax)
 open import Function using (_∘_; _$_)
 open import Relation.Binary using (Rel; Reflexive; Symmetric; Transitive)
-open import StdlibExt.Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; funExt⁻)
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
+open Eq.≡-Reasoning
 
 private variable
   u v w : Level
@@ -49,9 +50,9 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
     (l₁ , w₁ , i~l₁ , j~l₁ , x₁≡w₁ , y₁≡w₁)
     (l₂ , w₂ , j~l₂ , k~l₂ , y₂≡w₂ , z₂≡w₂) =
     l₃ , (morph j~l₃ y) , i~l₃ , k~l₃ , x₃≡y₃ , z₃≡y₃ where
-      l₃ = proj₁ $ directed l₁ l₂
-      l₁~l₃ = proj₁ $ proj₂ $ directed l₁ l₂
-      l₂~l₃ = proj₂ $ proj₂ $ directed l₁ l₂
+      l₃ = fst $ directed l₁ l₂
+      l₁~l₃ = fst $ snd $ directed l₁ l₂
+      l₂~l₃ = snd $ snd $ directed l₁ l₂
       i~l₃ = ~-trans i~l₁ l₁~l₃
       j~l₃ = ~-trans j~l₁ l₁~l₃
       k~l₃ = ~-trans k~l₂ l₂~l₃
@@ -79,21 +80,24 @@ record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v 
   open DirectedDiagram F
   field
     Vertex : Type w
+    isSetVertex : isSet Vertex
     map : ∀ i → obj i → Vertex
-    compat : ∀ {i j} {f : i ~ j} → map i ≡ (map j ∘ morph f)
+    compat : ∀ {i j} (f : i ~ j) → map i ≡ (map j ∘ morph f)
+
+  universalMap : Colimit → Vertex
+  universalMap = rec isSetVertex (λ (i , x) → map i x)
+    λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+      map i x ≡⟨ cong-app (compat i~k) x ⟩
+      map k (morph i~k x) ≡⟨ cong (map k) (trans H₁ $ sym $ H₂) ⟩
+      map k (morph j~k y) ≡˘⟨ cong-app (compat j~k) y ⟩
+      map j y ∎
 
 CoconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
 CoconeOfColimit {u} {v} {D} F = record
   { Vertex = Colimit
+  ; isSetVertex = squash/
   ; map = λ i x → [ i , x ]
-  ; compat = λ {i} {j} {f} → pathToEq $ funExt λ x →
-      eq/ _ _ (j , morph f x , f , ~-refl , refl , (sym $ funExt⁻ functorial))
+  ; compat = λ {_} {j} f → pathToEq $ funExt λ x →
+      eq/ _ _ (j , morph f x , f , ~-refl , refl , (sym $ cong-app functorial x))
   } where open DirectedType {u} D
           open DirectedDiagram F
-
-module _ {D} {F : DirectedDiagram D} {V : Cocone {u} {v} {w} F} where
-  open DirectedDiagram F
-  open Cocone V
-
-  universalMap : Colimit → Vertex
-  universalMap = rec (λ x y → {!   !}) {!   !} {!   !}
