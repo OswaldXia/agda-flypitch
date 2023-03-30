@@ -61,29 +61,18 @@ data HekinFunctions ℒ : ℕ → Type u where
 ```
 
 ```agda
-discreteHekinFunctions : ∀ ℒ n → Discrete (HekinFunctions ℒ n)
-discreteHekinFunctions ℒ 0 (include x) (witness y) = {!   !}
-discreteHekinFunctions ℒ 0 (witness x) (include y) = {!   !}
-discreteHekinFunctions ℒ 0 (witness x) (witness y) = {!   !}
-discreteHekinFunctions ℒ n (include x) (include y) = {!   !}
-
-isSetHekinFunctions : ∀ ℒ n → isSet (HekinFunctions ℒ n)
-isSetHekinFunctions = Discrete→isSet ∘₂ discreteHekinFunctions
-```
-
-```agda
 languageStep : Language → Language
 languageStep ℒ = record
-  { functions = HekinFunctions ℒ
-  ; relations = relations ℒ
-  ; isSetFunctions = isSetHekinFunctions ℒ
-  ; isSetRelations = isSetRelations ℒ
+  { functions = λ n → ∥ HekinFunctions ℒ n ∥₂
+  ; relations = ℒ .relations
+  ; isSetFunctions = λ _ → isSetSetTrunc
+  ; isSetRelations = ℒ .isSetRelations
   }
 ```
 
 ```agda
 languageMorph : ℒ ⟶ languageStep ℒ
-languageMorph = record { funMorph = HekinFunctions.include ; relMorph = id }
+languageMorph = record { funMorph = λ f → ∣ include f ∣₂ ; relMorph = id }
 ```
 
 ```agda
@@ -206,7 +195,7 @@ formulaComparison ℒ n l = universalMap (coconeOfFormulaChain ℒ n l)
 
 ```agda
 witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
-witnessOf = HekinFunctions.witness
+witnessOf φ = ∣ witness φ ∣₂
 ```
 
 ```agda
