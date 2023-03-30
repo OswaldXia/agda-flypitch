@@ -87,10 +87,10 @@ record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v 
   universalMap : Colimit → Vertex
   universalMap = rec isSetVertex (λ (i , x) → map i x)
     λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
-      map i x ≡⟨ cong-app (compat i~k) x ⟩
+      map i x             ≡⟨ cong-app (compat i~k) x ⟩
       map k (morph i~k x) ≡⟨ cong (map k) (trans H₁ $ sym $ H₂) ⟩
       map k (morph j~k y) ≡˘⟨ cong-app (compat j~k) y ⟩
-      map j y ∎
+      map j y             ∎
 
 CoconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
 CoconeOfColimit {u} {v} {D} F = record
