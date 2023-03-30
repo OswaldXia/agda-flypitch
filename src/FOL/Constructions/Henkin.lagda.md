@@ -58,21 +58,22 @@ open import StdlibExt.Relation.Unary using (_∪_; _⟦_⟧; ⋃_; replacement-s
 data HekinFunctions ℒ : ℕ → Type u where
   include  : ∀ {n} → ℒ .functions n → HekinFunctions ℒ n
   witness : Formula ℒ 1 → HekinFunctions ℒ 0
+  isSetHekinFunctions : ∀ n → isSet (HekinFunctions ℒ n)
 ```
 
 ```agda
 languageStep : Language → Language
 languageStep ℒ = record
-  { functions = λ n → ∥ HekinFunctions ℒ n ∥₂
+  { functions = HekinFunctions ℒ
   ; relations = ℒ .relations
-  ; isSetFunctions = λ _ → isSetSetTrunc
+  ; isSetFunctions = isSetHekinFunctions
   ; isSetRelations = ℒ .isSetRelations
   }
 ```
 
 ```agda
 languageMorph : ℒ ⟶ languageStep ℒ
-languageMorph = record { funMorph = λ f → ∣ include f ∣₂ ; relMorph = id }
+languageMorph = record { funMorph = include ; relMorph = id }
 ```
 
 ```agda
@@ -195,7 +196,7 @@ formulaComparison ℒ n l = universalMap (coconeOfFormulaChain ℒ n l)
 
 ```agda
 witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
-witnessOf φ = ∣ witness φ ∣₂
+witnessOf = witness
 ```
 
 ```agda
