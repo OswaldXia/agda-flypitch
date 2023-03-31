@@ -7,13 +7,15 @@ open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
+open import Cubical.Data.Equality using (eqToPath)
 open import Cubical.Foundations.HLevels using (isSetΣ)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; squash/; rec)
 
 open import Data.Nat using (ℕ)
 open import Data.Product using (_×_; _,_; proj₁; proj₂)
 open import Function using (_∘_; _$_)
-open import Relation.Binary.PropositionalEquality using (_≡_; cong)
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; sym; trans; cong; cong-app)
+open Eq.≡-Reasoning
 
 private variable
   u v w : Level
@@ -75,10 +77,20 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
     Vertex : Language {ℓ-max u v}
     map : ∀ i → obj i ⟶ Vertex
     compat : ∀ {i j} (f : i ~ j) → map i ≡ map j ◯ morph f
-{--
+
   universalMap : ColimitLanguage ⟶ Vertex
   universalMap = record
-    { funMorph = rec {!   !} {!   !} {!   !}
-    ; relMorph = {!   !}
-    }
---}
+    { funMorph = rec (isSetFunctions _) (λ (i , x) → funMorph (map i) x)
+        λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+          funMorph (map i) x                        ≡⟨ cong-app (cong (λ f → funMorph f) (compat i~k)) x ⟩
+          funMorph (map k) (funMorph (morph i~k) x) ≡⟨ cong (funMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
+          funMorph (map k) (funMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → funMorph f) (compat j~k)) y ⟩
+          funMorph (map j) y                        ∎
+    ; relMorph = rec (isSetRelations _) (λ (i , x) → relMorph (map i) x)
+        λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+          relMorph (map i) x                        ≡⟨ cong-app (cong (λ f → relMorph f) (compat i~k)) x ⟩
+          relMorph (map k) (relMorph (morph i~k) x) ≡⟨ cong (relMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
+          relMorph (map k) (relMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → relMorph f) (compat j~k)) y ⟩
+          relMorph (map j) y                        ∎
+    } where open Language Vertex
+            open _⟶_

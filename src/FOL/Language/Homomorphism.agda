@@ -90,3 +90,4 @@ module BoundedComp where
   formulaMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
     formulaMorph (G ∘ F) {n} {l} ≡ formulaMorph G ⟨∘⟩ formulaMorph F
   formulaMorphComp = funExt ∘₂ formulaMorphCompApp
+ 
