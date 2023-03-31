@@ -5,16 +5,17 @@ module FOL.Language.DirectedDiagram where
 open import FOL.Language hiding (u)
 open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
+open _⟶_
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
-open import Cubical.Data.Equality using (eqToPath)
 open import Cubical.Foundations.HLevels using (isSetΣ)
-open import Cubical.HITs.SetQuotients using (_/_; [_]; squash/; rec)
+open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
+open import CubicalExt.Data.Equality using (eqToPath; pathToEq; funExt; implicitFunExt)
 
 open import Data.Nat using (ℕ)
 open import Data.Product using (_×_; _,_; proj₁; proj₂)
 open import Function using (_∘_; _$_)
-open import Relation.Binary.PropositionalEquality as Eq using (_≡_; sym; trans; cong; cong-app)
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning
 
 private variable
@@ -30,7 +31,6 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
       → (morph f₃) ≡ (morph f₂) ◯ (morph f₁)
 
   module _ (n : ℕ) where
-    open _⟶_
 
     functionsᴰ : DirectedDiagram {u} {ℓ-max u v} D
     functionsᴰ = record
@@ -64,10 +64,7 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
             open Language CoproductLanguage renaming (functions to funcs; relations to rels)
 
   canonicalMorph : ∀ i → obj i ⟶ ColimitLanguage
-  canonicalMorph i = record
-    { funMorph = λ {n} f → [ i , morph (functionsᴰ n) ~-refl f ]
-    ; relMorph = λ {n} r → [ i , morph (relationsᴰ n) ~-refl r ]
-    } where open DirectedDiagram using (morph)
+  canonicalMorph i = ⟪ (λ f → [ i , f ]) , (λ r → [ i , r ]) ⟫
 
 record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-max (ℓ-suc u) (ℓ-suc v)) where
   open DirectedType D
@@ -76,7 +73,7 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
   field
     Vertex : Language {ℓ-max u v}
     map : ∀ i → obj i ⟶ Vertex
-    compat : ∀ {i j} (f : i ~ j) → map i ≡ map j ◯ morph f
+    compat : ∀ {i j} (i~j : i ~ j) → map i ≡ map j ◯ morph i~j
 
   universalMap : ColimitLanguage ⟶ Vertex
   universalMap = record
@@ -93,12 +90,21 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
           relMorph (map k) (relMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → relMorph f) (compat j~k)) y ⟩
           relMorph (map j) y                        ∎
     } where open Language Vertex
-            open _⟶_
 
 coconeOfColimitLanguage : ∀ {u v D} (F : DirectedDiagramLanguage {u} {v} D) → CoconeLanguage F
 coconeOfColimitLanguage {u} {v} {D} F = record
   { Vertex = ColimitLanguage
   ; map = canonicalMorph
-  ; compat = λ f → {!   !}
+  ; compat = λ {i} {j} i~j → homExt
+    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ (j , funMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
+      funMorph (morph ~-refl) ∘ funMorph (morph i~j)  ≡˘⟨ funMorph-∘ (morph ~-refl) (morph i~j) _ ⟩
+      funMorph (morph ~-refl ◯ morph i~j)             ≡˘⟨ cong (λ x → funMorph x) functorial ⟩
+      funMorph (morph i~j)                            ∎
+    ) x))
+    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ (j , relMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
+      relMorph (morph ~-refl) ∘ relMorph (morph i~j)  ≡˘⟨ relMorph-∘ (morph ~-refl) (morph i~j) _ ⟩
+      relMorph (morph ~-refl ◯ morph i~j)             ≡˘⟨ cong (λ x → relMorph x) functorial ⟩
+      relMorph (morph i~j)                            ∎
+    ) x))
   } where open DirectedType {u} D
           open DirectedDiagramLanguage F

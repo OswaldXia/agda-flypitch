@@ -3,8 +3,8 @@
 module Tools.DirectedDiagram where
 
 open import Cubical.Core.Primitives hiding (_≡_)
-open import Cubical.Foundations.Prelude using (isSet; funExt)
-open import Cubical.Data.Equality using (pathToEq; eqToPath)
+open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 
 open import Data.Product using (_×_; ∃-syntax)
@@ -98,7 +98,7 @@ coconeOfColimit {u} {v} {D} F = record
   { Vertex = Colimit
   ; isSetVertex = squash/
   ; map = λ i x → [ i , x ]
-  ; compat = λ {_} {j} f → pathToEq $ funExt λ x →
+  ; compat = λ {_} {j} f → funExt λ x → pathToEq $
       eq/ _ _ (j , morph f x , f , ~-refl , refl , (sym $ cong-app functorial x))
   } where open DirectedType {u} D
           open DirectedDiagram F

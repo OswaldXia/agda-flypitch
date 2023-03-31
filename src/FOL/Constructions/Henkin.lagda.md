@@ -21,7 +21,7 @@ open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
 
 import FOL.Bounded.Substitution
 import FOL.Language.Homomorphism as LHom
-open LHom using (_⟶_) renaming (id to idᴸ; _∘_ to _◯_)
+open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
 
 open Language {u}
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
@@ -73,7 +73,7 @@ languageStep ℒ = record
 
 ```agda
 languageMorph : ℒ ⟶ languageStep ℒ
-languageMorph = record { funMorph = include ; relMorph = id }
+languageMorph = ⟪ include , id ⟫
 ```
 
 ```agda
