@@ -94,3 +94,11 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
           relMorph (map j) y                        ∎
     } where open Language Vertex
             open _⟶_
+
+coconeOfColimitLanguage : ∀ {u v D} (F : DirectedDiagramLanguage {u} {v} D) → CoconeLanguage F
+coconeOfColimitLanguage {u} {v} {D} F = record
+  { Vertex = ColimitLanguage
+  ; map = canonicalMorph
+  ; compat = λ f → {!   !}
+  } where open DirectedType {u} D
+          open DirectedDiagramLanguage F

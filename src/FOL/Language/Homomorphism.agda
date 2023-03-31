@@ -8,7 +8,7 @@ open import Cubical.Data.Equality using (funExt)
 
 open import Data.Nat using (ℕ)
 open import Function using (_$_; _∘₂_) renaming (id to ⟨id⟩; _∘_ to _⟨∘⟩_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import StdlibExt.Relation.Unary using (_⟦_⟧)
 
 private variable
@@ -16,6 +16,7 @@ private variable
   n l : ℕ
 
 record _⟶_ (ℒ₁ : Language) (ℒ₂ : Language) : Type u where
+  constructor ⟪_,_⟫
   open Language {u}
   field
     funMorph : ∀ {n} → ℒ₁ .functions n → ℒ₂ .functions n
@@ -28,6 +29,12 @@ _∘_ : ℒ₂ ⟶ ℒ₃ → ℒ₁ ⟶ ℒ₂ → ℒ₁ ⟶ ℒ₃
 F ∘ G = record
   { funMorph = F .funMorph ⟨∘⟩ G .funMorph
   ; relMorph = F .relMorph  ⟨∘⟩ G .relMorph } where open _⟶_
+
+module _ where
+  open _⟶_
+
+  homExt : {F G : ℒ₁ ⟶ ℒ₂} → (λ {n} → funMorph F {n}) ≡ funMorph G → (λ {n} → relMorph F {n}) ≡ relMorph G → F ≡ G
+  homExt funMorphEq relMorphEq = cong₂ ⟪_,_⟫ funMorphEq relMorphEq
 
 module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   open import FOL.Bounded.Base {u} hiding (l)
@@ -90,4 +97,4 @@ module BoundedComp where
   formulaMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
     formulaMorph (G ∘ F) {n} {l} ≡ formulaMorph G ⟨∘⟩ formulaMorph F
   formulaMorphComp = funExt ∘₂ formulaMorphCompApp
- 
+  
