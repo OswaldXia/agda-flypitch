@@ -158,6 +158,11 @@ henkinization : (ℒ : Language) → ℒ ⟶ ∞-language ℒ
 henkinization _ = languageCanonicalMorph 0
 ```
 
+```agda
+coconeOfLanguageChain : CoconeLanguage $ languageChain ℒ
+coconeOfLanguageChain = coconeOfColimitLanguage _
+```
+
 ## 公式链
 
 ```agda
@@ -165,12 +170,12 @@ formulaChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 formulaChain ℒ n l = record
   { obj = λ k → ∥ Formulaₗ ([ k ]-language ℒ) n l ∥₂
   ; morph = λ i≤j → map (formulaMorph (morph i≤j))
-  ; functorial = trans (cong (map ∘ (λ φ → formulaMorph φ)) functorial)
+  ; functorial = trans (cong (map ∘ λ φ → formulaMorph φ) functorial)
                $ trans (cong map $ formulaMorphComp _ _)
                $ pathToEq $ map-functorial _ _
-  } where open LanguageChain using (morph; functorial)
-          open LHom.Bounded using (formulaMorph)
+  } where open LHom.Bounded using (formulaMorph)
           open LHom.BoundedComp using (formulaMorphComp)
+          open LanguageChain using (morph; functorial)
 ```
 
 ```agda
@@ -179,13 +184,13 @@ coconeOfFormulaChain ℒ n l = record
   { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = isSetSetTrunc
   ; map = λ i φ → map (formulaMorph $ languageCanonicalMorph i) φ
-  ; compat = λ H → {!   !}
+  ; compat = λ i~j → trans (cong (map ∘ λ φ → formulaMorph φ) (coconeOfLanguageChain .compat i~j))
+                   $ trans (cong map $ formulaMorphComp _ _)
+                   $ pathToEq $ map-functorial _ _
   } where open LHom.Bounded using (formulaMorph)
+          open LHom.BoundedComp using (formulaMorphComp)
+          open CoconeLanguage renaming (map to vmap)
 ```
-
-map (formulaMorph (languageCanonicalMorph i)) ≡
-map (formulaMorph (languageCanonicalMorph j)) ∘
-map (formulaMorph (LanguageChain.morph _))
 
 ```agda
 formulaComparison : ∀ ℒ n l → Colimit (formulaChain ℒ n l) → ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
