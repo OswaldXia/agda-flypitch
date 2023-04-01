@@ -5,9 +5,9 @@ module Tools.DirectedDiagram where
 open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt)
+open import Cubical.Data.Sigma using () renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 
-open import Data.Product using (_×_; ∃-syntax)
 open import Function using (_∘_; _$_)
 open import Relation.Binary using (Rel; Reflexive; Symmetric; Transitive)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
@@ -23,7 +23,7 @@ record DirectedType : Type (ℓ-suc u) where
     _~_ : Rel Carrier ℓ-zero
     ~-refl : Reflexive _~_
     ~-trans : Transitive _~_
-    directed : ∀ x y → ∃[ z ] x ~ z × y ~ z
+    directed : ∀ x y → Σ[ z ∈ _ ] x ~ z × y ~ z
 
 record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) where
   open DirectedType D
@@ -34,10 +34,10 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
       → (morph f₃) ≡ (morph f₂) ∘ (morph f₁)
   
   Coproduct : Type (ℓ-max u v)
-  Coproduct = ∃[ i ] obj i
+  Coproduct = Σ[ i ∈ _ ] obj i
 
   _≃_ : Rel Coproduct (ℓ-max u v)
-  (i , x) ≃ (j , y) = ∃[ k ] Σ[ z ∈ obj k ] Σ[ i~k ∈ i ~ k ] Σ[ j~k ∈ j ~ k ]
+  (i , x) ≃ (j , y) = Σ[ k ∈ _ ] Σ[ z ∈ obj k ] Σ[ i~k ∈ i ~ k ] Σ[ j~k ∈ j ~ k ]
     morph i~k x ≡ z × morph j~k y ≡ z
 
   ≃-refl : Reflexive _≃_

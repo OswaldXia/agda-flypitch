@@ -15,13 +15,14 @@ zhihu-tags: Agda, 数理逻辑
 
 module FOL.Constructions.Henkin {u} where
 open import FOL.Language hiding (u)
-open import FOL.Bounded.Base using (Formulaₗ; Formula; Sentence; Theory)
+open import FOL.Bounded.Base using (Termₗ; Formulaₗ; Formula; Sentence; Theory)
 open import FOL.Language.DirectedDiagram
 open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
 
 import FOL.Bounded.Substitution
 import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
+open LHom.BoundedComp
 open _⟶_
 
 open Language {u}
@@ -35,9 +36,9 @@ open import Cubical.Core.Primitives using (Type; _,_; fst; snd; Σ-syntax)
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.Data.Nat using (isSetℕ)
+open import Cubical.Data.Sigma using () renaming (_×_ to infixr 3 _×_)
 open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; rec; map; map-functorial; isSetSetTrunc)
 open import Cubical.HITs.SetQuotients using () renaming ([_] to [_]/)
-open import Cubical.Relation.Nullary using (yes; no; Discrete; Discrete→isSet)
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
@@ -46,8 +47,7 @@ open import Tools.DirectedDiagram using (DirectedType)
 open import Data.Nat.Properties
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
-open import Data.Product using (_×_)
-open import Function using (id; _∘_; _∘₂_; _$_)
+open import Function using (id; _∘_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
 open import StdlibExt.Data.Nat
@@ -140,6 +140,8 @@ languageChain ℒ = record
   ; morph       = morph
   ; functorial  = functorial
   } where open LanguageChain
+
+open LanguageChain
 ```
 
 ```agda
@@ -165,19 +167,48 @@ coconeOfLanguageChain : CoconeLanguage $ languageChain ℒ
 coconeOfLanguageChain = coconeOfColimitLanguage _
 ```
 
+## 项链
+
+```agda
+termChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
+termChain ℒ n l = record
+  { obj = λ k → ∥ Termₗ ([ k ]-language ℒ) n l ∥₂
+  ; morph = λ i≤j → map $ termMorph $ morph i≤j
+  ; functorial = trans (cong (map ∘ λ φ → termMorph φ) functorial)
+               $ trans (cong map $ termMorphComp _ _)
+               $ pathToEq $ map-functorial _ _
+  } where open LHom.Bounded using (termMorph)
+```
+
+```agda
+coconeOfTermChain : ∀ ℒ n l → Cocone (termChain ℒ n l)
+coconeOfTermChain ℒ n l = record
+  { Vertex = ∥ Termₗ (∞-language ℒ ) n l ∥₂
+  ; isSetVertex = isSetSetTrunc
+  ; map = λ i → map $ termMorph $ languageCanonicalMorph i
+  ; compat = λ i~j → trans (cong (map ∘ λ φ → termMorph φ) (coconeOfLanguageChain .compat i~j))
+                   $ trans (cong map $ termMorphComp _ _)
+                   $ pathToEq $ map-functorial _ _
+  } where open LHom.Bounded using (termMorph)
+          open CoconeLanguage using (compat)
+```
+
+```agda
+termComparison : ∀ {ℒ n l} → Colimit (termChain ℒ n l) → ∥ Termₗ (∞-language ℒ) n l ∥₂
+termComparison {ℒ} {n} {l} = universalMap (coconeOfTermChain ℒ n l)
+```
+
 ## 公式链
 
 ```agda
 formulaChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 formulaChain ℒ n l = record
   { obj = λ k → ∥ Formulaₗ ([ k ]-language ℒ) n l ∥₂
-  ; morph = λ i≤j → map (formulaMorph (morph i≤j))
+  ; morph = λ i≤j → map $ formulaMorph $ morph i≤j
   ; functorial = trans (cong (map ∘ λ φ → formulaMorph φ) functorial)
                $ trans (cong map $ formulaMorphComp _ _)
                $ pathToEq $ map-functorial _ _
   } where open LHom.Bounded using (formulaMorph)
-          open LHom.BoundedComp using (formulaMorphComp)
-          open LanguageChain using (morph; functorial)
 ```
 
 ```agda
@@ -185,13 +216,12 @@ coconeOfFormulaChain : ∀ ℒ n l → Cocone (formulaChain ℒ n l)
 coconeOfFormulaChain ℒ n l = record
   { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = isSetSetTrunc
-  ; map = λ i φ → map (formulaMorph $ languageCanonicalMorph i) φ
+  ; map = λ i → map $ formulaMorph $ languageCanonicalMorph i
   ; compat = λ i~j → trans (cong (map ∘ λ φ → formulaMorph φ) (coconeOfLanguageChain .compat i~j))
                    $ trans (cong map $ formulaMorphComp _ _)
                    $ pathToEq $ map-functorial _ _
   } where open LHom.Bounded using (formulaMorph)
-          open LHom.BoundedComp using (formulaMorphComp)
-          open CoconeLanguage renaming (map to vmap)
+          open CoconeLanguage using (compat)
 ```
 
 ```agda

@@ -7,13 +7,13 @@ open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
 open _⟶_
 
-open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max)
+open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max; _,_)
 open import Cubical.Foundations.HLevels using (isSetΣ)
+open import Cubical.Data.Sigma using (_×_)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 open import CubicalExt.Data.Equality using (eqToPath; pathToEq; funExt; implicitFunExt)
 
 open import Data.Nat using (ℕ)
-open import Data.Product using (_×_; _,_; proj₁; proj₂)
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning

@@ -10,8 +10,9 @@ open import FOL.Bounded.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ
 open import FOL.Constructions.Henkin
 
+open import Cubical.Core.Primitives
+open import Cubical.Data.Sigma using (_×_)
 open import CubicalExt.Classical
-open import Data.Product using (_×_; _,_; proj₁; proj₂)
 open import Function using (_$_)
 
 private variable

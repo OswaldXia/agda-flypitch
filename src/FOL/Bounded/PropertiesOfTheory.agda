@@ -10,9 +10,9 @@ open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (Domain)
 
-open import Cubical.Core.Primitives using (Type; ℓ-suc; ℓ-max)
+open import Cubical.Core.Primitives using (Type; ℓ-suc; ℓ-max; Σ-syntax)
+open import Cubical.Data.Sigma using (_×_)
 open import Data.Sum using (_⊎_)
-open import Data.Product using (_×_; Σ-syntax)
 open import Function using (_$_)
 open import Relation.Nullary using (¬_)
 open import Relation.Unary using (_∈_)

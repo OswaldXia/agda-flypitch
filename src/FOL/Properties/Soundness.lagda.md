@@ -16,12 +16,13 @@ zhihu-tags: Agda, 数理逻辑
 open import FOL.Language
 module FOL.Properties.Soundness (ℒ : Language {u}) where
 
+open import Cubical.Core.Primitives using (_,_)
 open import Cubical.Foundations.Prelude using (lift)
+open import Cubical.Data.Sigma using (_×_)
 open import CubicalExt.Classical using (byContra*)
 
 open import Data.Nat using (ℕ)
 open import Data.Sum using (inj₁; inj₂)
-open import Data.Product using (_×_; _,_)
 open import Function using (_∘_; _$_)
 open import Relation.Unary using (Pred; _∈_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)

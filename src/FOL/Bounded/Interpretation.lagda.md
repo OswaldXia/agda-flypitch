@@ -93,7 +93,7 @@ module ClosedRealizer (𝒮 : Structure {v}) where
 
 ```agda
 open ClosedRealizer
-infix 4 _⊨ˢ_ _⊨ᵀ_ _⊨_
+infix 6 _⊨ˢ_ _⊨ᵀ_ _⊨_
 
 _⊨ˢ_ : Structure {v} → Sentence → Type v
 𝒮 ⊨ˢ φ = realize 𝒮 φ

@@ -25,12 +25,15 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence u
 module TermModel where
   open import FOL.Bounded.Base ℒ hiding (func; rel)
   open import FOL.Bounded.Lemmas.Equivalence T
-  private _≋ₚ_ = Pointwise _≋_
+  private
+    _≋ₚ_ = Pointwise _≋_
+    𝐯₀ = var (fromℕ 0)
 
   Domain = ClosedTerm / _≋_
 
   nonemptyDomain : hasEnoughConstants T → Domain
-  nonemptyDomain (C , _) = [ const $ C (var (fromℕ 0) ≈ var (fromℕ 0)) ]
+  nonemptyDomain C with C (𝐯₀ ≈ 𝐯₀)
+  ... | c , _ = [ const c ]
 
   preFunc : ClosedTermₗ l → Vec ClosedTerm l → Domain
   preFunc f xs = [ apps f xs ]
