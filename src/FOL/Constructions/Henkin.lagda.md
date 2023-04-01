@@ -22,21 +22,23 @@ open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
 import FOL.Bounded.Substitution
 import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
+open _⟶_
 
 open Language {u}
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
-open DirectedDiagram using (Colimit)
+open DirectedDiagram using (Coproduct; Colimit)
 open Cocone using (universalMap)
 ```
 
 ```agda
-open import Cubical.Core.Primitives using (Type)
+open import Cubical.Core.Primitives using (Type; _,_; fst; snd; Σ-syntax)
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.Data.Nat using (isSetℕ)
-open import CubicalExt.HITs.SetTruncation
-open import CubicalExt.Data.Nat using (ℕ-UIP)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; rec; map; map-functorial; isSetSetTrunc)
+open import Cubical.HITs.SetQuotients using () renaming ([_] to [_]/)
 open import Cubical.Relation.Nullary using (yes; no; Discrete; Discrete→isSet)
+open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
 
@@ -44,7 +46,7 @@ open import Tools.DirectedDiagram using (DirectedType)
 open import Data.Nat.Properties
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
-open import Data.Product using (_,_; proj₁; proj₂; Σ-syntax)
+open import Data.Product using (_×_)
 open import Function using (id; _∘_; _∘₂_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
@@ -150,7 +152,7 @@ languageChain ℒ = record
 
 ```agda
 languageCanonicalMorph : ∀ n → [ n ]-language ℒ ⟶ ∞-language ℒ
-languageCanonicalMorph {ℒ} n = canonicalMorph (languageChain ℒ) n
+languageCanonicalMorph {ℒ} = canonicalMorph (languageChain ℒ)
 ```
 
 ```agda
@@ -193,8 +195,8 @@ coconeOfFormulaChain ℒ n l = record
 ```
 
 ```agda
-formulaComparison : ∀ ℒ n l → Colimit (formulaChain ℒ n l) → ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
-formulaComparison ℒ n l = universalMap (coconeOfFormulaChain ℒ n l)
+formulaComparison : ∀ {ℒ n l} → Colimit (formulaChain ℒ n l) → ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
+formulaComparison {ℒ} {n} {l} = universalMap (coconeOfFormulaChain ℒ n l)
 ```
 
 ## Henkin化理论
@@ -225,7 +227,7 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf φ witnessing formulaMo
 
 ```agda
 [_]-∞-theory : ∀ n → Theory ℒ → Theory $ ∞-language ℒ
-[ n ]-∞-theory T = sentenceMorph ⟦ ([ n ]-theory T) ⟧
+[ n ]-∞-theory T = sentenceMorph ⟦ [ n ]-theory T ⟧
   where open LHom.Bounded (languageCanonicalMorph n)
 ```
 
@@ -235,14 +237,12 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf φ witnessing formulaMo
 ```
 
 ```agda
-∞-witness : ∀ {T : Theory ℒ} (φ : Formula (∞-language ℒ) 1) →
-  Σ[ c ∈ Constant $ ∞-language ℒ ] c ≡ c
+∞-witness : {T : Theory ℒ} (φ : Formula (∞-language ℒ) 1) →
+  Σ[ c ∈ Constant $ ∞-language ℒ ]
+  Σ[ φₗ ∈ Colimit (formulaChain ℒ 1 0) ]
+  Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
+    [ φₚ ]/ ≡ φₗ
+  × formulaComparison φₗ ≡ ∣ φ ∣₂
+  × c ≡ languageCanonicalMorph (suc i) .funMorph (rec (isSetFunctions ([ suc i ]-language ℒ) _) witnessOf φᵢ)
 ∞-witness = {!   !}
 ```
-
-noncomputable def wit_infty {L} {T : Theory L} {hT : is_consistent T} (f : bounded_formula (@henkin_language L T hT) 1) :
-  Σ c : (@henkin_language L T hT).constants,
-    Σ (f' : Σ' (x : colimit (@henkin_bounded_formula_chain' L)), bounded_formula'_comparison x = f),
-      Σ' (f'' : coproduct_of_directed_diagram (@henkin_bounded_formula_chain' L)),
-        ⟦f''⟧ = f'.fst ∧
-          c = (henkin_language_canonical_map (f''.fst + 1)).on_function (wit' f''.snd) :=
