@@ -2,13 +2,17 @@
 
 module Tools.DirectedDiagram where
 
-open import Cubical.Core.Primitives hiding (_≡_)
+open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.HLevels using (isPropΣ)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt)
-open import Cubical.Data.Sigma using () renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
+open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
+open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec; []surjective )
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
+import Cubical.Relation.Binary as BinRel
+open BinRel.BinaryRelation using (isPropValued)
 
-open import Function using (_∘_; _$_)
+open import Function using (_∘_; _∘₂_; _$_)
 open import Relation.Binary using (Rel; Reflexive; Symmetric; Transitive)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning
@@ -44,13 +48,13 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
   ≃-refl {i , x} = i , morph ~-refl x , ~-refl , ~-refl , refl , refl
 
   ≃-sym : Symmetric _≃_
-  ≃-sym (k , z , i~k , j~k , eqx , eqy) = k , z , j~k , i~k , eqy , eqx
+  ≃-sym (k , z , i~k , j~k , eqx , eqy) = k , z , j~k , i~k , eqy , eqx 
 
   ≃-trans : Transitive _≃_
   ≃-trans {i , x} {j , y} {k , z}
     (l₁ , w₁ , i~l₁ , j~l₁ , x₁≡w₁ , y₁≡w₁)
     (l₂ , w₂ , j~l₂ , k~l₂ , y₂≡w₂ , z₂≡w₂) =
-    l₃ , (morph j~l₃ y) , i~l₃ , k~l₃ , x₃≡y₃ , z₃≡y₃ where
+    l₃ , morph j~l₃ y , i~l₃ , k~l₃ , x₃≡y₃ , z₃≡y₃ where
       l₃ = fst $ directed l₁ l₂
       l₁~l₃ = fst $ snd $ directed l₁ l₂
       l₂~l₃ = snd $ snd $ directed l₁ l₂
@@ -74,7 +78,13 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
       z₃≡y₃ : morph k~l₃ z ≡ morph j~l₃ y
       z₃≡y₃ rewrite j→l₂→l₃ | k→l₂→l₃ | z₂≡y₂ = refl
 
-  Colimit = Coproduct / _≃_
+  Colimit = Coproduct / (∥_∥₁ ∘₂ _≃_)
+
+  canonicalMorph : ∀ i → obj i → Colimit
+  canonicalMorph i x = [ i , x ]
+
+  representative : (x : Colimit) → ∃[ a ∈ Coproduct ] [ a ] ≡ₚ x
+  representative = []surjective
 
 record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v $ ℓ-suc w) where
   open DirectedType D
