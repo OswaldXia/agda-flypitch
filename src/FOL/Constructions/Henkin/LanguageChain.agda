@@ -78,6 +78,14 @@ languageChain ℒ = record
   ; functorial  = functorial
   }
 
+endomorph≡id : ∀ {i} → morph {ℒ} {i} (≤⇒≤₃ $ ≤-refl) ≡ idᴸ
+endomorph≡id {_} {zero} = refl
+endomorph≡id {_} {suc i} with <-cmp (suc i) (suc i)
+... | tri< _ ¬p _ = ⊥-elim $ ¬p refl
+... | tri> _ ¬p _ = ⊥-elim $ ¬p refl
+... | tri≈ _ s≡s _ with ℕ-UIP s≡s
+... | refl = refl
+
 ∞-language : Language → Language
 ∞-language = ColimitLanguage ∘ languageChain
 

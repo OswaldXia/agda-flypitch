@@ -3,6 +3,7 @@
 
 module FOL.Constructions.Henkin.TermChain u where
 open import FOL.Constructions.Henkin.LanguageChain u
+open import FOL.Language using (Language)
 open import FOL.Bounded.Base using (Termₗ)
 open Termₗ
 
@@ -14,7 +15,8 @@ open LHom.BoundedProperties
 open import Tools.DirectedDiagram using (ℕᴰ; DirectedDiagram; Cocone)
 open DirectedDiagram using (Colimit)
 open Cocone using (universalMap)
-open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage)
+open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeLanguage)
+open CoconeLanguage using (compat)
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP)
@@ -29,16 +31,10 @@ open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 open import StdlibExt.Data.Nat
 open import Data.Nat.Properties
 open import Function using (_∘_; _$_; flip)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; cong)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
-open import FOL.Language using (Language)
-private variable
-  ℒ₁ ℒ₂ ℒ₃ : Language
-
-mapTermMorph-functorial : ∀ {i j k n l}
-  {F₁ : obj ℒ₁ i ⟶ obj ℒ₂ j}
-  {F₂ : obj ℒ₂ j ⟶ obj ℒ₃ k}
-  {F₃ : obj ℒ₁ i ⟶ obj ℒ₃ k} → F₃ ≡ F₂ ◯ F₁ →
+mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
+  {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
   (map $ termMorph F₃ {n} {l}) ≡ (map $ termMorph F₂) ∘ (map $ termMorph F₁)
 mapTermMorph-functorial H = trans (cong (map ∘ λ t → termMorph t) H)
   $ trans (cong map $ termMorphComp _ _)
@@ -56,8 +52,7 @@ coconeOfTermChain ℒ n l = record
   { Vertex = ∥ Termₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = squash₂
   ; map = λ i → map $ termMorph $ languageCanonicalMorph i
-  ; compat = λ i~j → {!   !}
-    --coconeOfLanguageChain .compat i~j
+  ; compat = λ {i} i~j → mapTermMorph-functorial (coconeOfLanguageChain .compat i~j)
   }
 
 termComparison : ∀ {ℒ n l} → Colimit (termChain ℒ n l) → ∥ Termₗ (∞-language ℒ) n l ∥₂
@@ -70,10 +65,10 @@ termComparisonFiber {ℒ} {n} {l} (func f) =
     (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
     (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ] , congPath (∣_∣₂ ∘ func) H)
     (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
-        (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
-          (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
-          (effective $ compPath Hi $ symPath Hj))
-      , (toPathP $ squash₂ _ _ _ _))
+      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
+        (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
+        (effective $ compPath Hi $ symPath Hj))
+    , (toPathP $ squash₂ _ _ _ _))
     (representative f)
   where open DirectedDiagram (termChain ℒ n l) using (_≃_)
         open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
@@ -84,16 +79,22 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
   elim2→Set {P = λ _ _ → fiber termComparison ∣ app g s ∣₂}
     (λ _ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
     (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) →
-        let fᵢ₊ⱼ = morᶠ (≤⇒≤₃ $ m≤m+n _ _) fᵢ
-            tᵢ₊ⱼ = morᵗ (≤⇒≤₃ $ m≤n+m _ _) tⱼ
-            eqf : [ i + j , fᵢ₊ⱼ ] ≡ₚ f
-            eqf = (flip compPath) Hi $ eq/ _ _
-              ∣ i + j , fᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤m+n _ _) , {! cong map  !} , refl ∣₁
-            eqt : [ i + j , tᵢ₊ⱼ ] ≡ₚ t
-            eqt = (flip compPath) Hj $ eq/ _ _
-              ∣ i + j , tᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤n+m _ _) , {!  refl !} , refl ∣₁ in
-        [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
-      , {!    !})
+      let
+      fᵢ₊ⱼ = morᶠ (≤⇒≤₃ $ m≤m+n _ _) fᵢ
+      tᵢ₊ⱼ = morᵗ (≤⇒≤₃ $ m≤n+m _ _) tⱼ
+      eqf : [ i + j , fᵢ₊ⱼ ] ≡ₚ f
+      eqf = (flip compPath) Hi $ eq/ _ _ $ ∣_∣₁ $
+        ( i + j , fᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤m+n _ _)
+        , (sym $ (flip cong-app) fᵢ $ mapTermMorph-functorial $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+        , refl)
+      eqt : [ i + j , tᵢ₊ⱼ ] ≡ₚ t
+      eqt = (flip compPath) Hj $ eq/ _ _ $ ∣_∣₁ $
+        ( i + j , tᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤n+m _ _)
+        , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+        , refl)
+      in
+      [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
+    , {!    !})
     {!   !}
     {!   !}
     {!   !}
