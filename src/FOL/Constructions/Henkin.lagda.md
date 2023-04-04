@@ -28,7 +28,7 @@ open _⟶_
 open Language {u}
 open Termₗ
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
-open DirectedDiagram using (Coproduct; Colimit; representative; effective)
+open DirectedDiagram using (Coproduct; Colimit)
 open CoconeLanguage using (compat)
 open Cocone using (universalMap)
 ```
@@ -211,11 +211,12 @@ termComparisonFiber {ℒ} {n} {l} (func f) = elim→Set
   (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
       (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
         (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
-        (effective (functionsᴰ l) $ compPath Hi $ symPath Hj))
+        (effective $ compPath Hi $ symPath Hj))
     , (toPathP $ squash₂ _ _ _ _))
-  (representative (functionsᴰ l) f)
+  (representative f)
   where open DirectedDiagram (termChain ℒ n l) using (_≃_)
         open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
+        open DirectedDiagram (functionsᴰ l) using (representative; effective)
 termComparisonFiber (app t₁ t₂) = {!   !}
 ```
 
