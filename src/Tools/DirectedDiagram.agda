@@ -6,11 +6,14 @@ open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP; isPropIsProp)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt; reflPath)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
+open import Cubical.Data.Nat using (isSetℕ)
 open import Cubical.HITs.SetQuotients as Quot using (_/_; [_]; eq/; squash/; rec; []surjective)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim→Set; elim2→Set)
 open import Cubical.Relation.Binary
 open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
 
+open import StdlibExt.Data.Nat using (ℕ; _+_; _≤₃_; ≤⇒≤₃; ≤₃⇒≤)
+open import Data.Nat.Properties
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning
@@ -28,6 +31,16 @@ record DirectedType : Type (ℓ-suc u) where
     directed : ∀ x y → Σ[ z ∈ _ ] x ~ z × y ~ z
   ~-refl = λ {a} → isRefl~ a
   ~-trans = λ {a b c} → isTrans~ a b c
+
+ℕᴰ : DirectedType
+ℕᴰ = record
+  { Carrier = ℕ
+  ; isSetCarrier = isSetℕ
+  ; _~_ = _≤₃_
+  ; isRefl~ = λ _ → ≤⇒≤₃ ≤-refl
+  ; isTrans~ = λ _ _ _ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
+  ; directed = λ x y → x + y , ≤⇒≤₃ (m≤m+n _ _) , ≤⇒≤₃ (m≤n+m _ _)
+  }
 
 record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) where
   open DirectedType D

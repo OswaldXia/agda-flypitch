@@ -2,7 +2,7 @@
 
 module CubicalExt.Data.Nat where
 
-open import Cubical.Data.Nat using (ℕ; isSetℕ)
+open import Cubical.Data.Nat public
 open import CubicalExt.Axiom.UniquenessOfIdentity.Loop using (UIP; isSet→UIP)
 
 ℕ-UIP : UIP ℕ

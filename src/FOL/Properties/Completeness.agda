@@ -8,7 +8,8 @@ open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Interpretation ℒ
 open import FOL.Bounded.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ
-open import FOL.Constructions.Henkin
+open import FOL.Constructions.Henkin.LanguageChain u
+open import FOL.Constructions.Henkin.TheoryChain u
 
 open import Cubical.Core.Primitives
 open import Cubical.Data.Sigma using (_×_)

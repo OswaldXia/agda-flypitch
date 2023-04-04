@@ -66,9 +66,14 @@ module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   theoryMorph : Theory ℒ₁ → Theory ℒ₂
   theoryMorph Γ = sentenceMorph ⟦ Γ ⟧
 
-module BoundedComp where
+module BoundedProperties where
   open import FOL.Bounded.Base {u} hiding (l)
   open Bounded
+
+  termMorphId : (t : Termₗ ℒ₁ n l) → termMorph id t ≡ t
+  termMorphId (var k) = refl
+  termMorphId (func f) = refl
+  termMorphId (app t₁ t₂) = cong₂ app (termMorphId t₁) (termMorphId t₂)
 
   termMorphCompApp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) → (t : Termₗ ℒ₁ n l) →
     termMorph (G ∘ F) t ≡ termMorph G (termMorph F t)
