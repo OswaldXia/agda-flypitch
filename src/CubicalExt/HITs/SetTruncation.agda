@@ -11,6 +11,9 @@ private variable
   ℓ : Level
   A B C : Type ℓ
 
+map2 : (A → B → C) → ∥ A ∥₂ → ∥ B ∥₂ → ∥ C ∥₂
+map2 f = rec2 squash₂ (λ x y → ∣ f x y ∣₂)
+
 map-functorial : (f : A → B) (g : B → C) → map (g ∘ f) ≡ map g ∘ map f
 map-functorial f g = funExt $ λ x → elim {B = λ x → map (g ∘ f) x ≡ (map g ∘ map f) x}
   (λ _ → isProp→isSet $ squash₂ _ _) (λ _ → refl) x

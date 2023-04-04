@@ -42,8 +42,8 @@ open import Cubical.Data.Equality using (reflPath; symPath; compPath; congPath; 
 open import Cubical.Data.Nat using (isSetℕ)
 open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.SetQuotients using (eq/; squash/) renaming ([_] to [_]/)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; map; map-functorial)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; map; map2; map-functorial)
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
@@ -205,19 +205,35 @@ termComparison {ℒ} {n} {l} = universalMap (coconeOfTermChain ℒ n l)
 ```agda
 termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
 termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ]/ , reflPath
-termComparisonFiber {ℒ} {n} {l} (func f) = elim→Set
-  (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
-  (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ]/ , congPath (∣_∣₂ ∘ func) H)
-  (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
-      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
-        (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
-        (effective $ compPath Hi $ symPath Hj))
-    , (toPathP $ squash₂ _ _ _ _))
-  (representative f)
+termComparisonFiber {ℒ} {n} {l} (func f) =
+  elim→Set {P = λ _ → fiber termComparison ∣ func f ∣₂}
+    (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
+    (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ]/ , congPath (∣_∣₂ ∘ func) H)
+    (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
+          (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
+          (effective $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
+    (representative f)
   where open DirectedDiagram (termChain ℒ n l) using (_≃_)
         open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
         open DirectedDiagram (functionsᴰ l) using (representative; effective)
-termComparisonFiber (app t₁ t₂) = {!   !}
+termComparisonFiber {ℒ} {n} {l} (app t₁ t₂) =
+  let (s₁ , H₁) = termComparisonFiber t₁
+      (s₂ , H₂) = termComparisonFiber t₂ in
+  elim2→Set {P = λ _ _ → fiber termComparison ∣ app t₁ t₂ ∣₂}
+    (λ _ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
+    (λ ((i , sᵢ) , Hi) ((j , sⱼ) , Hj) →
+      let tᵢ = mor₁ (≤⇒≤₃ $ m≤m+n _ _) sᵢ
+          tⱼ = mor₂ (≤⇒≤₃ $ m≤n+m _ _) sⱼ in
+        [ i + j , map2 app tᵢ tⱼ ]/
+      , {!   !})
+    {!   !}
+    {!   !}
+    {!   !}
+    (rep₁ s₁) (rep₂ s₂)
+  where open DirectedDiagram (termChain ℒ n (suc l)) renaming (representative to rep₁ ; morph to mor₁)
+        open DirectedDiagram (termChain ℒ n 0)       renaming (representative to rep₂ ; morph to mor₂)
 ```
 
 ## 公式链
@@ -298,3 +314,4 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf φ witnessing formulaMo
   × c ≡ languageCanonicalMorph (suc i) .funMorph (rec (isSetFunctions ([ suc i ]-language ℒ) _) witnessOf φᵢ)
 ∞-witness = {!   !}
 ```
+ 
