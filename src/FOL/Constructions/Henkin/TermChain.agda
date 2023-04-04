@@ -94,7 +94,7 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
         , refl)
       in
       [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
-    , {!    !})
+    , {!   !})
     {!   !}
     {!   !}
     {!   !}
