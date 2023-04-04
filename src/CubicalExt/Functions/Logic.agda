@@ -9,7 +9,7 @@ open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.Foundations.Isomorphism using (iso; isoToEquiv)
 open import Cubical.Functions.Logic public
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
-open import Cubical.HITs.PropositionalTruncation using (isPropPropTrunc; map)
+open import Cubical.HITs.PropositionalTruncation using (squash₁; map)
 
 private variable
   ℓ : Level
@@ -17,4 +17,4 @@ private variable
 
 iffToPath : (A → B) → (B → A) → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
 iffToPath to from = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
-  (map to) (map from) (λ x → isPropPropTrunc _ x) (λ x → isPropPropTrunc _ x)
+  (map to) (map from) (λ x → squash₁ _ x) (λ x → squash₁ _ x)

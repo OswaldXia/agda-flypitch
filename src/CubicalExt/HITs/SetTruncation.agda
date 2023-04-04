@@ -13,4 +13,4 @@ private variable
 
 map-functorial : (f : A → B) (g : B → C) → map (g ∘ f) ≡ map g ∘ map f
 map-functorial f g = funExt $ λ x → elim {B = λ x → map (g ∘ f) x ≡ (map g ∘ map f) x}
-  (λ _ → isProp→isSet $ isSetSetTrunc _ _) (λ _ → refl) x
+  (λ _ → isProp→isSet $ squash₂ _ _) (λ _ → refl) x

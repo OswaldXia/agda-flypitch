@@ -8,9 +8,11 @@ open import Tools.DirectedDiagram
 open _⟶_
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max; _,_)
+open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet)
 open import Cubical.Foundations.HLevels using (isSetΣ)
 open import Cubical.Data.Sigma using (_×_)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; elim→Set)
 open import CubicalExt.Data.Equality using (eqToPath; pathToEq; funExt; implicitFunExt)
 
 open import Data.Nat using (ℕ)
@@ -56,8 +58,8 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
 
   ColimitLanguage : Language
   ColimitLanguage = record
-    { functions = λ n → funcs n / _≃_ (functionsᴰ n)
-    ; relations = λ n → rels  n / _≃_ (relationsᴰ n)
+    { functions = λ n → funcs n / (_≃_ $ functionsᴰ n)
+    ; relations = λ n → rels  n / (_≃_ $ relationsᴰ n)
     ; isSetFunctions = λ _ → squash/
     ; isSetRelations = λ _ → squash/
     } where open DirectedDiagram using (_≃_)
@@ -78,17 +80,21 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
   universalMap : ColimitLanguage ⟶ Vertex
   universalMap = record
     { funMorph = rec (isSetFunctions _) (λ (i , x) → funMorph (map i) x)
-        λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
-          funMorph (map i) x                        ≡⟨ cong-app (cong (λ f → funMorph f) (compat i~k)) x ⟩
-          funMorph (map k) (funMorph (morph i~k) x) ≡⟨ cong (funMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
-          funMorph (map k) (funMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → funMorph f) (compat j~k)) y ⟩
-          funMorph (map j) y                        ∎
+        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetFunctions _ _ _))
+          (λ (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+            funMorph (map i) x                        ≡⟨ cong-app (cong (λ f → funMorph f) (compat i~k)) x ⟩
+            funMorph (map k) (funMorph (morph i~k) x) ≡⟨ cong (funMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
+            funMorph (map k) (funMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → funMorph f) (compat j~k)) y ⟩
+            funMorph (map j) y                        ∎)
+          (λ _ _ → isSetFunctions _ _ _ _ _)
     ; relMorph = rec (isSetRelations _) (λ (i , x) → relMorph (map i) x)
-        λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
-          relMorph (map i) x                        ≡⟨ cong-app (cong (λ f → relMorph f) (compat i~k)) x ⟩
-          relMorph (map k) (relMorph (morph i~k) x) ≡⟨ cong (relMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
-          relMorph (map k) (relMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → relMorph f) (compat j~k)) y ⟩
-          relMorph (map j) y                        ∎
+        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetRelations _ _ _))
+          (λ (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+            relMorph (map i) x                        ≡⟨ cong-app (cong (λ f → relMorph f) (compat i~k)) x ⟩
+            relMorph (map k) (relMorph (morph i~k) x) ≡⟨ cong (relMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
+            relMorph (map k) (relMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → relMorph f) (compat j~k)) y ⟩
+            relMorph (map j) y                        ∎)
+          (λ _ _ → isSetRelations _ _ _ _ _)
     } where open Language Vertex
 
 coconeOfColimitLanguage : ∀ {u v D} (F : DirectedDiagramLanguage {u} {v} D) → CoconeLanguage F
@@ -96,12 +102,12 @@ coconeOfColimitLanguage {u} {v} {D} F = record
   { Vertex = ColimitLanguage
   ; map = canonicalMorph
   ; compat = λ {i} {j} i~j → homExt
-    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ (j , funMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
+    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ $ ∣_∣₁ (j , funMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
       funMorph (morph ~-refl) ∘ funMorph (morph i~j)  ≡˘⟨ funMorph-∘ (morph ~-refl) (morph i~j) _ ⟩
       funMorph (morph ~-refl ◯ morph i~j)             ≡˘⟨ cong (λ x → funMorph x) functorial ⟩
       funMorph (morph i~j)                            ∎
     ) x))
-    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ (j , relMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
+    (implicitFunExt $ funExt $ λ x → pathToEq $ eq/ _ _ $ ∣_∣₁ (j , relMorph (morph i~j) x , i~j , ~-refl , refl , cong-app (begin
       relMorph (morph ~-refl) ∘ relMorph (morph i~j)  ≡˘⟨ relMorph-∘ (morph ~-refl) (morph i~j) _ ⟩
       relMorph (morph ~-refl ◯ morph i~j)             ≡˘⟨ cong (λ x → relMorph x) functorial ⟩
       relMorph (morph i~j)                            ∎

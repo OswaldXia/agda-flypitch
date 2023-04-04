@@ -28,21 +28,22 @@ open _⟶_
 open Language {u}
 open Termₗ
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
-open DirectedDiagram using (Coproduct; Colimit; representative)
+open DirectedDiagram using (Coproduct; Colimit; representative; effective)
+open CoconeLanguage using (compat)
 open Cocone using (universalMap)
 ```
 
 ```agda
 open import Cubical.Core.Primitives using (Type; _,_; fst; snd; Σ-syntax)
-open import Cubical.Foundations.Prelude using (isSet; isProp→isSet; toPathP)
+open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP)
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.HLevels using (isSetΣ)
 open import Cubical.Data.Equality using (reflPath; symPath; compPath; congPath; eqToPath; pathToEq)
 open import Cubical.Data.Nat using (isSetℕ)
 open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.SetQuotients using (eq/; squash/; effective) renaming ([_] to [_]/)
-open import Cubical.HITs.PropositionalTruncation using (rec→Set)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; map; map-functorial; isSetSetTrunc)
+open import Cubical.HITs.SetQuotients using (eq/; squash/) renaming ([_] to [_]/)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; map; map-functorial)
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 open import Tools.DirectedDiagram using (DirectedType)
 ```
@@ -53,7 +54,7 @@ open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
 open import Function using (id; _∘_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; cong)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; subst)
 open import StdlibExt.Data.Nat
 open import StdlibExt.Relation.Unary using (_∪_; _⟦_⟧; ⋃_; replacement-syntax)
 ```
@@ -131,8 +132,8 @@ module LanguageChain where
   { Carrier = ℕ
   ; isSetCarrier = isSetℕ
   ; _~_ = _≤₃_
-  ; ~-refl = ≤⇒≤₃ ≤-refl
-  ; ~-trans = λ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
+  ; isRefl~ = λ _ → ≤⇒≤₃ ≤-refl
+  ; isTrans~ = λ _ _ _ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
   ; directed = λ x y → x + y , ≤⇒≤₃ (m≤m+n _ _) , ≤⇒≤₃ (m≤n+m _ _)
   }
 ```
@@ -188,13 +189,12 @@ termChain ℒ n l = record
 coconeOfTermChain : ∀ ℒ n l → Cocone (termChain ℒ n l)
 coconeOfTermChain ℒ n l = record
   { Vertex = ∥ Termₗ (∞-language ℒ ) n l ∥₂
-  ; isSetVertex = isSetSetTrunc
+  ; isSetVertex = squash₂
   ; map = λ i → map $ termMorph $ languageCanonicalMorph i
   ; compat = λ i~j → trans (cong (map ∘ λ t → termMorph t) (coconeOfLanguageChain .compat i~j))
                    $ trans (cong map $ termMorphComp _ _)
                    $ pathToEq $ map-functorial _ _
   } where open LHom.Bounded using (termMorph)
-          open CoconeLanguage using (compat)
 ```
 
 ```agda
@@ -205,18 +205,17 @@ termComparison {ℒ} {n} {l} = universalMap (coconeOfTermChain ℒ n l)
 ```agda
 termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
 termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ]/ , reflPath
-termComparisonFiber (func f) = rec→Set
-  (isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
+termComparisonFiber {ℒ} {n} {l} (func f) = elim→Set
+  (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
   (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ]/ , congPath (∣_∣₂ ∘ func) H)
-  (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) →
-    ΣPathP $ eq/ _ _ {!  effective ? ? _ _ (compPath Hi $ symPath Hj) !}
-    , toPathP (squash₂ _ _ _ _))
-    --compPath Hi $ symPath Hj
-    --(let (k , i~k , j~k) = directed i j in
-      --k , {! ∣ func fⱼ ∣₂  !} , i~k , j~k , {!   !} , {!   !})
-    --(i , ∣ func fᵢ ∣₂ , {!   !} , {!   !} , (cong (∣_∣₂ ∘ func) {!   !}) , {!   !})
-  (representative _ f)
-    --where open DirectedType ℕᴰ using (directed)
+  (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
+      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
+        (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
+        (effective (functionsᴰ l) $ compPath Hi $ symPath Hj))
+    , (toPathP $ squash₂ _ _ _ _))
+  (representative (functionsᴰ l) f)
+  where open DirectedDiagram (termChain ℒ n l) using (_≃_)
+        open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
 termComparisonFiber (app t₁ t₂) = {!   !}
 ```
 
@@ -237,7 +236,7 @@ formulaChain ℒ n l = record
 coconeOfFormulaChain : ∀ ℒ n l → Cocone (formulaChain ℒ n l)
 coconeOfFormulaChain ℒ n l = record
   { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
-  ; isSetVertex = isSetSetTrunc
+  ; isSetVertex = squash₂
   ; map = λ i → map $ formulaMorph $ languageCanonicalMorph i
   ; compat = λ i~j → trans (cong (map ∘ λ φ → formulaMorph φ) (coconeOfLanguageChain .compat i~j))
                    $ trans (cong map $ formulaMorphComp _ _)

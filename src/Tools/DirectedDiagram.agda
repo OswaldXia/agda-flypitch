@@ -3,17 +3,15 @@
 module Tools.DirectedDiagram where
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
-open import Cubical.Foundations.Prelude using (isSet)
-open import Cubical.Foundations.HLevels using (isPropΣ)
-open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt)
+open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP; isPropIsProp)
+open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt; reflPath)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec; []surjective )
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
-import Cubical.Relation.Binary as BinRel
-open BinRel.BinaryRelation using (isPropValued)
+open import Cubical.HITs.SetQuotients as Quot using (_/_; [_]; eq/; squash/; rec; []surjective)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim→Set; elim2→Set)
+open import Cubical.Relation.Binary
+open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
 
-open import Function using (_∘_; _∘₂_; _$_)
-open import Relation.Binary using (Rel; Reflexive; Symmetric; Transitive)
+open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning
 
@@ -24,10 +22,12 @@ record DirectedType : Type (ℓ-suc u) where
   field
     Carrier : Type u
     isSetCarrier : isSet Carrier
-    _~_ : Rel Carrier ℓ-zero
-    ~-refl : Reflexive _~_
-    ~-trans : Transitive _~_
+    _~_ : Rel Carrier Carrier ℓ-zero
+    isRefl~ : isRefl _~_
+    isTrans~ : isTrans _~_
     directed : ∀ x y → Σ[ z ∈ _ ] x ~ z × y ~ z
+  ~-refl = λ {a} → isRefl~ a
+  ~-trans = λ {a b c} → isTrans~ a b c
 
 record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) where
   open DirectedType D
@@ -40,21 +40,30 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
   Coproduct : Type (ℓ-max u v)
   Coproduct = Σ[ i ∈ _ ] obj i
 
-  _≃_ : Rel Coproduct (ℓ-max u v)
-  (i , x) ≃ (j , y) = Σ[ k ∈ _ ] Σ[ z ∈ obj k ] Σ[ i~k ∈ i ~ k ] Σ[ j~k ∈ j ~ k ]
+  _≃_ : Rel Coproduct Coproduct (ℓ-max u v)
+  (i , x) ≃ (j , y) = ∃[ k ∈ _ ] Σ[ z ∈ obj k ] Σ[ i~k ∈ i ~ k ] Σ[ j~k ∈ j ~ k ]
     morph i~k x ≡ z × morph j~k y ≡ z
 
-  ≃-refl : Reflexive _≃_
-  ≃-refl {i , x} = i , morph ~-refl x , ~-refl , ~-refl , refl , refl
+  isRefl≃ : isRefl _≃_
+  isRefl≃ (i , x) = ∣ i , morph ~-refl x , ~-refl , ~-refl , refl , refl ∣₁
+  ≃-refl = λ {a} → isRefl≃ a
 
-  ≃-sym : Symmetric _≃_
-  ≃-sym (k , z , i~k , j~k , eqx , eqy) = k , z , j~k , i~k , eqy , eqx 
+  isSym≃ : isSym _≃_
+  isSym≃ _ _ = elim→Set (λ _ → isProp→isSet squash₁)
+    (λ (k , z , i~k , j~k , eqx , eqy) → ∣ k , z , j~k , i~k , eqy , eqx ∣₁)
+    (λ _ _ → squash₁ _ _)
 
-  ≃-trans : Transitive _≃_
-  ≃-trans {i , x} {j , y} {k , z}
-    (l₁ , w₁ , i~l₁ , j~l₁ , x₁≡w₁ , y₁≡w₁)
-    (l₂ , w₂ , j~l₂ , k~l₂ , y₂≡w₂ , z₂≡w₂) =
-    l₃ , morph j~l₃ y , i~l₃ , k~l₃ , x₃≡y₃ , z₃≡y₃ where
+  isTrans≃ : isTrans _≃_
+  isTrans≃ (i , x) (j , y) (k , z) = elim2→Set (λ _ _ → isProp→isSet squash₁) f
+    (λ _ _ _ → squash₁ _ _)
+    (λ _ _ _ → squash₁ _ _)
+    (λ _ _ _ _ → toPathP $ isProp→isSet squash₁ _ _ _ _)
+    where
+    f : ∀ ix jy → (i , x) ≃ (k , z)
+    f (l₁ , w₁ , i~l₁ , j~l₁ , x₁≡w₁ , y₁≡w₁)
+      (l₂ , w₂ , j~l₂ , k~l₂ , y₂≡w₂ , z₂≡w₂) =
+      ∣ l₃ , morph j~l₃ y , i~l₃ , k~l₃ , x₃≡y₃ , z₃≡y₃ ∣₁
+      where
       l₃ = fst $ directed l₁ l₂
       l₁~l₃ = fst $ snd $ directed l₁ l₂
       l₂~l₃ = snd $ snd $ directed l₁ l₂
@@ -78,13 +87,23 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
       z₃≡y₃ : morph k~l₃ z ≡ morph j~l₃ y
       z₃≡y₃ rewrite j→l₂→l₃ | k→l₂→l₃ | z₂≡y₂ = refl
 
-  Colimit = Coproduct / (∥_∥₁ ∘₂ _≃_)
+  isEquivRel≃ : isEquivRel _≃_
+  isEquivRel≃ = record
+    { reflexive = isRefl≃
+    ; symmetric = isSym≃
+    ; transitive = isTrans≃
+    }
+
+  Colimit = Coproduct / _≃_
 
   canonicalMorph : ∀ i → obj i → Colimit
   canonicalMorph i x = [ i , x ]
 
   representative : (x : Colimit) → ∃[ a ∈ Coproduct ] [ a ] ≡ₚ x
   representative = []surjective
+
+  effective : ∀ {a b} → [ a ] ≡ₚ [ b ] → a ≃ b
+  effective = Quot.effective (λ _ _ → squash₁) isEquivRel≃ _ _
 
 record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v $ ℓ-suc w) where
   open DirectedType D
@@ -97,11 +116,13 @@ record Cocone {D} (F : DirectedDiagram {u} {v} D) : Type (ℓ-max u $ ℓ-max v 
 
   universalMap : Colimit → Vertex
   universalMap = rec isSetVertex (λ (i , x) → map i x)
-    λ (i , x) (j , y) (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
-      map i x             ≡⟨ cong-app (compat i~k) x ⟩
-      map k (morph i~k x) ≡⟨ cong (map k) (trans H₁ $ sym $ H₂) ⟩
-      map k (morph j~k y) ≡˘⟨ cong-app (compat j~k) y ⟩
-      map j y             ∎
+    λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetVertex _ _))
+      (λ (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
+        map i x             ≡⟨ cong-app (compat i~k) x ⟩
+        map k (morph i~k x) ≡⟨ cong (map k) (trans H₁ $ sym $ H₂) ⟩
+        map k (morph j~k y) ≡˘⟨ cong-app (compat j~k) y ⟩
+        map j y             ∎)
+      (λ _ _ → isSetVertex _ _ _ _)
 
 coconeOfColimit : ∀ {u v D} (F : DirectedDiagram {u} {v} D) → Cocone F
 coconeOfColimit {u} {v} {D} F = record
@@ -109,6 +130,6 @@ coconeOfColimit {u} {v} {D} F = record
   ; isSetVertex = squash/
   ; map = λ i x → [ i , x ]
   ; compat = λ {_} {j} f → funExt λ x → pathToEq $
-      eq/ _ _ (j , morph f x , f , ~-refl , refl , (sym $ cong-app functorial x))
+      eq/ _ _ ∣ j , morph f x , f , ~-refl , refl , (sym $ cong-app functorial x) ∣₁
   } where open DirectedType {u} D
           open DirectedDiagram F
