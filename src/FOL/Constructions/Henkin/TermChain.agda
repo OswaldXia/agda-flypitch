@@ -19,20 +19,19 @@ open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeL
 open CoconeLanguage using (compat)
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
-open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP)
+open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP; step-≡; _∎)
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.HLevels using (isSetΣ)
 open import Cubical.HITs.SetQuotients using (eq/; [_]; squash/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; map; map2; map-functorial)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; recComp2; map; map2; map-functorial)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath)
 open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 
 open import StdlibExt.Data.Nat
 open import Data.Nat.Properties
-open import Function using (_∘_; _$_; flip)
-open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app; subst)
-open Eq.≡-Reasoning
+open import Function using (flip; _$_; _∘_; _∘₂_)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
 mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
   {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
@@ -95,9 +94,10 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
         , refl)
       in
       [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
-    , (eqToPath $ begin
-        rec squash₂ (λ x → ∣ termMorph _ x ∣₂) (rec2 squash₂ (λ f t → ∣ app f t ∣₂) fᵢ₊ⱼ tᵢ₊ⱼ) ≡⟨ {!   !} ⟩
-        ∣ app g s ∣₂ ∎)
+    , (
+      rec squash₂ (∣_∣₂ ∘ termMorph _) (rec2 squash₂ (∣_∣₂ ∘₂ app) fᵢ₊ⱼ tᵢ₊ⱼ) ≡⟨ recComp2 _ _ _ _ ⟩
+      rec2 squash₂ (∣_∣₂ ∘₂ termMorph _ ∘₂ app) fᵢ₊ⱼ tᵢ₊ⱼ                     ≡⟨ {!   !} ⟩
+      ∣ app g s ∣₂                                                            ∎)
     )
     {!   !}
     {!   !}

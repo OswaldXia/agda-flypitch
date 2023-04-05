@@ -13,14 +13,13 @@ private variable
   ℓ : Level
   A B C D : Type ℓ
 
-recComp : (f : A → B) (g : B → C) → rec squash₂ (∣_∣₂ ∘ g) ∘ rec squash₂ (∣_∣₂ ∘ f) ≡ rec squash₂ (∣_∣₂ ∘ g ∘ f)
-recComp f g = funExt $ elim (λ _ → isSet→isGroupoid squash₂ _ _) λ _ → refl
+recComp : (f : A → B) (g : B → C) (a : ∥ A ∥₂) →
+  rec squash₂ (∣_∣₂ ∘ g) (rec squash₂ (∣_∣₂ ∘ f) a) ≡ rec squash₂ (∣_∣₂ ∘ g ∘ f) a
+recComp f g = elim (λ _ → isSet→isGroupoid squash₂ _ _) λ _ → refl
 
-recComp2 : (f : A → B → C) (g : C → D) →
-  rec squash₂ (∣_∣₂ ∘ g) ∘₂ rec2 squash₂ (∣_∣₂ ∘₂ f) ≡ rec2 squash₂ (∣_∣₂ ∘₂ g ∘₂ f)
-recComp2 f g = funExt λ a → funExt λ b → elim2
-  {C = λ a b → (rec squash₂ (∣_∣₂ ∘ g) ∘₂ rec2 squash₂ (∣_∣₂ ∘₂ f)) a b ≡ rec2 squash₂ (∣_∣₂ ∘₂ g ∘₂ f) a b}
-  (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → refl) a b
+recComp2 : (f : A → B → C) (g : C → D) (a : ∥ A ∥₂) (b : ∥ B ∥₂) →
+  rec squash₂ (∣_∣₂ ∘ g) (rec2 squash₂ (∣_∣₂ ∘₂ f) a b) ≡ rec2 squash₂ (∣_∣₂ ∘₂ g ∘₂ f) a b
+recComp2 f g = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → refl)
 
 map2 : (A → B → C) → ∥ A ∥₂ → ∥ B ∥₂ → ∥ C ∥₂
 map2 f = rec2 squash₂ (λ x y → ∣ f x y ∣₂)
