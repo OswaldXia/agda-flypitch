@@ -19,19 +19,24 @@ open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeL
 open CoconeLanguage using (compat)
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
-open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP; step-≡; _∎)
+open import Cubical.Foundations.Prelude
+  using (cong₂; isProp; isSet; isProp→isSet; toPathP; step-≡; _≡⟨⟩_; _∎)
 open import Cubical.Foundations.Equiv using (fiber)
-open import Cubical.Foundations.HLevels using (isSetΣ)
+open import Cubical.Foundations.HLevels using (isSetΣ; isSet→isGroupoid)
 open import Cubical.HITs.SetQuotients using (eq/; [_]; squash/)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; recComp2; map; map2; map-functorial)
-open import Cubical.Data.Equality using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath)
+open import Cubical.HITs.PropositionalTruncation
+  using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
+open import CubicalExt.HITs.SetTruncation
+  using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
+open import Cubical.Data.Equality
+  using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath)
 open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 
 open import StdlibExt.Data.Nat
 open import Data.Nat.Properties
 open import Function using (flip; _$_; _∘_; _∘₂_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong-app; subst)
+open import Relation.Binary.PropositionalEquality
+  using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
 mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
   {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
@@ -66,7 +71,8 @@ termComparisonFiber {ℒ} {n} {l} (func f) =
     (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ] , congPath (∣_∣₂ ∘ func) H)
     (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
       (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
-        (λ (k , fₖ , i~k , j~k , H₁ , H₂) → ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
+        (λ (k , fₖ , i~k , j~k , H₁ , H₂) →
+          ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
         (effective $ compPath Hi $ symPath Hj))
     , (toPathP $ squash₂ _ _ _ _))
     (representative f)
@@ -85,19 +91,30 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
       eqf : [ i + j , fᵢ₊ⱼ ] ≡ₚ f
       eqf = (flip compPath) Hi $ eq/ _ _ $ ∣_∣₁ $
         ( i + j , fᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤m+n _ _)
-        , (sym $ (flip cong-app) fᵢ $ mapTermMorph-functorial $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+        , (sym $ (flip cong-app) fᵢ $ mapTermMorph-functorial
+               $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
         , refl)
       eqt : [ i + j , tᵢ₊ⱼ ] ≡ₚ t
       eqt = (flip compPath) Hj $ eq/ _ _ $ ∣_∣₁ $
         ( i + j , tᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤n+m _ _)
-        , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+        , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial
+               $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
         , refl)
       in
       [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
     , (
-      rec squash₂ (∣_∣₂ ∘ termMorph _) (rec2 squash₂ (∣_∣₂ ∘₂ app) fᵢ₊ⱼ tᵢ₊ⱼ) ≡⟨ recComp2 _ _ _ _ ⟩
-      rec2 squash₂ (∣_∣₂ ∘₂ termMorph _ ∘₂ app) fᵢ₊ⱼ tᵢ₊ⱼ                     ≡⟨ {!   !} ⟩
-      ∣ app g s ∣₂                                                            ∎)
+      _ ≡⟨ elim2 {C = λ f t → rec squash₂ (∣_∣₂ ∘ termMorph _) (rec2 squash₂ (∣_∣₂ ∘₂ app) f t)
+                           ≡ₚ rec2 squash₂ (∣_∣₂ ∘₂ app) (rec squash₂ (∣_∣₂ ∘ termMorph _) f)
+                                                         (rec squash₂ (∣_∣₂ ∘ termMorph _) t) }
+          (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath) fᵢ₊ⱼ tᵢ₊ⱼ ⟩
+      _ ≡⟨ cong₂ (rec2 squash₂ (∣_∣₂ ∘₂ app)) reflPath reflPath ⟩
+      rec2 squash₂ (∣_∣₂ ∘₂ app) (termComparison [ i + j , fᵢ₊ⱼ ])
+                                 (termComparison [ i + j , tᵢ₊ⱼ ])
+        ≡⟨ cong₂ (rec2 squash₂ (∣_∣₂ ∘₂ app)) (compPath (congPath termComparison eqf) Hf)
+                                              (compPath (congPath termComparison eqt) Ht) ⟩
+      rec2 squash₂ (∣_∣₂ ∘₂ app) ∣ g ∣₂ ∣ s ∣₂
+        ≡⟨⟩
+      ∣ app g s ∣₂ ∎)
     )
     {!   !}
     {!   !}
@@ -105,3 +122,4 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
     (repᶠ f) (repᵗ t)
   where open DirectedDiagram (termChain ℒ n (suc l)) renaming (representative to repᶠ ; morph to morᶠ)
         open DirectedDiagram (termChain ℒ n 0)       renaming (representative to repᵗ ; morph to morᵗ)
+  

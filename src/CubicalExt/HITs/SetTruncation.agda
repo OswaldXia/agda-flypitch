@@ -15,7 +15,7 @@ private variable
 
 recComp : (f : A → B) (g : B → C) (a : ∥ A ∥₂) →
   rec squash₂ (∣_∣₂ ∘ g) (rec squash₂ (∣_∣₂ ∘ f) a) ≡ rec squash₂ (∣_∣₂ ∘ g ∘ f) a
-recComp f g = elim (λ _ → isSet→isGroupoid squash₂ _ _) λ _ → refl
+recComp f g = elim (λ _ → isSet→isGroupoid squash₂ _ _) (λ _ → refl)
 
 recComp2 : (f : A → B → C) (g : C → D) (a : ∥ A ∥₂) (b : ∥ B ∥₂) →
   rec squash₂ (∣_∣₂ ∘ g) (rec2 squash₂ (∣_∣₂ ∘₂ f) a b) ≡ rec2 squash₂ (∣_∣₂ ∘₂ g ∘₂ f) a b
