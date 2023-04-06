@@ -12,6 +12,7 @@ open import FOL.Language.DirectedDiagram
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
 import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
+open LHom.Bounded using (termMorph)
 
 open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isSet)
@@ -40,13 +41,22 @@ obj : Language → ℕ → Language
 obj ℒ zero    = ℒ
 obj ℒ (suc n) = languageStep (obj ℒ n)
 
-morph : ∀ {x y} → .(x ≤₃ y) → obj ℒ x ⟶ obj ℒ y
-morph {ℒ} {x} {y} x≤y with <-cmp x y
-... | tri< (s≤s x≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
-... | tri≈ _ refl _ = idᴸ
-
 abstract
-  functorial : ∀ {x y z : ℕ} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z}
+
+  morph : ∀ {x y} → .(x ≤₃ y) → obj ℒ x ⟶ obj ℒ y
+  morph {ℒ} {x} {y} x≤y with <-cmp x y
+  ... | tri< (s≤s x≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
+  ... | tri≈ _ refl _ = idᴸ
+
+  endomorph≡id : ∀ {x} → morph {ℒ} {x} (≤⇒≤₃ $ ≤-refl) ≡ idᴸ
+  endomorph≡id {_} {zero} = refl
+  endomorph≡id {_} {suc x} with <-cmp (suc x) (suc x)
+  ... | tri< _ ¬p _ = ⊥-elim $ ¬p refl
+  ... | tri> _ ¬p _ = ⊥-elim $ ¬p refl
+  ... | tri≈ _ s≡s _ with ℕ-UIP s≡s
+  ... | refl = refl
+
+  functorial : ∀ {x y z} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z}
     → morph {ℒ} f₃ ≡ (morph f₂ ◯ morph f₁)
   functorial {ℒ} {x} {y} {z} {x≤y} {y≤z} {x≤z} with <-cmp x y | <-cmp y z | <-cmp x z
   ... | tri< _ _ x≰y  | tri< x≤y _ _  | tri≈ _ refl _ = ⊥-elim $ x≰y x≤y
@@ -79,14 +89,6 @@ languageChain ℒ = record
   ; functorial  = functorial
   }
 
-endomorph≡id : ∀ {i} → morph {ℒ} {i} (≤⇒≤₃ $ ≤-refl) ≡ idᴸ
-endomorph≡id {_} {zero} = refl
-endomorph≡id {_} {suc i} with <-cmp (suc i) (suc i)
-... | tri< _ ¬p _ = ⊥-elim $ ¬p refl
-... | tri> _ ¬p _ = ⊥-elim $ ¬p refl
-... | tri≈ _ s≡s _ with ℕ-UIP s≡s
-... | refl = refl
-
 ∞-language : Language → Language
 ∞-language = ColimitLanguage ∘ languageChain
 
@@ -101,3 +103,4 @@ henkinization _ = languageCanonicalMorph 0
 
 coconeOfLanguageChain : CoconeLanguage $ languageChain ℒ
 coconeOfLanguageChain = coconeOfColimitLanguage _
+ 

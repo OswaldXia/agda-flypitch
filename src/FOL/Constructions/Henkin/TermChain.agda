@@ -39,12 +39,22 @@ open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
 abstract
-  mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
+
+  termMorph-$-morph-functorial : ∀ {ℒ n l x y z} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z} → 
+    (termMorph $ morph {ℒ} f₃) {n} {l} ≡ (termMorph $ morph f₂) ∘ (termMorph $ morph f₁)
+  termMorph-$-morph-functorial {f₁ = f₁} {f₂ = f₂} = trans (cong (λ t → termMorph t) functorial)
+    (termMorphComp (morph f₂) (morph f₁))
+
+  map-$-termMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
     {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
     (map $ termMorph F₃ {n} {l}) ≡ (map $ termMorph F₂) ∘ (map $ termMorph F₁)
-  mapTermMorph-functorial H = trans (cong (map ∘ λ t → termMorph t) H)
+  map-$-termMorph-functorial H = trans (cong (map ∘ λ t → termMorph t) H)
     $ trans (cong map $ termMorphComp _ _)
     $ pathToEq $ map-functorial _ _
+
+  map-$-termMorph-$-morph-functorial : ∀ {ℒ n l x y z} {f₁ : x ≤₃ y} {f₂ : y ≤₃ z} {f₃ : x ≤₃ z} →
+    (map $ (termMorph $ morph {ℒ} f₃) {n} {l}) ≡ (map $ termMorph $ morph f₂) ∘ (map $ termMorph $ morph f₁)
+  map-$-termMorph-$-morph-functorial = map-$-termMorph-functorial functorial
   
   termMorph-distrib-app : ∀ {ℒ₁ ℒ₂ : Language {u}} {n l : ℕ} {F : ℒ₁ ⟶ ℒ₂}
     (f : ∥ Termₗ ℒ₁ n (suc l) ∥₂) (t : ∥ Termₗ ℒ₁ n 0 ∥₂) →
@@ -55,7 +65,7 @@ termChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 termChain ℒ n l = record
   { obj = λ k → ∥ Termₗ ([ k ]-language ℒ) n l ∥₂
   ; morph = λ i≤j → map $ termMorph $ morph i≤j
-  ; functorial = mapTermMorph-functorial functorial
+  ; functorial = map-$-termMorph-functorial functorial
   }
 
 coconeOfTermChain : ∀ ℒ n l → Cocone (termChain ℒ n l)
@@ -63,7 +73,7 @@ coconeOfTermChain ℒ n l = record
   { Vertex = ∥ Termₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = squash₂
   ; map = λ i → map $ termMorph $ languageCanonicalMorph i
-  ; compat = λ {i} i~j → mapTermMorph-functorial (coconeOfLanguageChain .compat i~j)
+  ; compat = λ {i} i~j → map-$-termMorph-functorial (coconeOfLanguageChain .compat i~j)
   }
 
 termComparison : ∀ {ℒ n l} → Colimit (termChain ℒ n l) → ∥ Termₗ (∞-language ℒ) n l ∥₂
@@ -87,7 +97,7 @@ private
       [ i , tᵢ ] ≡ₚ t → (j : ℕ) → [ i + j , tᵢ ↑ʳ j ] ≡ₚ t
     _≡↑ʳ_ {ℒ} {n} {l} {i} {tᵢ} H j = (flip compPath) H $ eq/ _ _
       ∣ i + j , tᵢ ↑ʳ j , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤m+n _ _)
-      , (sym $ (flip cong-app) tᵢ $ mapTermMorph-functorial
+      , (sym $ (flip cong-app) tᵢ $ map-$-termMorph-functorial
              $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
       , refl
       ∣₁
@@ -96,7 +106,7 @@ private
       [ j , tⱼ ] ≡ₚ t → (i : ℕ) → [ i + j , tⱼ ↑ˡ i ] ≡ₚ t
     _≡↑ˡ_ {ℒ} {n} {l} {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
       ∣ i + j , tⱼ ↑ˡ i , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤n+m _ _)
-      , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial
+      , (sym $ (flip cong-app) tⱼ $ map-$-termMorph-functorial
              $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
       , refl
       ∣₁
@@ -106,6 +116,18 @@ private
     (t : ∥ Termₗ ([ j ]-language ℒ) n 0 ∥₂) →
     ∥ Termₗ ([ i + j ]-language ℒ) n l ∥₂
   app₂ {ℒ} {n} {l} {i} {j} f t = map2 app (f ↑ʳ j) (t ↑ˡ i)
+
+  abstract
+    termMorph-distrib-app₂ : ∀ {ℒ n l i j k}
+      .{f₀ : i + j ≤₃ k} .{f₁ : i ≤₃ k} .{f₂ : j ≤₃ k}
+      (f : ∥ Termₗ ([ i ]-language ℒ) n (suc l) ∥₂)
+      (t : ∥ Termₗ ([ j ]-language ℒ) n 0 ∥₂) →
+      map (termMorph $ morph f₀) (app₂ f t) ≡ₚ
+      map2 app (map (termMorph $ morph f₁) f) (map (termMorph $ morph f₂) t)
+    termMorph-distrib-app₂ =
+      elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) λ a b → cong₂ (∣_∣₂ ∘₂ app)
+        (eqToPath $ sym $ cong-app termMorph-$-morph-functorial a)
+        (eqToPath $ sym $ cong-app termMorph-$-morph-functorial b)
 
 termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
 termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ] , reflPath
@@ -145,10 +167,11 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
           , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ i~o)
           , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
           , pathToEq (
-            map (termMorph {!   !}) (app₂ fᵢ tₖ)
-              ≡⟨ {!   !} ⟩
-            map2 app (map (termMorph {!   !}) fᵢ) (map (termMorph {!   !}) tₖ)
-              ≡⟨ {!   !} ⟩
+            map (termMorph _) (app₂ fᵢ tₖ)
+              ≡⟨ termMorph-distrib-app₂ fᵢ tₖ ⟩
+            map2 app (map (termMorph $ morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _))) fᵢ)
+                     (map (termMorph $ morph (≤⇒≤₃ $ m≤n+m _ _)) tₖ)
+              ≡⟨ {! cong₂   !} ⟩
             app₂ fₒ tₖ ∎)
           , {!   !}
           ∣₁)

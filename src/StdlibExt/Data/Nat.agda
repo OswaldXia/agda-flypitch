@@ -10,6 +10,8 @@ open import Data.Sum using (inj₁; inj₂)
 open import Relation.Binary using (tri<; tri≈; tri>; _⇒_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
+infix 4 _≤₃_
+
 _≤₃_ : ℕ → ℕ → Set
 x ≤₃ y with <-cmp x y
 ... | tri< _ _ _ = ⊤
