@@ -13,7 +13,7 @@ open LHom.Bounded using (termMorph)
 open LHom.BoundedProperties
 
 open import Tools.DirectedDiagram using (ℕᴰ; DirectedDiagram; Cocone)
-open DirectedDiagram using (Colimit)
+open DirectedDiagram using (Colimit; Coproduct)
 open Cocone using (universalMap)
 open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeLanguage)
 open CoconeLanguage using (compat)
@@ -38,12 +38,13 @@ open import Function using (flip; _$_; _∘_; _∘₂_)
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
-mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
-  {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
-  (map $ termMorph F₃ {n} {l}) ≡ (map $ termMorph F₂) ∘ (map $ termMorph F₁)
-mapTermMorph-functorial H = trans (cong (map ∘ λ t → termMorph t) H)
-  $ trans (cong map $ termMorphComp _ _)
-  $ pathToEq $ map-functorial _ _
+abstract
+  mapTermMorph-functorial : ∀ {ℒ₁ ℒ₂ ℒ₃ : Language {u}} {n l : ℕ}
+    {F₁ : ℒ₁ ⟶ ℒ₂} {F₂ : ℒ₂ ⟶ ℒ₃} {F₃ : ℒ₁ ⟶ ℒ₃} → F₃ ≡ F₂ ◯ F₁ →
+    (map $ termMorph F₃ {n} {l}) ≡ (map $ termMorph F₂) ∘ (map $ termMorph F₁)
+  mapTermMorph-functorial H = trans (cong (map ∘ λ t → termMorph t) H)
+    $ trans (cong map $ termMorphComp _ _)
+    $ pathToEq $ map-functorial _ _
 
 termChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 termChain ℒ n l = record
@@ -63,6 +64,47 @@ coconeOfTermChain ℒ n l = record
 termComparison : ∀ {ℒ n l} → Colimit (termChain ℒ n l) → ∥ Termₗ (∞-language ℒ) n l ∥₂
 termComparison {ℒ} {n} {l} = universalMap (coconeOfTermChain ℒ n l)
 
+private
+  abstract
+    _↑ʳ_ : ∀ {ℒ n l i} → ∥ Termₗ ([ i ]-language ℒ) n l ∥₂ → (j : ℕ) → ∥ Termₗ ([ i + j ]-language ℒ) n l ∥₂
+    _↑ʳ_ {ℒ} {n} {l} t _ = mor (≤⇒≤₃ $ m≤m+n _ _) t
+      where open DirectedDiagram (termChain ℒ n l) renaming (morph to mor)
+
+    _↑ˡ_ : ∀ {ℒ n l j} → ∥ Termₗ ([ j ]-language ℒ) n l ∥₂ → (i : ℕ) → ∥ Termₗ ([ i + j ]-language ℒ) n l ∥₂
+    _↑ˡ_ {ℒ} {n} {l} t _ = mor (≤⇒≤₃ $ m≤n+m _ _) t
+      where open DirectedDiagram (termChain ℒ n l) renaming (morph to mor)
+
+    _≡↑ʳ_ : ∀ {ℒ n l i} {tᵢ : ∥ Termₗ ([ i ]-language ℒ) n l ∥₂} {t : Colimit (termChain ℒ n l)} →
+      [ i , tᵢ ] ≡ₚ t → (j : ℕ) → [ i + j , tᵢ ↑ʳ j ] ≡ₚ t
+    _≡↑ʳ_ {ℒ} {n} {l} {i} {tᵢ} H j = (flip compPath) H $ eq/ _ _
+      ∣ i + j , tᵢ ↑ʳ j , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤m+n _ _)
+      , (sym $ (flip cong-app) tᵢ $ mapTermMorph-functorial
+             $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+      , refl
+      ∣₁
+
+    _≡↑ˡ_ : ∀ {ℒ n l j} {tⱼ : ∥ Termₗ ([ j ]-language ℒ) n l ∥₂} {t : Colimit (termChain ℒ n l)} →
+      [ j , tⱼ ] ≡ₚ t → (i : ℕ) → [ i + j , tⱼ ↑ˡ i ] ≡ₚ t
+    _≡↑ˡ_ {ℒ} {n} {l} {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
+      ∣ i + j , tⱼ ↑ˡ i , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤n+m _ _)
+      , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial
+             $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
+      , refl
+      ∣₁
+    
+    termMorph-distrib-app : ∀ {ℒ n l i}
+      (f : ∥ Termₗ ([ i ]-language ℒ) n (suc l) ∥₂)
+      (t : ∥ Termₗ ([ i ]-language ℒ) n 0 ∥₂) →
+      let termMor = termMorph (languageCanonicalMorph i) in
+      map termMor (map2 app f t) ≡ₚ map2 app (map termMor f) (map termMor t)
+    termMorph-distrib-app = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
+
+  app₂ : ∀ {ℒ n l i j}
+    (f : ∥ Termₗ ([ i ]-language ℒ) n (suc l) ∥₂)
+    (t : ∥ Termₗ ([ j ]-language ℒ) n 0 ∥₂) →
+    ∥ Termₗ ([ i + j ]-language ℒ) n l ∥₂
+  app₂ {ℒ} {n} {l} {i} {j} f t = map2 app (f ↑ʳ j) (t ↑ˡ i)
+
 termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
 termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ] , reflPath
 termComparisonFiber {ℒ} {n} {l} (func f) =
@@ -70,7 +112,8 @@ termComparisonFiber {ℒ} {n} {l} (func f) =
     (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
     (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ] , congPath (∣_∣₂ ∘ func) H)
     (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
-      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)} (λ _ → squash₁)
+      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)}
+        (λ _ → squash₁)
         (λ (k , fₖ , i~k , j~k , H₁ , H₂) →
           ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
         (effective $ compPath Hi $ symPath Hj))
@@ -85,41 +128,27 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
   elim2→Set {P = λ _ _ → fiber termComparison ∣ app g s ∣₂}
     (λ _ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
     (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) →
-      let
-      fᵢ₊ⱼ = morᶠ (≤⇒≤₃ $ m≤m+n _ _) fᵢ
-      tᵢ₊ⱼ = morᵗ (≤⇒≤₃ $ m≤n+m _ _) tⱼ
-      eqf : [ i + j , fᵢ₊ⱼ ] ≡ₚ f
-      eqf = (flip compPath) Hi $ eq/ _ _ $ ∣_∣₁ $
-        ( i + j , fᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤m+n _ _)
-        , (sym $ (flip cong-app) fᵢ $ mapTermMorph-functorial
-               $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
-        , refl)
-      eqt : [ i + j , tᵢ₊ⱼ ] ≡ₚ t
-      eqt = (flip compPath) Hj $ eq/ _ _ $ ∣_∣₁ $
-        ( i + j , tᵢ₊ⱼ , (≤⇒≤₃ $ ≤-refl) , (≤⇒≤₃ $ m≤n+m _ _)
-        , (sym $ (flip cong-app) tⱼ $ mapTermMorph-functorial
-               $ subst (λ x → morph _ ≡ x ◯ morph _) (sym endomorph≡id) refl)
-        , refl)
-      in
-      [ i + j , map2 app fᵢ₊ⱼ tᵢ₊ⱼ ]
-    , (
-      _ ≡⟨ elim2 {C = λ f t → rec squash₂ (∣_∣₂ ∘ termMorph _) (rec2 squash₂ (∣_∣₂ ∘₂ app) f t)
-                           ≡ₚ rec2 squash₂ (∣_∣₂ ∘₂ app) (rec squash₂ (∣_∣₂ ∘ termMorph _) f)
-                                                         (rec squash₂ (∣_∣₂ ∘ termMorph _) t) }
-          (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath) fᵢ₊ⱼ tᵢ₊ⱼ ⟩
-      _ ≡⟨ cong₂ (rec2 squash₂ (∣_∣₂ ∘₂ app)) reflPath reflPath ⟩
-      rec2 squash₂ (∣_∣₂ ∘₂ app) (termComparison [ i + j , fᵢ₊ⱼ ])
-                                 (termComparison [ i + j , tᵢ₊ⱼ ])
-        ≡⟨ cong₂ (rec2 squash₂ (∣_∣₂ ∘₂ app)) (compPath (congPath termComparison eqf) Hf)
-                                              (compPath (congPath termComparison eqt) Ht) ⟩
-      rec2 squash₂ (∣_∣₂ ∘₂ app) ∣ g ∣₂ ∣ s ∣₂
-        ≡⟨⟩
-      ∣ app g s ∣₂ ∎)
+      [ i + j , app₂ fᵢ tⱼ ]
+    , {!    !}
     )
-    {!   !}
-    {!   !}
-    {!   !}
+    (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+      (eq/ _ _ $ elim {P = λ _ → (i + k , app₂ fᵢ tₖ) ≃ (j + k , app₂ fⱼ tₖ)}
+        (λ _ → squash₁)
+        (λ (o , fₒ , i~o , j~o , H₁ , H₂) →
+          ∣ o + k , app₂ fₒ tₖ
+          , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ i~o)
+          , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
+          , ({! rec squash₂ (∣_∣₂ ∘ termMorph _) (app₂ fᵢ tₖ)  !})
+          , {!   !}
+          ∣₁)
+        (effᶠ $ compPath Hi $ symPath Hj))
+    , (toPathP $ squash₂ _ _ _ _))
+    (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+      {!   !}
+    , (toPathP $ squash₂ _ _ _ _))
+    {!   !} --(λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , fₖ) , Hk) ((o , tₒ) , Ho) → {!   !})
     (repᶠ f) (repᵗ t)
-  where open DirectedDiagram (termChain ℒ n (suc l)) renaming (representative to repᶠ ; morph to morᶠ)
-        open DirectedDiagram (termChain ℒ n 0)       renaming (representative to repᵗ ; morph to morᵗ)
-  
+  where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (morph to morᶠ; representative to repᶠ; effective to effᶠ)
+        open DirectedDiagram (termChain ℒ n 0)       using () renaming (morph to morᵗ; representative to repᵗ; effective to effᵗ)
+        open DirectedDiagram (termChain ℒ n l) using (_≃_)
+ 

@@ -45,31 +45,32 @@ morph {ℒ} {x} {y} x≤y with <-cmp x y
 ... | tri< (s≤s x≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
 ... | tri≈ _ refl _ = idᴸ
 
-functorial : ∀ {x y z : ℕ} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z}
-  → morph {ℒ} f₃ ≡ (morph f₂ ◯ morph f₁)
-functorial {ℒ} {x} {y} {z} {x≤y} {y≤z} {x≤z} with <-cmp x y | <-cmp y z | <-cmp x z
-... | tri< _ _ x≰y  | tri< x≤y _ _  | tri≈ _ refl _ = ⊥-elim $ x≰y x≤y
-... | tri< sx≤x _ _ | tri≈ _ refl _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
-... | tri≈ _ refl _ | tri< sx≤x _ _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
-... | tri≈ _ refl _ | tri≈ _ refl _ | tri< sx≤x _ _ = ⊥-elim $ 1+n≰n sx≤x
-... | tri< (s≤s _) _ _ | tri≈ _ refl _    | tri< (s≤s _) _ _ = refl
-... | tri≈ _ refl _    | tri< (s≤s _) _ _ | tri< (s≤s _) _ _ = refl
-... | tri< (s≤s x≤y-1) x≢x y≮x | tri< (s≤s y≤z-1) _ _ | tri< (s≤s x≤z-1) _ _ =
-  cong (languageMorph ◯_) $ trans
-    (functorial {f₁ = x≤₃y} {f₂ = ≤⇒≤₃ y≤z-1} {f₃ = ≤⇒≤₃ x≤z-1})
-    (cong (morph (≤⇒≤₃ y≤z-1) ◯_) eq) where
-      x≤₃y : x ≤₃ y
-      x≤₃y with <-cmp x y
-      ... | tri< _ _ _ = tt
-      ... | tri≈ _ _ _ = tt
-      ... | tri> _ _ y<x = y≮x y<x
-      eq : morph x≤₃y ≡ languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
-      eq with <-cmp x y
-      ... | tri< (s≤s _) _ _ = refl
-      ... | tri≈ _ refl _ = ⊥-elim $ x≢x refl
-      ... | tri> _ _ y<x  = ⊥-elim $ y≮x y<x
-... | tri≈ _ refl _ | tri≈ _ refl _ | tri≈ _ x≡x _ with ℕ-UIP x≡x
-... | refl = refl
+abstract
+  functorial : ∀ {x y z : ℕ} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z}
+    → morph {ℒ} f₃ ≡ (morph f₂ ◯ morph f₁)
+  functorial {ℒ} {x} {y} {z} {x≤y} {y≤z} {x≤z} with <-cmp x y | <-cmp y z | <-cmp x z
+  ... | tri< _ _ x≰y  | tri< x≤y _ _  | tri≈ _ refl _ = ⊥-elim $ x≰y x≤y
+  ... | tri< sx≤x _ _ | tri≈ _ refl _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
+  ... | tri≈ _ refl _ | tri< sx≤x _ _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
+  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri< sx≤x _ _ = ⊥-elim $ 1+n≰n sx≤x
+  ... | tri< (s≤s _) _ _ | tri≈ _ refl _    | tri< (s≤s _) _ _ = refl
+  ... | tri≈ _ refl _    | tri< (s≤s _) _ _ | tri< (s≤s _) _ _ = refl
+  ... | tri< (s≤s x≤y-1) x≢x y≮x | tri< (s≤s y≤z-1) _ _ | tri< (s≤s x≤z-1) _ _ =
+    cong (languageMorph ◯_) $ trans
+      (functorial {f₁ = x≤₃y} {f₂ = ≤⇒≤₃ y≤z-1} {f₃ = ≤⇒≤₃ x≤z-1})
+      (cong (morph (≤⇒≤₃ y≤z-1) ◯_) eq) where
+        x≤₃y : x ≤₃ y
+        x≤₃y with <-cmp x y
+        ... | tri< _ _ _ = tt
+        ... | tri≈ _ _ _ = tt
+        ... | tri> _ _ y<x = y≮x y<x
+        eq : morph {ℒ} x≤₃y ≡ languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
+        eq with <-cmp x y
+        ... | tri< (s≤s _) _ _ = refl
+        ... | tri≈ _ refl _ = ⊥-elim $ x≢x refl
+        ... | tri> _ _ y<x  = ⊥-elim $ y≮x y<x
+  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri≈ _ x≡x _ with ℕ-UIP x≡x
+  ... | refl = refl
 
 languageChain : Language → DirectedDiagramLanguage ℕᴰ
 languageChain ℒ = record
