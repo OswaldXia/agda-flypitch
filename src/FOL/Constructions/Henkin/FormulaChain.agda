@@ -4,7 +4,8 @@
 module FOL.Constructions.Henkin.FormulaChain u where
 open import FOL.Constructions.Henkin.LanguageChain u
   renaming (obj to langObj ; morph to langMorph; functorial to langFunctorial)
-open import FOL.Constructions.Henkin.TermChain u as T using (termComparisonFiber)
+open import FOL.Constructions.Henkin.TermChain u as T
+  using (termChain; termComparison; termComparisonFiber; termMorph-$-langMorph-functorial)
 open import FOL.Language using (Language)
 open import FOL.Bounded.Base using (Termₗ; Formulaₗ)
 open Formulaₗ
@@ -118,7 +119,7 @@ abstract
   map-$-formulaMorph-distrib-appᵣ↑ =
     elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) λ a b → cong₂ (∣_∣₂ ∘₂ appᵣ)
       (eqToPath $ sym $ cong-app formulaMorph-$-langMorph-functorial a)
-      (eqToPath $ sym $ cong-app T.termMorph-$-langMorph-functorial b)
+      (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
   isSetFiber : ∀ {ℒ n l} {φ : Formulaₗ (∞-language ℒ) n l} → isSet (fiber formulaComparison ∣ φ ∣₂)
   isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _
@@ -140,7 +141,82 @@ abstract
     where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
           open DirectedDiagramLanguage (languageChain ℒ) using (relationsᴰ)
           open DirectedDiagram (relationsᴰ l) using (representative; effective)
-  formulaComparisonFiber (appᵣ r t) = {!   !}
+  formulaComparisonFiber {ℒ} {n} {l} (appᵣ ρ τ) =
+    let (r , Hr) = formulaComparisonFiber ρ
+        (t , Ht) = termComparisonFiber    τ in
+    elim2→Set {P = λ _ _ → fiber formulaComparison ∣ appᵣ ρ τ ∣₂}
+      (λ _ _ → isSetFiber)
+      (λ ((i , rᵢ) , Hi) ((j , tⱼ) , Hj) →
+        [ i + j , appᵣ↑ rᵢ tⱼ ]
+      , ( map (formulaMorph _) (appᵣ↑ rᵢ tⱼ)
+            ≡⟨ map-$-formulaMorph-distrib-appᵣ _ _ ⟩
+          map2 appᵣ (formulaComparison [ i + j , rᵢ ↑ʳ j ]) (termComparison [ i + j , tⱼ T.↑ˡ i ])
+            ≡⟨ cong₂ (map2 appᵣ) (compPath (congPath formulaComparison (Hi ≡↑ʳ j)) Hr)
+                                 (compPath (congPath termComparison (Hj T.≡↑ˡ i)) Ht) ⟩
+          ∣ appᵣ ρ τ ∣₂ ∎))
+      (λ ((i , rᵢ) , Hi) ((j , rⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i + k , appᵣ↑ rᵢ tₖ) ≃ (j + k , appᵣ↑ rⱼ tₖ)}
+          (λ _ → squash₁)
+          (λ (o , rₒ , i~o , j~o , H₁ , H₂) →
+            ∣ o + k , appᵣ↑ rₒ tₖ
+            , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ i~o)
+            , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
+            , (pathToEq $
+                morph _ (appᵣ↑ rᵢ tₖ)
+                  ≡⟨ map-$-formulaMorph-distrib-appᵣ↑ _ _ ⟩
+                map2 appᵣ (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _)) rᵢ) (T.morph _ tₖ)
+                  ≡⟨ cong₂ (map2 appᵣ)
+                    ( morph _ rᵢ        ≡⟨ eqToPath functorial ≡$ rᵢ ⟩
+                      morph i~o rᵢ ↑ʳ k ≡⟨ eqToPath $ cong (_↑ʳ k) H₁ ⟩
+                      rₒ ↑ʳ k           ∎
+                    ) reflPath ⟩
+                appᵣ↑ rₒ tₖ ∎)
+            , (pathToEq $
+                morph _ (appᵣ↑ rⱼ tₖ)
+                  ≡⟨ map-$-formulaMorph-distrib-appᵣ↑ _ _ ⟩
+                map2 appᵣ (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ j~o) (m≤m+n _ _)) rⱼ) (T.morph _ tₖ)
+                  ≡⟨ cong₂ (map2 appᵣ)
+                    ( morph _ rⱼ        ≡⟨ eqToPath functorial ≡$ rⱼ ⟩
+                      morph j~o rⱼ ↑ʳ k ≡⟨ eqToPath $ cong (_↑ʳ k) H₂ ⟩
+                      rₒ ↑ʳ k           ∎
+                    ) reflPath ⟩
+                appᵣ↑ rₒ tₖ ∎)
+            ∣₁)
+          (effʳ $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
+      (λ ((i , rᵢ) , Hi) ((j , tⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i + j , appᵣ↑ rᵢ tⱼ) ≃ (i + k , appᵣ↑ rᵢ tₖ)}
+          (λ _ → squash₁)
+          (λ (o , tₒ , j~o , k~o , H₁ , H₂) →
+            ∣ i + o , appᵣ↑ rᵢ tₒ
+            , (≤⇒≤₃ $ +-monoʳ-≤ i $ ≤₃⇒≤ j~o)
+            , (≤⇒≤₃ $ +-monoʳ-≤ i $ ≤₃⇒≤ k~o)
+            , (pathToEq $
+                morph _ (appᵣ↑ rᵢ tⱼ)
+                  ≡⟨ map-$-formulaMorph-distrib-appᵣ↑ _ _ ⟩
+                map2 appᵣ (morph _ rᵢ) (T.morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ j~o) (m≤n+m _ _)) tⱼ)
+                  ≡⟨ cong₂ (map2 appᵣ) reflPath (
+                    T.morph _ tⱼ          ≡⟨ eqToPath T.functorial ≡$ tⱼ ⟩
+                    T.morph j~o tⱼ T.↑ˡ i ≡⟨ eqToPath $ cong (T._↑ˡ i) H₁ ⟩
+                    tₒ T.↑ˡ i           ∎) ⟩
+                appᵣ↑ rᵢ tₒ ∎)
+            , (pathToEq $
+                morph _ (appᵣ↑ rᵢ tₖ)
+                  ≡⟨ map-$-formulaMorph-distrib-appᵣ↑ _ _ ⟩
+                map2 appᵣ (morph _ rᵢ) (T.morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ k~o) (m≤n+m _ _)) tₖ)
+                  ≡⟨ cong₂ (map2 appᵣ) reflPath (
+                    T.morph _ tₖ          ≡⟨ eqToPath T.functorial ≡$ tₖ ⟩
+                    T.morph k~o tₖ T.↑ˡ i ≡⟨ eqToPath $ cong (T._↑ˡ i) H₂ ⟩
+                    tₒ T.↑ˡ i           ∎) ⟩
+                appᵣ↑ rᵢ tₒ ∎)
+            ∣₁)
+          (effᵗ $ compPath Hj $ symPath Hk))
+      , (toPathP $ squash₂ _ _ _ _))
+      (λ _ _ _ _ → toPathP $ isSetFiber _ _ _ _)
+      (repʳ r) (repᵗ t)
+    where open DirectedDiagram (formulaChain ℒ n (suc l)) using () renaming (representative to repʳ; effective to effʳ)
+          open DirectedDiagram (termChain ℒ n 0)          using () renaming (representative to repᵗ; effective to effᵗ)
+          open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
   formulaComparisonFiber (t₁ ≈ t₂) = {!   !}
   formulaComparisonFiber (φ₁ ⇒ φ₂) = {!   !}
   formulaComparisonFiber (∀' φ) = {!   !}
