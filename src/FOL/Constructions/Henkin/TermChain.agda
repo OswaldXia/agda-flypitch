@@ -20,7 +20,7 @@ open CoconeLanguage using (compat)
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Prelude
-  using (cong₂; isProp; isSet; isProp→isSet; toPathP; step-≡; _≡⟨⟩_; _∎)
+  using (cong₂; isProp; isSet; isProp→isSet; toPathP; step-≡; _≡⟨⟩_; _∎; _≡$_)
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.HLevels using (isSetΣ; isSet→isGroupoid)
 open import Cubical.HITs.SetQuotients using (eq/; [_]; squash/)
@@ -70,13 +70,13 @@ module _ {ℒ n l} where
   _ : ∀ {i} (t : obj i) → termComparison [ i , t ] ≡ₚ map (termMorph $ languageCanonicalMorph i) t
   _ = λ _ → reflPath
 
+  _↑ʳ_ : ∀ {i} → obj i → (j : ℕ) → obj (i + j)
+  t ↑ʳ _ = morph (≤⇒≤₃ $ m≤m+n _ _) t
+
+  _↑ˡ_ : ∀ {j} → obj j → (i : ℕ) → obj (i + j)
+  t ↑ˡ _ = morph (≤⇒≤₃ $ m≤n+m _ _) t
+
   abstract
-    _↑ʳ_ : ∀ {i} → obj i → (j : ℕ) → obj (i + j)
-    _↑ʳ_ t _ = morph (≤⇒≤₃ $ m≤m+n _ _) t
-
-    _↑ˡ_ : ∀ {j} → obj j → (i : ℕ) → obj (i + j)
-    _↑ˡ_ t _ = morph (≤⇒≤₃ $ m≤n+m _ _) t
-
     _≡↑ʳ_ : ∀ {i} {tᵢ : obj i} {t : Colimit} →
       [ i , tᵢ ] ≡ₚ t → (j : ℕ) → [ i + j , tᵢ ↑ʳ j ] ≡ₚ t
     _≡↑ʳ_ {i} {tᵢ} H j = (flip compPath) H $ eq/ _ _
@@ -163,9 +163,9 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
             map2 app (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _)) fᵢ)
                      (morph (≤⇒≤₃ $ m≤n+m _ _) tₖ)
               ≡⟨ cong₂ (map2 app)
-                ( morph _ fᵢ        ≡⟨ {!   !} ⟩
+                ( morph _ fᵢ        ≡⟨ eqToPath functorial ≡$ fᵢ ⟩
                   morph i~o fᵢ ↑ʳ k ≡⟨ eqToPath $ cong (_↑ʳ k) H₁ ⟩
-                  fₒ ↑ʳ k                             ∎)
+                  fₒ ↑ʳ k           ∎)
                 {!   !} ⟩
             app₂ fₒ tₖ ∎)
           , {!   !}
@@ -177,6 +177,6 @@ termComparisonFiber {ℒ} {n} {l} (app g s) =
     , (toPathP $ squash₂ _ _ _ _))
     {!   !} --(λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , fₖ) , Hk) ((o , tₒ) , Ho) → {!   !})
     (repᶠ f) (repᵗ t)
-  where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (morph to morᶠ; representative to repᶠ; effective to effᶠ)
-        open DirectedDiagram (termChain ℒ n 0)       using () renaming (morph to morᵗ; representative to repᵗ; effective to effᵗ)
+  where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
+        open DirectedDiagram (termChain ℒ n 0)       using () renaming (representative to repᵗ; effective to effᵗ)
         open DirectedDiagram (termChain ℒ n l) using (_≃_)
