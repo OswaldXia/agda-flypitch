@@ -109,10 +109,8 @@ abstract
     map (termMorph F) (map2 app f t) ≡ₚ map2 app (map (termMorph F) f) (map (termMorph F) t)
   map-$-termMorph-distrib-app = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
-  map-$-termMorph-distrib-app₂ : ∀ {ℒ n l i j k}
-    .{f₀ : i + j ≤₃ k} .{f₁ : i ≤₃ k} .{f₂ : j ≤₃ k}
-    (f : ∥ Termₗ ([ i ]-language ℒ) n (suc l) ∥₂)
-    (t : ∥ Termₗ ([ j ]-language ℒ) n 0 ∥₂) →
+  map-$-termMorph-distrib-app₂ : ∀ {ℒ n l i j k} .{f₀ : i + j ≤₃ k} .{f₁ : i ≤₃ k} .{f₂ : j ≤₃ k}
+    (f : obj {ℒ} {n} {suc l} i) (t : obj {ℒ} {n} {0} j) →
     map (termMorph $ langMorph f₀) (app₂ f t) ≡ₚ
     map2 app (map (termMorph $ langMorph f₁) f) (map (termMorph $ langMorph f₂) t)
   map-$-termMorph-distrib-app₂ =
