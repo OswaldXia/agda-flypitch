@@ -128,8 +128,14 @@ abstract
   formulaComparisonFiber {ℒ} {n} {l} (rel R) =
     elim→Set {P = λ _ → fiber formulaComparison ∣ rel R ∣₂}
       (λ _ → isSetFiber)
-      {!   !}
-      {!   !}
+      (λ ((i , Rᵢ) , H) → [ i , ∣ rel Rᵢ ∣₂ ] , congPath (∣_∣₂ ∘ rel) H)
+      (λ ((i , Rᵢ) , Hi) ((j , Rⱼ) , Hj) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i , ∣ rel Rᵢ ∣₂) ≃ (j , ∣ rel Rⱼ ∣₂)}
+          (λ _ → squash₁)
+          (λ (k , Rₖ , i~k , j~k , H₁ , H₂) →
+            ∣ k , ∣ rel Rₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ rel) H₁ , cong (∣_∣₂ ∘ rel) H₂ ∣₁)
+          (effective $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
       (representative R)
     where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
           open DirectedDiagramLanguage (languageChain ℒ) using (relationsᴰ)
