@@ -120,63 +120,64 @@ abstract
       (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial a)
       (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
-termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
-termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ] , reflPath
-termComparisonFiber {ℒ} {n} {l} (func f) =
-  elim→Set {P = λ _ → fiber termComparison ∣ func f ∣₂}
-    (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
-    (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ] , congPath (∣_∣₂ ∘ func) H)
-    (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
-      (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)}
-        (λ _ → squash₁)
-        (λ (k , fₖ , i~k , j~k , H₁ , H₂) →
-          ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
-        (effective $ compPath Hi $ symPath Hj))
-    , (toPathP $ squash₂ _ _ _ _))
-    (representative f)
-  where open DirectedDiagram (termChain ℒ n l) using (_≃_)
-        open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
-        open DirectedDiagram (functionsᴰ l) using (representative; effective)
-termComparisonFiber {ℒ} {n} {l} (app g s) =
-  let (f , Hf) = termComparisonFiber g
-      (t , Ht) = termComparisonFiber s in
-  elim2→Set {P = λ _ _ → fiber termComparison ∣ app g s ∣₂}
-    (λ _ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
-    (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) →
-      [ i + j , app₂ fᵢ tⱼ ]
-    , ( map (termMorph _) (app₂ fᵢ tⱼ)
-          ≡⟨ map-$-termMorph-distrib-app _ _ ⟩
-        map2 app (termComparison [ i + j , fᵢ ↑ʳ j ]) (termComparison [ i + j , tⱼ ↑ˡ i ])
-          ≡⟨ cong₂ (map2 app) (compPath (congPath termComparison (Hi ≡↑ʳ j)) Hf)
-                              (compPath (congPath termComparison (Hj ≡↑ˡ i)) Ht) ⟩
-        ∣ app g s ∣₂ ∎))
-    (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
-      (eq/ _ _ $ elim {P = λ _ → (i + k , app₂ fᵢ tₖ) ≃ (j + k , app₂ fⱼ tₖ)}
-        (λ _ → squash₁)
-        (λ (o , fₒ , i~o , j~o , H₁ , H₂) →
-          ∣ o + k , app₂ fₒ tₖ
-          , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ i~o)
-          , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
-          , pathToEq (
-            morph _ (app₂ fᵢ tₖ)
-              ≡⟨ map-$-termMorph-distrib-app₂ _ _ ⟩
-            map2 app (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _)) fᵢ)
-                     (morph (≤⇒≤₃ $ m≤n+m _ _) tₖ)
-              ≡⟨ cong₂ (map2 app)
-                ( morph _ fᵢ        ≡⟨ eqToPath functorial ≡$ fᵢ ⟩
-                  morph i~o fᵢ ↑ʳ k ≡⟨ eqToPath $ cong (_↑ʳ k) H₁ ⟩
-                  fₒ ↑ʳ k           ∎)
-                {!   !} ⟩
-            app₂ fₒ tₖ ∎)
-          , {!   !}
-          ∣₁)
-        (effᶠ $ compPath Hi $ symPath Hj))
-    , (toPathP $ squash₂ _ _ _ _))
-    (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
-      {!   !}
-    , (toPathP $ squash₂ _ _ _ _))
-    {!   !} --(λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , fₖ) , Hk) ((o , tₒ) , Ho) → {!   !})
-    (repᶠ f) (repᵗ t)
-  where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
-        open DirectedDiagram (termChain ℒ n 0)       using () renaming (representative to repᵗ; effective to effᵗ)
-        open DirectedDiagram (termChain ℒ n l) using (_≃_)
+  termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
+  termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ] , reflPath
+  termComparisonFiber {ℒ} {n} {l} (func f) =
+    elim→Set {P = λ _ → fiber termComparison ∣ func f ∣₂}
+      (λ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
+      (λ ((i , fᵢ) , H) → [ i , ∣ func fᵢ ∣₂ ] , congPath (∣_∣₂ ∘ func) H)
+      (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i , ∣ func fᵢ ∣₂) ≃ (j , ∣ func fⱼ ∣₂)}
+          (λ _ → squash₁)
+          (λ (k , fₖ , i~k , j~k , H₁ , H₂) →
+            ∣ k , ∣ func fₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ func) H₁ , cong (∣_∣₂ ∘ func) H₂ ∣₁)
+          (effective $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
+      (representative f)
+    where open DirectedDiagram (termChain ℒ n l) using (_≃_)
+          open DirectedDiagramLanguage (languageChain ℒ) using (functionsᴰ)
+          open DirectedDiagram (functionsᴰ l) using (representative; effective)
+  termComparisonFiber {ℒ} {n} {l} (app g s) =
+    let (f , Hf) = termComparisonFiber g
+        (t , Ht) = termComparisonFiber s in
+    elim2→Set {P = λ _ _ → fiber termComparison ∣ app g s ∣₂}
+      (λ _ _ → isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _)
+      (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) →
+        [ i + j , app₂ fᵢ tⱼ ]
+      , ( map (termMorph _) (app₂ fᵢ tⱼ)
+            ≡⟨ map-$-termMorph-distrib-app _ _ ⟩
+          map2 app (termComparison [ i + j , fᵢ ↑ʳ j ]) (termComparison [ i + j , tⱼ ↑ˡ i ])
+            ≡⟨ cong₂ (map2 app) (compPath (congPath termComparison (Hi ≡↑ʳ j)) Hf)
+                                (compPath (congPath termComparison (Hj ≡↑ˡ i)) Ht) ⟩
+          ∣ app g s ∣₂ ∎))
+      (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+        (eq/ _ _ $ elim {P = λ _ → (i + k , app₂ fᵢ tₖ) ≃ (j + k , app₂ fⱼ tₖ)}
+          (λ _ → squash₁)
+          (λ (o , fₒ , i~o , j~o , H₁ , H₂) →
+            ∣ o + k , app₂ fₒ tₖ
+            , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ i~o)
+            , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
+            , pathToEq (
+              morph _ (app₂ fᵢ tₖ)
+                ≡⟨ map-$-termMorph-distrib-app₂ _ _ ⟩
+              map2 app (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _)) fᵢ)
+                       (morph (≤⇒≤₃ $ m≤n+m _ _) tₖ)
+                ≡⟨ cong₂ (map2 app)
+                  ( morph _ fᵢ        ≡⟨ eqToPath functorial ≡$ fᵢ ⟩
+                    morph i~o fᵢ ↑ʳ k ≡⟨ eqToPath $ cong (_↑ʳ k) H₁ ⟩
+                    fₒ ↑ʳ k           ∎)
+                  {!   !}
+                ⟩
+              app₂ fₒ tₖ ∎)
+            , {!   !}
+            ∣₁)
+          (effᶠ $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
+      (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
+        {!   !}
+      , (toPathP $ squash₂ _ _ _ _))
+      {!   !} --(λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) ((k , fₖ) , Hk) ((o , tₒ) , Ho) → {!   !})
+      (repᶠ f) (repᵗ t)
+    where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
+          open DirectedDiagram (termChain ℒ n 0)       using () renaming (representative to repᵗ; effective to effᵗ)
+          open DirectedDiagram (termChain ℒ n l) using (_≃_)
