@@ -42,7 +42,6 @@ obj ℒ zero    = ℒ
 obj ℒ (suc n) = languageStep (obj ℒ n)
 
 abstract
-
   morph : ∀ {x y} → .(x ≤₃ y) → obj ℒ x ⟶ obj ℒ y
   morph {ℒ} {x} {y} x≤y with <-cmp x y
   ... | tri< (s≤s x≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
