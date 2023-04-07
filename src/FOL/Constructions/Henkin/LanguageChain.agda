@@ -102,4 +102,3 @@ henkinization _ = languageCanonicalMorph 0
 
 coconeOfLanguageChain : CoconeLanguage $ languageChain ℒ
 coconeOfLanguageChain = coconeOfColimitLanguage _
- 
