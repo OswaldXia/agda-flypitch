@@ -65,7 +65,7 @@ coconeOfFormulaChain ℒ n l = record
   }
 
 module _ {ℒ n l} where
-  open DirectedDiagram (formulaChain ℒ n l) using (obj; morph; functorial; Colimit) public
+  open DirectedDiagram (formulaChain ℒ n l) using (obj; morph; functorial; Colimit; representative; effective) public
 
   formulaComparison : Colimit → ∥ Formulaₗ (∞-language ℒ) n l ∥₂
   formulaComparison = universalMap (coconeOfFormulaChain ℒ n l)
@@ -135,12 +135,12 @@ abstract
           (λ _ → squash₁)
           (λ (k , Rₖ , i~k , j~k , H₁ , H₂) →
             ∣ k , ∣ rel Rₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ rel) H₁ , cong (∣_∣₂ ∘ rel) H₂ ∣₁)
-          (effective $ compPath Hi $ symPath Hj))
+          (eff $ compPath Hi $ symPath Hj))
       , (toPathP $ squash₂ _ _ _ _))
-      (representative R)
-    where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
-          open DirectedDiagramLanguage (languageChain ℒ) using (relationsᴰ)
-          open DirectedDiagram (relationsᴰ l) using (representative; effective)
+      (rep R)
+    where open DirectedDiagramLanguage (languageChain ℒ) using (relationsᴰ)
+          open DirectedDiagram (relationsᴰ l) using () renaming (representative to rep; effective to eff)
+          open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
   formulaComparisonFiber {ℒ} {n} {l} (appᵣ ρ τ) =
     let (r , Hr) = formulaComparisonFiber ρ
         (t , Ht) = termComparisonFiber    τ in
@@ -219,4 +219,11 @@ abstract
           open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
   formulaComparisonFiber (t₁ ≈ t₂) = {!   !}
   formulaComparisonFiber (φ₁ ⇒ φ₂) = {!   !}
-  formulaComparisonFiber (∀' φ) = {!   !}
+  formulaComparisonFiber {ℒ} {n} {l} (∀' ψ) =
+    let (φ , Hφ) = formulaComparisonFiber ψ in
+    elim→Set {P = λ _ → fiber formulaComparison ∣ ∀' ψ ∣₂}
+      (λ _ → isSetFiber)
+      (λ ((i , φᵢ) , H) → [ i , map ∀'_ φᵢ ] , {!   !})
+      (λ ((i , φᵢ) , Hi) ((j , φⱼ) , Hj) → {!   !})
+      (representative φ)
+    where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)

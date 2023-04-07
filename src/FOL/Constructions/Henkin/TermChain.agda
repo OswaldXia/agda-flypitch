@@ -212,6 +212,6 @@ abstract
       , (toPathP $ squash₂ _ _ _ _))
       (λ _ _ _ _ → toPathP $ isSetFiber _ _ _ _)
       (repᶠ f) (repᵗ t)
-    where open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
+    where open DirectedDiagram (termChain ℒ n l) using (_≃_)
+          open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
           open DirectedDiagram (termChain ℒ n 0)       using () renaming (representative to repᵗ; effective to effᵗ)
-          open DirectedDiagram (termChain ℒ n l) using (_≃_)
