@@ -23,14 +23,15 @@ open import Cubical.Foundations.Prelude
   using (cong₂; isProp; isSet; isProp→isSet; toPathP; step-≡; _≡⟨⟩_; _∎; _≡$_)
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.HLevels using (isSetΣ; isSet→isGroupoid)
-open import Cubical.HITs.SetQuotients using (eq/; [_]; squash/)
+open import Cubical.Data.Equality
+  using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath; substPath)
+open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
+open import Cubical.HITs.SetQuotients
+  using ([_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation
   using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
 open import CubicalExt.HITs.SetTruncation
   using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
-open import Cubical.Data.Equality
-  using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath; substPath)
-open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 
 open import StdlibExt.Data.Nat
 open import Data.Nat.Properties
