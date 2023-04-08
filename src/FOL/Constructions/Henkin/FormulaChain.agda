@@ -31,9 +31,11 @@ open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.SetQuotients
   using ([_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation
-  using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
+  using (∣_∣₁; squash₁; elim→Set; elim2→Set)
+  renaming (elim to elim₁)
 open import CubicalExt.HITs.SetTruncation
   using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
+  renaming (elim to elim₂)
 
 open import StdlibExt.Data.Nat
 open import Data.Nat.Properties
@@ -121,6 +123,10 @@ abstract
       (eqToPath $ sym $ cong-app formulaMorph-$-langMorph-functorial a)
       (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
+  map-$-formulaMorph-∀'-comm : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂}
+    (φ : ∥ Formulaₗ ℒ₁ (suc n) 0 ∥₂) → map (formulaMorph F) (map ∀'_ φ) ≡ₚ map ∀'_ (map (formulaMorph F) φ)
+  map-$-formulaMorph-∀'-comm = elim₂ (λ _ → isSet→isGroupoid squash₂ _ _) (λ _ → reflPath)
+
   isSetFiber : ∀ {ℒ n l} {φ : Formulaₗ (∞-language ℒ) n l} → isSet (fiber formulaComparison ∣ φ ∣₂)
   isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _
 
@@ -131,7 +137,7 @@ abstract
       (λ _ → isSetFiber)
       (λ ((i , Rᵢ) , H) → [ i , ∣ rel Rᵢ ∣₂ ] , congPath (∣_∣₂ ∘ rel) H)
       (λ ((i , Rᵢ) , Hi) ((j , Rⱼ) , Hj) → ΣPathP $
-        (eq/ _ _ $ elim {P = λ _ → (i , ∣ rel Rᵢ ∣₂) ≃ (j , ∣ rel Rⱼ ∣₂)}
+        (eq/ _ _ $ elim₁ {P = λ _ → (i , ∣ rel Rᵢ ∣₂) ≃ (j , ∣ rel Rⱼ ∣₂)}
           (λ _ → squash₁)
           (λ (k , Rₖ , i~k , j~k , H₁ , H₂) →
             ∣ k , ∣ rel Rₖ ∣₂ , i~k , j~k , cong (∣_∣₂ ∘ rel) H₁ , cong (∣_∣₂ ∘ rel) H₂ ∣₁)
@@ -155,7 +161,7 @@ abstract
                                  (compPath (congPath termComparison (Hj T.≡↑ˡ i)) Ht) ⟩
           ∣ appᵣ ρ τ ∣₂ ∎))
       (λ ((i , rᵢ) , Hi) ((j , rⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
-        (eq/ _ _ $ elim {P = λ _ → (i + k , appᵣ↑ rᵢ tₖ) ≃ (j + k , appᵣ↑ rⱼ tₖ)}
+        (eq/ _ _ $ elim₁ {P = λ _ → (i + k , appᵣ↑ rᵢ tₖ) ≃ (j + k , appᵣ↑ rⱼ tₖ)}
           (λ _ → squash₁)
           (λ (o , rₒ , i~o , j~o , H₁ , H₂) →
             ∣ o + k , appᵣ↑ rₒ tₖ
@@ -185,7 +191,7 @@ abstract
           (effʳ $ compPath Hi $ symPath Hj))
       , (toPathP $ squash₂ _ _ _ _))
       (λ ((i , rᵢ) , Hi) ((j , tⱼ) , Hj) ((k , tₖ) , Hk) → ΣPathP $
-        (eq/ _ _ $ elim {P = λ _ → (i + j , appᵣ↑ rᵢ tⱼ) ≃ (i + k , appᵣ↑ rᵢ tₖ)}
+        (eq/ _ _ $ elim₁ {P = λ _ → (i + j , appᵣ↑ rᵢ tⱼ) ≃ (i + k , appᵣ↑ rᵢ tₖ)}
           (λ _ → squash₁)
           (λ (o , tₒ , j~o , k~o , H₁ , H₂) →
             ∣ i + o , appᵣ↑ rᵢ tₒ
@@ -223,7 +229,10 @@ abstract
     let (φ , Hφ) = formulaComparisonFiber ψ in
     elim→Set {P = λ _ → fiber formulaComparison ∣ ∀' ψ ∣₂}
       (λ _ → isSetFiber)
-      (λ ((i , φᵢ) , H) → [ i , map ∀'_ φᵢ ] , {!   !})
+      (λ ((i , φᵢ) , H) → [ i , map ∀'_ φᵢ ] , (
+        map (formulaMorph _) (map ∀'_ φᵢ)       ≡⟨ map-$-formulaMorph-∀'-comm _ ⟩
+        map ∀'_ (formulaComparison [ i , φᵢ ])  ≡⟨ congPath (map ∀'_) (compPath (congPath formulaComparison H) Hφ) ⟩
+        ∣ ∀' ψ ∣₂                               ∎))
       (λ ((i , φᵢ) , Hi) ((j , φⱼ) , Hj) → {!   !})
       (representative φ)
     where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
