@@ -27,7 +27,7 @@ open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.HLevels using (isSetΣ; isSet→isGroupoid)
 open import Cubical.Data.Equality
   using (eqToPath; pathToEq; reflPath; symPath; compPath; congPath; substPath)
-open import Cubical.Data.Sigma using (ΣPathP) renaming (_×_ to infixr 3 _×_)
+open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.HITs.SetQuotients
   using ([_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation
