@@ -233,6 +233,21 @@ abstract
         map (formulaMorph _) (map ∀'_ φᵢ)       ≡⟨ map-$-formulaMorph-∀'-comm _ ⟩
         map ∀'_ (formulaComparison [ i , φᵢ ])  ≡⟨ congPath (map ∀'_) (compPath (congPath formulaComparison H) Hφ) ⟩
         ∣ ∀' ψ ∣₂                               ∎))
-      (λ ((i , φᵢ) , Hi) ((j , φⱼ) , Hj) → {!   !})
+      (λ ((i , φᵢ) , Hi) ((j , φⱼ) , Hj) → ΣPathP $
+        (eq/ _ _ $ elim₁ {P = λ _ → (i , map ∀'_ φᵢ) ≃ (j , map ∀'_ φⱼ)}
+          (λ _ → squash₁)
+          (λ (k , φₖ , i~k , j~k , H₁ , H₂) →
+            ∣ k , map ∀'_ φₖ , i~k , j~k
+            , (pathToEq $
+                morph _ (map ∀'_ φᵢ) ≡⟨ map-$-formulaMorph-∀'-comm _ ⟩
+                map ∀'_ (morph _ φᵢ) ≡⟨ congPath (map ∀'_) (eqToPath H₁) ⟩
+                map ∀'_ φₖ           ∎)
+            , (pathToEq $
+                morph _ (map ∀'_ φⱼ) ≡⟨ map-$-formulaMorph-∀'-comm _ ⟩
+                map ∀'_ (morph _ φⱼ) ≡⟨ congPath (map ∀'_) (eqToPath H₂) ⟩
+                map ∀'_ φₖ           ∎)
+            ∣₁)
+          (effective $ compPath Hi $ symPath Hj))
+      , (toPathP $ squash₂ _ _ _ _))
       (representative φ)
     where open DirectedDiagram (formulaChain ℒ n l) using (_≃_)
