@@ -8,8 +8,9 @@ open Language ℒ
 open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Nat using (ℕ)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂)
 
 data HekinFunctions : ℕ → Type u where
   include  : ∀ {n} → functions n → HekinFunctions n
-  witness : Formula 1 → HekinFunctions 0
+  witness : ∥ Formula 1 ∥₂ → HekinFunctions 0
   isSetHekinFunctions : ∀ n → isSet (HekinFunctions n)
