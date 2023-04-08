@@ -110,14 +110,12 @@ abstract
     map (termMorph F) (map2 app f t) ≡ₚ map2 app (map (termMorph F) f) (map (termMorph F) t)
   map-$-termMorph-distrib-app = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
-  map-$-termMorph-distrib-app↑ : ∀ {ℒ n l i j k} .{f₀ : i + j ≤₃ k} .{f₁ : i ≤₃ k} .{f₂ : j ≤₃ k}
+  morph-distrib-app↑ : ∀ {ℒ n l i j k} .{f₀ : i + j ≤₃ k} .{f₁ : i ≤₃ k} .{f₂ : j ≤₃ k}
     (f : obj {ℒ} {n} {suc l} i) (t : obj {ℒ} {n} {0} j) →
-    map (termMorph $ langMorph f₀) (app↑ f t) ≡ₚ
-    map2 app (map (termMorph $ langMorph f₁) f) (map (termMorph $ langMorph f₂) t)
-  map-$-termMorph-distrib-app↑ =
-    elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) λ a b → cong₂ (∣_∣₂ ∘₂ app)
-      (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial a)
-      (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
+    (morph f₀) (app↑ f t) ≡ₚ map2 app (morph f₁ f) (morph f₂ t)
+  morph-distrib-app↑ = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) λ a b → cong₂ (∣_∣₂ ∘₂ app)
+    (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial a)
+    (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
   isSetFiber : ∀ {ℒ n l} {t : Termₗ (∞-language ℒ) n l} → isSet (fiber termComparison ∣ t ∣₂)
   isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _
@@ -144,8 +142,7 @@ abstract
         (t , Ht) = termComparisonFiber s in
     elim2→Set {P = λ _ _ → fiber termComparison ∣ app g s ∣₂}
       (λ _ _ → isSetFiber)
-      (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) →
-        [ i + j , app↑ fᵢ tⱼ ]
+      (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) → [ i + j , app↑ fᵢ tⱼ ]
       , ( map (termMorph _) (app↑ fᵢ tⱼ)
             ≡⟨ map-$-termMorph-distrib-app _ _ ⟩
           map2 app (termComparison [ i + j , fᵢ ↑ʳ j ]) (termComparison [ i + j , tⱼ ↑ˡ i ])
@@ -161,7 +158,7 @@ abstract
             , (≤⇒≤₃ $ +-monoˡ-≤ k $ ≤₃⇒≤ j~o)
             , (pathToEq $
                 morph _ (app↑ fᵢ tₖ)
-                  ≡⟨ map-$-termMorph-distrib-app↑ _ _ ⟩
+                  ≡⟨ morph-distrib-app↑ _ _ ⟩
                 map2 app (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ i~o) (m≤m+n _ _)) fᵢ) (morph _ tₖ)
                   ≡⟨ cong₂ (map2 app)
                     ( morph _ fᵢ        ≡⟨ eqToPath functorial ≡$ fᵢ ⟩
@@ -171,7 +168,7 @@ abstract
                 app↑ fₒ tₖ ∎)
             , (pathToEq $
                 morph _ (app↑ fⱼ tₖ)
-                  ≡⟨ map-$-termMorph-distrib-app↑ _ _ ⟩
+                  ≡⟨ morph-distrib-app↑ _ _ ⟩
                 map2 app (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ j~o) (m≤m+n _ _)) fⱼ) (morph _ tₖ)
                   ≡⟨ cong₂ (map2 app)
                     ( morph _ fⱼ        ≡⟨ eqToPath functorial ≡$ fⱼ ⟩
@@ -191,7 +188,7 @@ abstract
             , (≤⇒≤₃ $ +-monoʳ-≤ i $ ≤₃⇒≤ k~o)
             , (pathToEq $
                 morph _ (app↑ fᵢ tⱼ)
-                  ≡⟨ map-$-termMorph-distrib-app↑ _ _ ⟩
+                  ≡⟨ morph-distrib-app↑ _ _ ⟩
                 map2 app (morph _ fᵢ) (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ j~o) (m≤n+m _ _)) tⱼ)
                   ≡⟨ cong₂ (map2 app) reflPath (
                     morph _ tⱼ        ≡⟨ eqToPath functorial ≡$ tⱼ ⟩
@@ -200,7 +197,7 @@ abstract
                 app↑ fᵢ tₒ ∎)
             , (pathToEq $
                 morph _ (app↑ fᵢ tₖ)
-                  ≡⟨ map-$-termMorph-distrib-app↑ _ _ ⟩
+                  ≡⟨ morph-distrib-app↑ _ _ ⟩
                 map2 app (morph _ fᵢ) (morph (≤⇒≤₃ $ ≤-trans (≤₃⇒≤ k~o) (m≤n+m _ _)) tₖ)
                   ≡⟨ cong₂ (map2 app) reflPath (
                     morph _ tₖ        ≡⟨ eqToPath functorial ≡$ tₖ ⟩
