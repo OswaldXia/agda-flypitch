@@ -30,3 +30,6 @@ x ≤₃ y with <-cmp x y
 ... | tri> x≮y x≢y _ with m≤n⇒m<n∨m≡n x≤y
 ... | inj₁ x<y = x≮y x<y
 ... | inj₂ x≡y = x≢y x≡y
+
+s≤₃s : ∀ {x y} → x ≤₃ y → suc x ≤₃ suc y
+s≤₃s x≤₃y = ≤⇒≤₃ (s≤s (≤₃⇒≤ x≤₃y))
