@@ -29,7 +29,8 @@ open Language ℒ
 open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Foundations.Prelude using (isSet)
-open import CubicalExt.Foundations.Powerset using (ℙ; isSetℙ)
+open import CubicalExt.Foundations.Powerset* using (ℙ; isSetℙ; _⟦_⟧)
+open import Cubical.HITs.SetTruncation using (∥_∥₂; map)
 
 open import Data.Nat using (ℕ; suc; _+_; _∸_; _<?_)
 open import Data.Nat.Properties using (<-cmp)
@@ -278,7 +279,7 @@ appᵣ φ t  [ s / n ] = appᵣ (φ [ s / n ]) (t [ s / n ]ₜ)
 
 ```agda
 Theory : Type (ℓ-suc u)
-Theory = ℙ Formula
+Theory = ℙ ∥ Formula ∥₂ u
 
 isSetTheory : isSet Theory
 isSetTheory = isSetℙ
@@ -288,5 +289,5 @@ isSetTheory = isSetℙ
 
 ```agda
 _⇑_ : Theory → ℕ → Theory
-Γ ⇑ n = {!   !} --(_↥ n) ⟦ Γ ⟧
+Γ ⇑ n = map (_↥ n) ⟦ Γ ⟧
 ```
