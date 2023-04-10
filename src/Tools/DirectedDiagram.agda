@@ -13,7 +13,7 @@ open import Cubical.Relation.Binary
 open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
 
 open import StdlibExt.Data.Nat using (ℕ; _+_; _≤₃_; ≤⇒≤₃; ≤₃⇒≤)
-open import Data.Nat.Properties
+open import StdlibExt.Data.Nat.Properties
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning
@@ -37,9 +37,9 @@ record DirectedType : Type (ℓ-suc u) where
   { Carrier = ℕ
   ; isSetCarrier = isSetℕ
   ; _~_ = _≤₃_
-  ; isRefl~ = λ _ → ≤⇒≤₃ ≤-refl
+  ; isRefl~ = λ _ → ≤₃-refl
   ; isTrans~ = λ _ _ _ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
-  ; directed = λ x y → x + y , ≤⇒≤₃ (m≤m+n _ _) , ≤⇒≤₃ (m≤n+m _ _)
+  ; directed = λ x y → x + y , m≤₃m+n , m≤₃n+m
   }
 
 record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) where

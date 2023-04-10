@@ -34,7 +34,7 @@ open import CubicalExt.HITs.SetTruncation
   using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
 
 open import StdlibExt.Data.Nat
-open import Data.Nat.Properties
+open import StdlibExt.Data.Nat.Properties
 open import Function using (flip; _$_; _∘_; _∘₂_)
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans; cong; cong-app; subst)
@@ -81,7 +81,7 @@ module _ {ℒ n l} where
     _≡↑ʳ_ : ∀ {i} {tᵢ : obj i} {t : Colimit} →
       [ i , tᵢ ] ≡ₚ t → (j : ℕ) → [ i + j , tᵢ ↑ʳ j ] ≡ₚ t
     _≡↑ʳ_ {i} {tᵢ} H j = (flip compPath) H $ eq/ _ _
-      ∣ i + j , tᵢ ↑ʳ j , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤m+n _ _)
+      ∣ i + j , tᵢ ↑ʳ j , ≤₃-refl , m≤₃m+n
       , (sym $ (flip cong-app) tᵢ $ map-$-termMorph-functorial
              $ subst (λ x → langMorph _ ≡ x ◯ langMorph _) (sym endomorph≡id) refl)
       , refl
@@ -90,7 +90,7 @@ module _ {ℒ n l} where
     _≡↑ˡ_ : ∀ {j} {tⱼ : obj j} {t : Colimit} →
       [ j , tⱼ ] ≡ₚ t → (i : ℕ) → [ i + j , tⱼ ↑ˡ i ] ≡ₚ t
     _≡↑ˡ_ {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
-      ∣ i + j , tⱼ ↑ˡ i , ≤⇒≤₃ ≤-refl , ≤⇒≤₃ (m≤n+m _ _)
+      ∣ i + j , tⱼ ↑ˡ i , ≤₃-refl , m≤₃n+m
       , (sym $ (flip cong-app) tⱼ $ map-$-termMorph-functorial
              $ subst (λ x → langMorph _ ≡ x ◯ langMorph _) (sym endomorph≡id) refl)
       , refl
