@@ -51,21 +51,18 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf ∣ φ ∣₂ witnessin
 ∞-theory : Theory ℒ → Theory $ ∞-language ℒ
 ∞-theory T = ⋃ (λ n → [ n ]-∞-theory T)
 
-∞-witness : {T : Theory ℒ} (φ : Formula (∞-language ℒ) 1) →
+∞-witnessing : (φ : Formula (∞-language ℒ) 1) → Type u
+∞-witnessing {ℒ} φ =
   ∃[ c ∈ Constant $ ∞-language ℒ ]
   Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
   Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
     [ φₚ ] ≡ φ∞
   × formulaComparison φ∞ ≡ ∣ φ ∣₂
   × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
+
+∞-witness : (φ : Formula (∞-language ℒ) 1) → ∞-witnessing φ
 ∞-witness {ℒ} φ = let (φ∞ , Hφ∞) = formulaComparisonFiber φ in
-  elim {P = λ _ →
-      ∃[ c ∈ Constant $ ∞-language ℒ ]
-      Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
-      Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
-        [ φₚ ] ≡ φ∞
-      × formulaComparison φ∞ ≡ ∣ φ ∣₂
-      × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)}
+  elim {P = λ _ → ∞-witnessing φ}
     (λ _ → squash₁)
     (λ (φₚ@(i , φᵢ) , Hi) →
       ∣ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
