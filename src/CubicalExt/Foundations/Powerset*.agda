@@ -31,29 +31,29 @@ private variable
 ------------------------------------------------------------------------
 -- Definition
 
-ℙ : Type ℓ → (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-ℙ X ℓ' = X → hProp ℓ'
+𝒫 : Type ℓ → (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+𝒫 X ℓ' = X → hProp ℓ'
 
-isSetℙ : isSet (ℙ X ℓ)
-isSetℙ = isSetΠ λ x → isSetHProp
+isSet𝒫 : isSet (𝒫 X ℓ)
+isSet𝒫 = isSetΠ λ x → isSetHProp
 
 ------------------------------------------------------------------------
 -- Special sets
 
 -- Empty set
 
-∅ : ℙ X ℓ-zero
+∅ : 𝒫 X ℓ-zero
 ∅ = λ _ → ⊥
 
-∅* : ℙ X ℓ
+∅* : 𝒫 X ℓ
 ∅* = λ _ → ⊥* , isProp⊥*
 
 -- Universal set
 
-U : ℙ X ℓ-zero
+U : 𝒫 X ℓ-zero
 U = λ _ → ⊤
 
-U* : ℙ X ℓ
+U* : 𝒫 X ℓ
 U* = λ _ → Unit* , isPropUnit*
 
 ------------------------------------------------------------------------
@@ -61,42 +61,42 @@ U* = λ _ → Unit* , isPropUnit*
 
 infix 5 _∈_ _∉_ _⊆_
 
-_∈_ : X → ℙ X ℓ → Type _
+_∈_ : X → 𝒫 X ℓ → Type _
 x ∈ A = ⟨ A x ⟩
 
-_∉_ : X → ℙ X ℓ → Type _
+_∉_ : X → 𝒫 X ℓ → Type _
 x ∉ A = ¬ ⟨ A x ⟩
 
-subst-∈ : (A : ℙ X ℓ) {x y : X} → x ≡ y → x ∈ A → y ∈ A
+subst-∈ : (A : 𝒫 X ℓ) {x y : X} → x ≡ y → x ∈ A → y ∈ A
 subst-∈ A = subst (_∈ A)
 
-∈-isProp : (A : ℙ X ℓ) (x : X) → isProp (x ∈ A)
+∈-isProp : (A : 𝒫 X ℓ) (x : X) → isProp (x ∈ A)
 ∈-isProp A = snd ∘ A
 
 ------------------------------------------------------------------------
 -- Subset
 
-_⊆_ : ℙ X ℓ₁ → ℙ X ℓ₂ → Type _
+_⊆_ : 𝒫 X ℓ₁ → 𝒫 X ℓ₂ → Type _
 A ⊆ B = ∀ {x} → x ∈ A → x ∈ B
 
-⊆-isProp : (A B : ℙ X ℓ) → isProp (A ⊆ B)
+⊆-isProp : (A B : 𝒫 X ℓ) → isProp (A ⊆ B)
 ⊆-isProp A B = isPropImplicitΠ $ λ x → isPropΠ $ λ _ → ∈-isProp B x
 
-⊆-refl : (A : ℙ X ℓ) → A ⊆ A
+⊆-refl : (A : 𝒫 X ℓ) → A ⊆ A
 ⊆-refl A {x} = idfun (x ∈ A)
 
-⊆-refl-consequence : (A B : ℙ X ℓ) → A ≡ B → (A ⊆ B) × (B ⊆ A)
+⊆-refl-consequence : (A B : 𝒫 X ℓ) → A ≡ B → (A ⊆ B) × (B ⊆ A)
 ⊆-refl-consequence A B p = subst (A ⊆_) p (⊆-refl A)
                          , subst (B ⊆_) (sym p) (⊆-refl B)
 
-⊆-extensionality : (A B : ℙ X ℓ) → (A ⊆ B) × (B ⊆ A) → A ≡ B
+⊆-extensionality : (A B : 𝒫 X ℓ) → (A ⊆ B) × (B ⊆ A) → A ≡ B
 ⊆-extensionality A B (φ , ψ) =
   funExt (λ x → TypeOfHLevel≡ 1 (hPropExt (A x .snd) (B x .snd) φ ψ))
 
-⊆-extensionalityEquiv : (A B : ℙ X ℓ) → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
+⊆-extensionalityEquiv : (A B : 𝒫 X ℓ) → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
 ⊆-extensionalityEquiv A B = isoToEquiv (iso (⊆-extensionality A B)
                                             (⊆-refl-consequence A B)
-                                            (λ _ → isSetℙ A B _ _)
+                                            (λ _ → isSet𝒫 A B _ _)
                                             (λ _ → isPropΣ (⊆-isProp A B) (λ _ → ⊆-isProp B A) _ _))
 
 ------------------------------------------------------------------------
@@ -104,40 +104,61 @@ A ⊆ B = ∀ {x} → x ∈ A → x ∈ B
 
 -- Union
 
-_∪_ : ℙ X ℓ₁ → ℙ X ℓ₂ → ℙ X _
+_∪_ : 𝒫 X ℓ₁ → 𝒫 X ℓ₂ → 𝒫 X _
 A ∪ B = λ x → (x ∈ A , ∈-isProp A x) ⊔ (x ∈ B , ∈-isProp B x)
 
 -- Intersection
 
-_∩_ : ℙ X ℓ₁ → ℙ X ℓ₂ → ℙ X _
+_∩_ : 𝒫 X ℓ₁ → 𝒫 X ℓ₂ → 𝒫 X _
 A ∩ B = λ x → (x ∈ A , ∈-isProp A x) ⊓ (x ∈ B , ∈-isProp B x)
+
+-- Big union
+
+⋃_ : (X → 𝒫 Y ℓ) → 𝒫 Y _
+(⋃ Aᵢ) y = (∃[ x ∈ _ ] ⟨ Aᵢ x y ⟩) , squash₁
 
 -- Image set
 
-_⟦_⟧ : (X → Y) → ℙ X ℓ → ℙ Y _
+_⟦_⟧ : (X → Y) → 𝒫 X ℓ → 𝒫 Y _
 f ⟦ A ⟧ = λ y → (∃[ x ∈ _ ] (x ∈ A) × (y ≡ⁱᵈ f x)) , squash₁
 
+-- Replacement
+
+replacement-syntax : (X : Type ℓ) {Y : Type ℓ'} → (X → Y) → 𝒫 Y _
+replacement-syntax X f = f ⟦ U {X = X} ⟧
+
+syntax replacement-syntax A (λ x → B) = ｛ B ∣ x ∈ A ｝
+
 private variable
-  A B : ℙ X ℓ
+  A B : 𝒫 X ℓ
   f : X → Y
   x : X
 
 ⟦⟧⊆⟦⟧ : A ⊆ B → f ⟦ A ⟧ ⊆ f ⟦ B ⟧
 ⟦⟧⊆⟦⟧ A⊆B = elim (λ _ → ∈-isProp _ _)
-  (λ (x , x∈A , eq) → ∣ x , A⊆B x∈A , eq ∣₁)
+  λ { (x , x∈A , eq) → ∣ x , A⊆B x∈A , eq ∣₁ }
 
 module SetBased (Xset : isSet X) where
 
   -- Singleton set
 
-  ｛_｝ : X → ℙ X _
+  ｛_｝ : X → 𝒫 X _
   ｛ x ｝ = λ y → (x ≡ⁱᵈ y) , subst isProp path≡Id-termLevel (Xset x y)
+
+  _⟦｛_｝⟧ : (f : X → Y) (x : X) → 𝒫 Y _
+  f ⟦｛ x ｝⟧ = f ⟦ ｛ x ｝ ⟧
+
+  ⟦｛｝⟧⊆ : f ⟦｛ x ｝⟧ ⊆ ｛ f x ｝
+  ⟦｛｝⟧⊆ = elim (λ _ → ∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
+
+  ⊆⟦｛｝⟧ : ｛ f x ｝ ⊆ f ⟦｛ x ｝⟧
+  ⊆⟦｛｝⟧ reflId = ∣ _ , reflId , reflId ∣₁
 
   -- Incusion
 
   infixl 6 _⨭_
 
-  _⨭_ : (A : ℙ X ℓ) (x : X) → ℙ X _
+  _⨭_ : (A : 𝒫 X ℓ) (x : X) → 𝒫 X _
   A ⨭ x = A ∪ ｛ x ｝
 
   ⊆⨭ : A ⊆ A ⨭ x
@@ -160,10 +181,10 @@ module SetBased (Xset : isSet X) where
       }
 
   ⊆⟦⨭⟧ : f ⟦ A ⟧ ⨭ f x ⊆ f ⟦ A ⨭ x ⟧
-  ⊆⟦⨭⟧ {f = f} {A = A} {x = x} = elim (λ _ → ∈-isProp _ _)
+  ⊆⟦⨭⟧ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
     λ { (⊎.inl y∈f) →
-        elim (λ _ → ∈-isProp (f ⟦ A ⨭ x ⟧) _) (
+        elim (λ _ → ∈-isProp (f ⟦ A ⨭ _ ⟧) _) (
           λ { (y , y∈A , reflId) → ∣ y , inl y∈A , reflId ∣₁ })
           y∈f
-      ; (⊎.inr reflId) → ∣ x , inr reflId , reflId ∣₁
+      ; (⊎.inr reflId) → ∣ _ , inr reflId , reflId ∣₁
       }
