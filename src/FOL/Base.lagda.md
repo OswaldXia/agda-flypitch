@@ -29,7 +29,7 @@ open Language ℒ
 open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Foundations.Prelude using (isSet)
-open import CubicalExt.Foundations.Powerset* using (ℙ; isSetℙ; _⟦_⟧)
+open import CubicalExt.Foundations.Powerset* using (𝒫; isSet𝒫; _⟦_⟧)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; map)
 
 open import Data.Nat using (ℕ; suc; _+_; _∸_; _<?_)
@@ -279,10 +279,10 @@ appᵣ φ t  [ s / n ] = appᵣ (φ [ s / n ]) (t [ s / n ]ₜ)
 
 ```agda
 Theory : Type (ℓ-suc u)
-Theory = ℙ ∥ Formula ∥₂ u
+Theory = 𝒫 ∥ Formula ∥₂ u
 
 isSetTheory : isSet Theory
-isSetTheory = isSetℙ
+isSetTheory = isSet𝒫
 ```
 
 理论 `Γ` 在函数 `_↥ n` 之下的像叫做理论 `Γ` 的 `n` 提升, 记作 `Γ ⇑ n`.
