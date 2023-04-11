@@ -151,8 +151,19 @@ module SetBased (Xset : isSet X) where
 
   ⟦⨭⟧⊆ : f ⟦ A ⨭ x ⟧ ⊆ f ⟦ A ⟧ ⨭ f x
   ⟦⨭⟧⊆ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
-    λ { (y , y∈⨭ , reflId) → elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭ _) _) (
-        λ { (⊎.inl y∈A) → inl ∣ y , y∈A , reflId ∣₁
-          ; (⊎.inr reflId) → inr reflId
-          }
-        ) y∈⨭ }
+    λ { (y , y∈⨭ , reflId) →
+        elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭ _) _) (
+          λ { (⊎.inl y∈A) → inl ∣ y , y∈A , reflId ∣₁
+            ; (⊎.inr reflId) → inr reflId
+            })
+          y∈⨭
+      }
+
+  ⊆⟦⨭⟧ : f ⟦ A ⟧ ⨭ f x ⊆ f ⟦ A ⨭ x ⟧
+  ⊆⟦⨭⟧ {f = f} {A = A} {x = x} = elim (λ _ → ∈-isProp _ _)
+    λ { (⊎.inl y∈f) →
+        elim (λ _ → ∈-isProp (f ⟦ A ⨭ x ⟧) _) (
+          λ { (y , y∈A , reflId) → ∣ y , inl y∈A , reflId ∣₁ })
+          y∈f
+      ; (⊎.inr reflId) → ∣ x , inr reflId , reflId ∣₁
+      }
