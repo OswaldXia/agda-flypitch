@@ -1,9 +1,9 @@
 ---
-title: Agda一阶逻辑(4) 解释
+title: Agda一阶逻辑(?) 解释
 zhihu-tags: Agda, 数理逻辑
 ---
 
-# Agda一阶逻辑(4) 解释
+# Agda一阶逻辑(?) 解释
 
 > 交流Q群: 893531731  
 > 本文源码: [Interpretation.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Interpretation.lagda.md)  

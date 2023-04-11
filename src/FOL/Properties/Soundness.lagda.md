@@ -1,9 +1,9 @@
 ---
-title: Agda一阶逻辑(6) 可靠性
+title: Agda一阶逻辑(?) 可靠性
 zhihu-tags: Agda, 数理逻辑
 ---
 
-# Agda一阶逻辑(6) 可靠性
+# Agda一阶逻辑(?) 可靠性
 
 > 交流Q群: 893531731  
 > 本文源码: [Soundness.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Properties/Soundness.lagda.md)  
