@@ -1,10 +1,13 @@
 {- Polymorphic version of "powerset" -}
 
 {-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 module CubicalExt.Foundations.Powerset* where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Primitives
+open import Cubical.Core.Id renaming (_≡_ to _≡ⁱᵈ_)
+open import CubicalExt.Foundations.Id using (path≡Id-termLevel)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -15,6 +18,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import Cubical.Data.Unit using (Unit*; isPropUnit*)
 open import Cubical.Data.Sigma
+import Cubical.Data.Sum as ⊎
 open import Cubical.Functions.Logic hiding (¬_)
 open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
@@ -36,7 +40,7 @@ isSetℙ = isSetΠ λ x → isSetHProp
 ------------------------------------------------------------------------
 -- Special sets
 
--- The empty set.
+-- Empty set
 
 ∅ : ℙ X ℓ-zero
 ∅ = λ _ → ⊥
@@ -44,7 +48,7 @@ isSetℙ = isSetΠ λ x → isSetHProp
 ∅* : ℙ X ℓ
 ∅* = λ _ → ⊥* , isProp⊥*
 
--- The universal set.
+-- Universal set
 
 U : ℙ X ℓ-zero
 U = λ _ → ⊤
@@ -98,20 +102,20 @@ A ⊆ B = ∀ {x} → x ∈ A → x ∈ B
 ------------------------------------------------------------------------
 -- Operations on sets
 
--- Union.
+-- Union
 
 _∪_ : ℙ X ℓ₁ → ℙ X ℓ₂ → ℙ X _
 A ∪ B = λ x → (x ∈ A , ∈-isProp A x) ⊔ (x ∈ B , ∈-isProp B x)
 
--- Intersection.
+-- Intersection
 
 _∩_ : ℙ X ℓ₁ → ℙ X ℓ₂ → ℙ X _
 A ∩ B = λ x → (x ∈ A , ∈-isProp A x) ⊓ (x ∈ B , ∈-isProp B x)
 
--- Image set.
+-- Image set
 
 _⟦_⟧ : (X → Y) → ℙ X ℓ → ℙ Y _
-f ⟦ A ⟧ = λ y → (∃[ x ∈ _ ] (x ∈ A) × (y ≡ f x)) , squash₁
+f ⟦ A ⟧ = λ y → (∃[ x ∈ _ ] (x ∈ A) × (y ≡ⁱᵈ f x)) , squash₁
 
 private variable
   A B : ℙ X ℓ
@@ -119,17 +123,17 @@ private variable
   x : X
 
 ⟦⟧⊆⟦⟧ : A ⊆ B → f ⟦ A ⟧ ⊆ f ⟦ B ⟧
-⟦⟧⊆⟦⟧ {B = B} {f = f} A⊆B {x} H = elim (λ _ → ∈-isProp (f ⟦ B ⟧) x)
-  (λ (x , x∈A , eq) → ∣ x , A⊆B x∈A , eq ∣₁) H
+⟦⟧⊆⟦⟧ A⊆B = elim (λ _ → ∈-isProp _ _)
+  (λ (x , x∈A , eq) → ∣ x , A⊆B x∈A , eq ∣₁)
 
 module SetBased (Xset : isSet X) where
 
-  -- The singleton set.
+  -- Singleton set
 
   ｛_｝ : X → ℙ X _
-  ｛ x ｝ = λ y → (x ≡ y) , Xset x y
+  ｛ x ｝ = λ y → (x ≡ⁱᵈ y) , subst isProp path≡Id-termLevel (Xset x y)
 
-  -- Incusion.
+  -- Incusion
 
   infixl 6 _⨭_
 
@@ -138,3 +142,17 @@ module SetBased (Xset : isSet X) where
 
   ⊆⨭ : A ⊆ A ⨭ x
   ⊆⨭ x∈A = inl x∈A
+
+  ⨭⊆⨭ : A ⊆ B → A ⨭ x ⊆ B ⨭ x
+  ⨭⊆⨭ A⊆B = elim (λ _ → ∈-isProp _ _)
+    λ { (⊎.inl H) → inl (A⊆B H)
+      ; (⊎.inr H) → inr H
+      }
+
+  ⟦⨭⟧⊆ : f ⟦ A ⨭ x ⟧ ⊆ f ⟦ A ⟧ ⨭ f x
+  ⟦⨭⟧⊆ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
+    λ { (y , y∈⨭ , reflId) → elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭ _) _) (
+        λ { (⊎.inl y∈A) → inl ∣ y , y∈A , reflId ∣₁
+          ; (⊎.inr reflId) → inr reflId
+          }
+        ) y∈⨭ }
