@@ -27,10 +27,10 @@ open Language ℒ
 open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; subst)
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isPropΠ3)
+open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import CubicalExt.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
@@ -51,21 +51,24 @@ module PreRealizer (𝒮 : Structure {v}) where
   realizeₜ 𝓋 (func f)    xs = funMap f xs
   realizeₜ 𝓋 (app t₁ t₂) xs = realizeₜ 𝓋 t₁ ((realizeₜ 𝓋 t₂ []) ∷ xs)
 
-  realize : (𝓋 : ℕ → Domain) (φ : Formulaₗ l) (xs : Vec Domain l) → Type v
-  realize 𝓋 ⊥          xs = ⊥*
-  realize 𝓋 (rel R)    xs = relMap R xs .fst
-  realize 𝓋 (appᵣ φ t) xs = realize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
-  realize 𝓋 (t₁ ≈ t₂)  xs = realizeₜ 𝓋 t₁ xs ≡ realizeₜ 𝓋 t₂ xs
-  realize 𝓋 (φ₁ ⇒ φ₂)  xs = realize 𝓋 φ₁ xs → realize 𝓋 φ₂ xs
-  realize 𝓋 (∀' φ)     xs = ∀ x → realize (𝓋 [ x / 0 ]ᵥ) φ xs
+  realizeType : (𝓋 : ℕ → Domain) (φ : Formulaₗ l) (xs : Vec Domain l) → Type v
+  realizeType 𝓋 ⊥          xs = ⊥*
+  realizeType 𝓋 (rel R)    xs = relMap R xs .fst
+  realizeType 𝓋 (appᵣ φ t) xs = realizeType 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
+  realizeType 𝓋 (t₁ ≈ t₂)  xs = realizeₜ 𝓋 t₁ xs ≡ realizeₜ 𝓋 t₂ xs
+  realizeType 𝓋 (φ₁ ⇒ φ₂)  xs = realizeType 𝓋 φ₁ xs → realizeType 𝓋 φ₂ xs
+  realizeType 𝓋 (∀' φ)     xs = ∀ x → realizeType (𝓋 [ x / 0 ]ᵥ) φ xs
 
-  isPropRealization : (𝓋 : ℕ → Domain) (φ : Formulaₗ l) (xs : Vec Domain l) → isProp (realize 𝓋 φ xs)
-  isPropRealization 𝓋 ⊥           xs = isProp⊥*
-  isPropRealization 𝓋 (rel R)     xs = relMap R xs .snd
-  isPropRealization 𝓋 (appᵣ φ t)  xs = isPropRealization 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
-  isPropRealization 𝓋 (t₁ ≈ t₂)   xs = subst (λ x → isProp x) PathPathEq (isSetDomain (realizeₜ 𝓋 t₁ xs) (realizeₜ 𝓋 t₂ xs))
-  isPropRealization 𝓋 (φ₁ ⇒ φ₂)   xs = isPropΠ $ λ _ → isPropRealization 𝓋 φ₂ xs
-  isPropRealization 𝓋 (∀' φ)      xs = isPropΠ $ λ x → isPropRealization (𝓋 [ x / 0 ]ᵥ) φ xs
+  isPropRealize : (𝓋 : ℕ → Domain) (φ : Formulaₗ l) (xs : Vec Domain l) → isProp (realizeType 𝓋 φ xs)
+  isPropRealize 𝓋 ⊥           xs = isProp⊥*
+  isPropRealize 𝓋 (rel R)     xs = relMap R xs .snd
+  isPropRealize 𝓋 (appᵣ φ t)  xs = isPropRealize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
+  isPropRealize 𝓋 (t₁ ≈ t₂)   xs = subst (λ x → isProp x) PathPathEq (isSetDomain (realizeₜ 𝓋 t₁ xs) (realizeₜ 𝓋 t₂ xs))
+  isPropRealize 𝓋 (φ₁ ⇒ φ₂)   xs = isPropΠ $ λ _ → isPropRealize 𝓋 φ₂ xs
+  isPropRealize 𝓋 (∀' φ)      xs = isPropΠ $ λ x → isPropRealize (𝓋 [ x / 0 ]ᵥ) φ xs
+
+  realize : (𝓋 : ℕ → Domain) (φ : ∥ Formulaₗ l ∥₂) (xs : Vec Domain l) → hProp v
+  realize 𝓋 φ xs = elim (λ _ → isSetHProp) (λ φ → realizeType 𝓋 φ xs , isPropRealize 𝓋 φ xs) φ
 ```
 
 ```agda
@@ -76,11 +79,8 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
   realizeₜ : Term → Domain 𝒮
   realizeₜ t = Pre.realizeₜ 𝓋 t []
 
-  realize : Formula → Type v
+  realize : ∥ Formula ∥₂ → hProp v
   realize φ = Pre.realize 𝓋 φ []
-
-  isPropRealization : ∀ φ → isProp (realize φ)
-  isPropRealization φ = Pre.isPropRealization 𝓋 φ []
 ```
 
 ## 语义蕴含
@@ -89,17 +89,11 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
 open Realizer
 infix 4 _⊨[_]_ _⊨_
 
-_⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
-𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → ∣ φ ∣₂ ∈ Γ → realize 𝒮 𝓋 φ
+_⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → hProp (ℓ-max u v)
+𝒮 ⊨[ 𝓋 ] Γ = (∀ φ → φ ∈ Γ → realize 𝒮 𝓋 φ .fst)
+  , isPropΠ2 λ φ _ → realize 𝒮 𝓋 φ .snd
 
-_⊨_ : Theory → Formula → Type (ℓ-suc u)
-Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → realize 𝒮 𝓋 φ
-```
-
-```agda
-isProp-⊨[] : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) (Γ : Theory) → isProp (𝒮 ⊨[ 𝓋 ] Γ)
-isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → isPropRealization 𝒮 𝓋 φ
-
-isProp-⊨ : (Γ : Theory) (φ : Formula) → isProp (Γ ⊨ φ)
-isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → isPropRealization 𝒮 𝓋 φ
+_⊨_ : Theory → ∥ Formula ∥₂ → hProp (ℓ-suc u)
+Γ ⊨ φ = (∀ 𝒮 𝓋 → (𝒮 ⊨[ 𝓋 ] Γ) .fst → realize 𝒮 𝓋 φ .fst)
+  , isPropΠ3 λ 𝒮 𝓋 _ → realize 𝒮 𝓋 φ .snd
 ```

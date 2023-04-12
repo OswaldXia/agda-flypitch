@@ -17,20 +17,20 @@ open LHom.Bounded using (formulaMorph)
 open import Cubical.Core.Primitives
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
---open import Cubical.HITs.SetTruncation using (∣_∣₂)
+open import Cubical.HITs.SetTruncation using (map)
+open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ; suc)
 open import Function using (_∘₂_; _$_)
-open import StdlibExt.Relation.Unary using (_∈_; _⟦_⟧)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
 ∞-theory-hasEnoughConstants T φ = elim
   {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ ∃' φ ⇒ φ [ const c / 0 ]}
   (λ _ → squash₁)
-  (λ (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $
-    formulaMorph (languageCanonicalMorph (suc i))
-      [ witnessOf φᵢ witnessing formulaMorph languageMorph {!   !} ]
-  , (suc i , {!   !})
+  (λ (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $ ∣_∣₁ $
+    (map $ formulaMorph $ languageCanonicalMorph $ suc i) ((map [ witnessOf φᵢ witnessing_]) ((map $ formulaMorph $ languageMorph) φᵢ))
+  , {!   !}
   , {!   !}
   )
   (∞-witness φ)
+ 

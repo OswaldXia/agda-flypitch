@@ -26,7 +26,7 @@ open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂;
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_∘_; _$_)
-open import StdlibExt.Relation.Unary using (_∪_; _⟦_⟧; ⋃_; replacement-syntax)
+open import CubicalExt.Foundations.Powerset* using (_∪_; ⋃_; replacement-syntax)
 
 witnessOf : ∥ Formula ℒ 1 ∥₂ → Constant $ languageStep ℒ
 witnessOf = witness
@@ -37,7 +37,7 @@ witnessOf = witness
   open import FOL.Bounded.Substitution ℒ
 
 theoryStep : Theory ℒ → Theory $ languageStep ℒ
-theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣ φ ∈ Formula ℒ 1 ｝
+theoryStep {ℒ} Γ = theoryMorph Γ --∪ ｛ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣ φ ∈ Formula ℒ 1 ｝
   where open LHom.Bounded languageMorph
 
 [_]-theory : ∀ n → Theory ℒ → Theory $ [ n ]-language ℒ
@@ -45,7 +45,7 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ [ witnessOf ∣ φ ∣₂ witnessin
 [ suc n ]-theory T = theoryStep $ [ n ]-theory T
 
 [_]-∞-theory : ∀ n → Theory ℒ → Theory $ ∞-language ℒ
-[ n ]-∞-theory T = sentenceMorph ⟦ [ n ]-theory T ⟧
+[ n ]-∞-theory T = theoryMorph ([ n ]-theory T)
   where open LHom.Bounded (languageCanonicalMorph n)
 
 ∞-theory : Theory ℒ → Theory $ ∞-language ℒ

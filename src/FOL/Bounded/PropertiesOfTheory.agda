@@ -27,8 +27,8 @@ Con T = ¬ T ⊢ ⊥
 
 -- 理论的完全性
 
-complete : Theory → Type (ℓ-suc u)
-complete T = Con T × ∀ φ → φ ∈ T ⊎ ¬ φ ∈ T
+--complete : Theory → Type (ℓ-suc u)
+--complete T = Con T × ∀ φ → φ ∈ T ⊎ ¬ φ ∈ T
 
 -- 有足够常元的理论
 
