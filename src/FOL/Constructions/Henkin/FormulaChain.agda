@@ -7,9 +7,8 @@ open import FOL.Constructions.Henkin.LanguageChain u
 open import FOL.Constructions.Henkin.TermChain u as T
   using (termChain; termComparison; termComparisonFiber; termMorph-$-langMorph-functorial)
 open import FOL.Language using (Language)
-open import FOL.Bounded.Truncated as Truncated using (Termₗ; Formulaₗ)
-import FOL.Bounded.Base as Untruncated
-open Untruncated.Formulaₗ
+open import FOL.Bounded.Base using (Termₗ; Formulaₗ)
+open Formulaₗ
 
 import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_) renaming (_∘_ to _◯_)
@@ -35,7 +34,7 @@ open import Cubical.HITs.PropositionalTruncation
   using (∣_∣₁; squash₁; elim→Set; elim2→Set)
   renaming (elim to elim₁)
 open import CubicalExt.HITs.SetTruncation
-  using (∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
+  using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
   renaming (elim to elim₂)
 
 open import StdlibExt.Data.Nat
@@ -54,14 +53,14 @@ abstract
 
 formulaChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 formulaChain ℒ n l = record
-  { obj = λ k → Formulaₗ ([ k ]-language ℒ) n l
+  { obj = λ k → ∥ Formulaₗ ([ k ]-language ℒ) n l ∥₂
   ; morph = λ i≤j → map $ formulaMorph $ langMorph i≤j
   ; functorial = map-$-formulaMorph-functorial langFunctorial
   }
 
 coconeOfFormulaChain : ∀ ℒ n l → Cocone (formulaChain ℒ n l)
 coconeOfFormulaChain ℒ n l = record
-  { Vertex = Formulaₗ (∞-language ℒ ) n l
+  { Vertex = ∥ Formulaₗ (∞-language ℒ ) n l ∥₂
   ; isSetVertex = squash₂
   ; map = λ i → map $ formulaMorph $ languageCanonicalMorph i
   ; compat = λ i~j → map-$-formulaMorph-functorial (coconeOfLanguageChain .compat i~j)
@@ -70,7 +69,7 @@ coconeOfFormulaChain ℒ n l = record
 module _ {ℒ n l} where
   open DirectedDiagram (formulaChain ℒ n l) using (obj; morph; functorial; Colimit; representative; effective) public
 
-  formulaComparison : Colimit → Formulaₗ (∞-language ℒ) n l
+  formulaComparison : Colimit → ∥ Formulaₗ (∞-language ℒ) n l ∥₂
   formulaComparison = universalMap (coconeOfFormulaChain ℒ n l)
 
   _ : ∀ {i} (φ : obj i) → formulaComparison [ i , φ ] ≡ₚ map (formulaMorph $ languageCanonicalMorph i) φ
@@ -117,7 +116,7 @@ abstract
     (formulaMorphComp (langMorph f₂) (langMorph f₁))
 
   map-$-formulaMorph-distrib-appᵣ : ∀ {ℒ₁ ℒ₂ : Language {u}} {n l : ℕ} {F : ℒ₁ ⟶ ℒ₂}
-    (r : Formulaₗ ℒ₁ n (suc l)) (t : Termₗ ℒ₁ n 0) →
+    (r : ∥ Formulaₗ ℒ₁ n (suc l) ∥₂) (t : ∥ Termₗ ℒ₁ n 0 ∥₂) →
     map (formulaMorph F) (map2 appᵣ r t) ≡ₚ map2 appᵣ (map (formulaMorph F) r) (map (termMorph F) t)
   map-$-formulaMorph-distrib-appᵣ = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
@@ -128,7 +127,7 @@ abstract
     (eqToPath $ sym $ cong-app formulaMorph-$-langMorph-functorial a)
     (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
-  map-$-formulaMorph-distrib-≈ : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂} (t₁ t₂ : Termₗ ℒ₁ n 0 ) →
+  map-$-formulaMorph-distrib-≈ : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂} (t₁ t₂ : ∥ Termₗ ℒ₁ n 0 ∥₂) →
     map (formulaMorph F) (map2 _≈_ t₁ t₂) ≡ₚ map2 _≈_ (map (termMorph F) t₁) (map (termMorph F) t₂)
   map-$-formulaMorph-distrib-≈ = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
@@ -139,7 +138,7 @@ abstract
     (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial a)
     (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
-  map-$-formulaMorph-distrib-⇒ : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂} (φ₁ φ₂ : Formulaₗ ℒ₁ n 0) →
+  map-$-formulaMorph-distrib-⇒ : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂} (φ₁ φ₂ : ∥ Formulaₗ ℒ₁ n 0 ∥₂) →
     map (formulaMorph F) (map2 _⇒_ φ₁ φ₂) ≡ₚ map2 _⇒_ (map (formulaMorph F) φ₁) (map (formulaMorph F) φ₂)
   map-$-formulaMorph-distrib-⇒ = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
@@ -151,13 +150,13 @@ abstract
     (eqToPath $ sym $ cong-app formulaMorph-$-langMorph-functorial b)
 
   map-$-formulaMorph-∀'-comm : ∀ {ℒ₁ ℒ₂ : Language {u}} {n : ℕ} {F : ℒ₁ ⟶ ℒ₂}
-    (φ : Formulaₗ ℒ₁ (suc n) 0) → map (formulaMorph F) (map ∀'_ φ) ≡ₚ map ∀'_ (map (formulaMorph F) φ)
+    (φ : ∥ Formulaₗ ℒ₁ (suc n) 0 ∥₂) → map (formulaMorph F) (map ∀'_ φ) ≡ₚ map ∀'_ (map (formulaMorph F) φ)
   map-$-formulaMorph-∀'-comm = elim₂ (λ _ → isSet→isGroupoid squash₂ _ _) (λ _ → reflPath)
 
-  isSetFiber : ∀ {ℒ n l} {φ : Untruncated.Formulaₗ (∞-language ℒ) n l} → isSet (fiber formulaComparison ∣ φ ∣₂)
+  isSetFiber : ∀ {ℒ n l} {φ : Formulaₗ (∞-language ℒ) n l} → isSet (fiber formulaComparison ∣ φ ∣₂)
   isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _
 
-  formulaComparisonFiber : ∀ {ℒ n l} (φ : Untruncated.Formulaₗ (∞-language ℒ) n l) → fiber formulaComparison ∣ φ ∣₂
+  formulaComparisonFiber : ∀ {ℒ n l} (φ : Formulaₗ (∞-language ℒ) n l) → fiber formulaComparison ∣ φ ∣₂
   formulaComparisonFiber ⊥ = [ 0 , ∣ ⊥ ∣₂ ] , reflPath
   formulaComparisonFiber {ℒ} {n} {l} (rel R) =
     elim→Set {P = λ _ → fiber formulaComparison ∣ rel R ∣₂}

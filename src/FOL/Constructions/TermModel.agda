@@ -9,9 +9,10 @@ open import FOL.Bounded.PropertiesOfTheory ℒ
 
 open import Cubical.Core.Primitives
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
+open import Cubical.HITs.PropositionalTruncation using (elim→Set)
 open import Cubical.Foundations.Prelude using (_≡_; refl; _∙_)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
-open import CubicalExt.Functions.Logic using (∥_∥ₚ; iffToPath)
+open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; iffToPath)
 open import CubicalExt.Data.Vec using (quotientLift)
 
 open import Data.Nat using (ℕ; zero; suc)
@@ -19,7 +20,7 @@ open import Data.Fin using (fromℕ)
 open import Data.Vec using (Vec; []; _∷_)
 open import Data.Vec.Relation.Binary.Pointwise.Inductive using (Pointwise; []; _∷_)
 open import Function using (_$_; _∘_; _∘₂_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u
+open import StdlibExt.Relation.Binary.PropositionalEquivalence
   renaming (_∘_ to _⟨∘⟩_) hiding (map)
 
 module TermModel where
@@ -30,10 +31,6 @@ module TermModel where
     𝐯₀ = var (fromℕ 0)
 
   Domain = ClosedTerm / _≋_
-
-  nonemptyDomain : hasEnoughConstants T → Domain
-  nonemptyDomain C with C (𝐯₀ ≈ 𝐯₀)
-  ... | c , _ = [ const c ]
 
   preFunc : ClosedTermₗ l → Vec ClosedTerm l → Domain
   preFunc f xs = [ apps f xs ]
@@ -66,9 +63,9 @@ module TermModel where
 
   rel : Sentenceₗ l → Vec Domain l → hProp (ℓ-suc u)
   rel r = quotientLift ≋-refl isSetHProp (λ xs → ∥ (preRel r xs) ∥ₚ) λ xs≈ys →
-    let iff = preRel-pointwiseIff r xs≈ys in iffToPath (to iff ⟨$⟩_) (from iff ⟨$⟩_)
+    iffToPath $ preRel-pointwiseIff r xs≈ys
 
-open TermModel using (nonemptyDomain) public
+--open TermModel using (nonemptyDomain) public
 open import FOL.Bounded.Base ℒ using (func; rel)
 
 termModel : Structure

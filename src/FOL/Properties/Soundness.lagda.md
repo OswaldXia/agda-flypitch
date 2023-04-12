@@ -26,7 +26,7 @@ open import Data.Sum using (inj₁; inj₂)
 open import Function using (_∘_; _$_)
 open import Relation.Unary using (Pred; _∈_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (_∘_; sym)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence hiding (_∘_; sym)
 ```
 
 ```agda

@@ -14,7 +14,7 @@ open import Data.Nat using (ℕ; zero; suc)
 open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_$_)
 open import Relation.Binary using (_⇒_; Rel; Reflexive; Symmetric; Transitive)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (map)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence hiding (map)
 
 private variable
   t t₁ t₂ : ClosedTerm
