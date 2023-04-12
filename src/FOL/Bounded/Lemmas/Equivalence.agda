@@ -5,8 +5,9 @@ open import FOL.Bounded.Base using (Theory)
 module FOL.Bounded.Lemmas.Equivalence {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Bounded.Base ℒ hiding (_⇒_)
-open import StdlibExt.Relation.Unary using (_⟦_⟧)
-import FOL.Lemmas.Equivalence (unbound ⟦ T ⟧) as Free
+open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
+open import CubicalExt.HITs.SetTruncation using (map)
+import FOL.Lemmas.Equivalence (map unbound ⟦ T ⟧) as Free
 
 open import Agda.Primitive using (lsuc)
 open import Data.Nat using (ℕ; zero; suc)

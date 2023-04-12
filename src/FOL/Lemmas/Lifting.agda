@@ -3,7 +3,7 @@
 
 open import FOL.Language
 module FOL.Lemmas.Lifting (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (⊥-elim; subst)
+open import FOL.Base ℒ hiding (⊥-elim; subst; _+_)
 
 open import Data.Nat
 open import Data.Nat.Properties

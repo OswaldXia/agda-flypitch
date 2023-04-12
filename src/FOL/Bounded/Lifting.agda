@@ -2,7 +2,7 @@
 
 open import FOL.Language
 module FOL.Bounded.Lifting (ℒ : Language {u}) where
-open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Base ℒ hiding (_+_)
 
 open import Data.Fin using (Fin; toℕ; cast; fromℕ<; _↑ˡ_; _↑ʳ_)
 open import Data.Nat using (ℕ; _+_; _<?_)

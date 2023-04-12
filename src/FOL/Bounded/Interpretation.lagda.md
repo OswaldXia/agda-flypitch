@@ -29,12 +29,13 @@ open import Cubical.Foundations.Prelude using (isProp; subst)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
+open import CubicalExt.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_; lookup)
 open import Function using (_$_)
 open import Relation.Nullary using (¬_)
-open import Relation.Unary using (Pred; _∈_)
 ```
 
 ## 实现
@@ -99,7 +100,7 @@ _⊨ˢ_ : Structure {v} → Sentence → Type v
 𝒮 ⊨ˢ φ = realize 𝒮 φ
 
 _⊨ᵀ_ : Structure {v} → Theory → Type (ℓ-max u v)
-𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → 𝒮 ⊨ˢ φ
+𝒮 ⊨ᵀ Γ = ∀ φ → ∣ φ ∣₂ ∈ Γ → 𝒮 ⊨ˢ φ
 
 _⊨_ : Theory → Sentence → Type (ℓ-suc u)
 Γ ⊨ φ = ∀ 𝒮 → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ

@@ -2,7 +2,7 @@
 
 open import FOL.Language
 module FOL.Lemmas.Substitution (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (⊥-elim)
+open import FOL.Base ℒ hiding (⊥-elim; _+_)
 
 open import Cubical.Core.Primitives using (Type; Level)
 open import Data.Nat

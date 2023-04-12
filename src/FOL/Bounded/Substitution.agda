@@ -2,7 +2,7 @@
 
 open import FOL.Language
 module FOL.Bounded.Substitution (ℒ : Language {u}) where
-open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Base ℒ hiding (_+_)
 open import FOL.Bounded.Casting ℒ
 open import FOL.Bounded.Lifting ℒ
 
