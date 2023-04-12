@@ -10,6 +10,10 @@ open import FOL.Bounded.Semantics ℒ
 import FOL.Semantics ℒ as Free
 open Structure 𝒮
 
+open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.StdlibBridge.Logic using (hPropExt)
+
 open import Data.Nat
 open import Data.Fin using (Fin; zero; suc; toℕ)
 open import Data.Vec using (Vec; []; _∷_; lookup)
@@ -21,8 +25,8 @@ private variable
   n : ℕ
 
 module Pre where
-  open PreRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
-  open Free.PreRealizer 𝒮 using () renaming (realizeₜ to 𝑟ₜ; realize to 𝑟) public
+  open PreRealizer 𝒮 using () renaming (realizeₜ to rₜ; realizeType to r) public
+  open Free.PreRealizer 𝒮 using () renaming (realizeₜ to 𝑟ₜ; realizeType to 𝑟) public
   open Iff.↔-Reasoning
 
   realizeₜ-eq : ∀ (𝓋 : Vec Domain n) (𝑣 : ℕ → Domain)
@@ -59,8 +63,8 @@ module Opened where
 
   realize-iff : ∀ (𝓋 : Vec Domain n) (𝑣 : ℕ → Domain)
     (eq : ∀ k → lookup 𝓋 k ≡ 𝑣 (toℕ k)) (φ : Formula n)
-    → r 𝓋 φ ↔ 𝑟 𝑣 (unbound φ)
-  realize-iff 𝓋 𝑣 eq φ = Pre.realize-iff 𝓋 𝑣 eq φ []
+    → r 𝓋 ∣ φ ∣₂ ≡ 𝑟 𝑣 ∣ unbound φ ∣₂
+  realize-iff 𝓋 𝑣 eq φ = pathToEq $ hPropExt $ Pre.realize-iff 𝓋 𝑣 eq φ []
 
 module Closed where
   open ClosedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
@@ -69,5 +73,5 @@ module Closed where
   realizeₜ-eq : ∀ (𝑣 : ℕ → Domain) (t : ClosedTerm) → rₜ t ≡ 𝑟ₜ 𝑣 (unboundₜ t)
   realizeₜ-eq 𝑣 t = Opened.realizeₜ-eq [] 𝑣 (λ ()) t
 
-  realize-iff : ∀ (𝑣 : ℕ → Domain) (φ : Sentence) → r φ ↔ 𝑟 𝑣 (unbound φ)
+  realize-iff : ∀ (𝑣 : ℕ → Domain) (φ : Sentence) → r ∣ φ ∣₂ ≡ 𝑟 𝑣 ∣ unbound φ ∣₂
   realize-iff 𝑣 φ = Opened.realize-iff [] 𝑣 (λ ()) φ
