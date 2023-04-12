@@ -12,7 +12,7 @@ open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation using (elim→Set)
 open import Cubical.Foundations.Prelude using (_≡_; refl; _∙_)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
-open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; iffToPath)
+open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; iffToPropTruncPath)
 open import CubicalExt.Data.Vec using (quotientLift)
 
 open import Data.Nat using (ℕ; zero; suc)
@@ -63,9 +63,8 @@ module TermModel where
 
   rel : Sentenceₗ l → Vec Domain l → hProp (ℓ-suc u)
   rel r = quotientLift ≋-refl isSetHProp (λ xs → ∥ (preRel r xs) ∥ₚ) λ xs≈ys →
-    iffToPath $ preRel-pointwiseIff r xs≈ys
+    iffToPropTruncPath $ preRel-pointwiseIff r xs≈ys
 
---open TermModel using (nonemptyDomain) public
 open import FOL.Bounded.Base ℒ using (func; rel)
 
 termModel : Structure

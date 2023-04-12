@@ -10,10 +10,10 @@ open import FOL.Lemmas.Substitution ℒ
 open import FOL.Semantics ℒ
 open Structure 𝒮
 
-open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
+open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Data.Equality using (pathToEq)
-open import Cubical.Functions.Logic using (⇒∶_⇐∶_)
 open import Cubical.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.StdlibBridge.Logic using (iffToHPropPath)
 
 open import Data.Nat
 open import Data.Empty using (⊥-elim)
@@ -157,6 +157,21 @@ realizeₜ-subst-lift 𝓋 n t x = Pre.realizeₜ-subst-lift 𝓋 n t x []
 
 realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : Formula)
   → realize 𝓋 ∣ φ ∣₂ ≡ realize 𝓊 ∣ φ ∣₂
-realize-cong 𝓋 𝓊 ext φ = pathToEq $
-  ⇒∶ to   (Pre.realize-cong 𝓋 𝓊 ext φ []) ⟨$⟩_
-  ⇐∶ from (Pre.realize-cong 𝓋 𝓊 ext φ []) ⟨$⟩_
+realize-cong 𝓋 𝓊 ext φ = pathToEq $ iffToHPropPath $ Pre.realize-cong 𝓋 𝓊 ext φ []
+
+realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (s : Term)
+  → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / n ] ∣₂
+realize-subst 𝓋 n φ s = pathToEq $ iffToHPropPath $ Pre.realize-subst 𝓋 n φ s []
+
+realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (x : Domain)
+  → realize (𝓋 [ x / n ]ᵥ) ∣ φ ↥[ n ] 1 ∣₂ ≡ realize 𝓋 ∣ φ ∣₂
+realize-subst-lift 𝓋 n φ x = pathToEq $ iffToHPropPath $ Pre.realize-subst-lift 𝓋 n φ x []
+
+open Eq.≡-Reasoning
+
+realize-subst0 : (𝓋 : ℕ → Domain) (φ : Formula) (s : Term)
+  → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / 0 ] ∣₂
+realize-subst0 𝓋 φ s = begin
+  realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) ∣ φ ∣₂  ≡˘⟨ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) ∣ φ ∣₂) (↑0 s) ⟩
+  realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) ∣ φ ∣₂  ≡⟨ realize-subst 𝓋 0 φ s ⟩
+  realize 𝓋 ∣ φ [ s / 0 ] ∣₂                      ∎

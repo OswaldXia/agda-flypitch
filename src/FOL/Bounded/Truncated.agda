@@ -37,8 +37,8 @@ Sentenceₗ l = Formulaₗ 0 l
 Sentence : Type u
 Sentence = Sentenceₗ 0
 
-_⊢_ : Theory → Sentence → hProp (ℓ-suc u)
-_⊢_ Γ = elim (λ _ → isSetHProp) λ φ → ∥ Γ Untruncated.⊢ φ ∥₁ , squash₁
+_⊢_ : Theory → Untruncated.Sentence → hProp (ℓ-suc u)
+Γ ⊢ φ = ∥ Γ Untruncated.⊢ φ ∥₁ , squash₁
 
 private variable
   n : ℕ
