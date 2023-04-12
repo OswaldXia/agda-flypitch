@@ -30,15 +30,19 @@ open Free._⊢_
 ```agda
 open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives using (Type; ℓ-suc; _,_)
+open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Core.Id using (reflId)
+open import Cubical.Functions.Logic using (inl; inr)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; map)
+open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)
 
-open import Data.Nat using (ℕ; suc; _<?_; _+_; _∸_)
+open import Data.Nat using (ℕ; suc)
 open import Data.Fin using (Fin; toℕ)
 open import Data.Fin.Properties using (toℕ-injective)
-open import Data.Sum using (inj₁; inj₂)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_$_)
 open import Relation.Nullary using (¬_)
-open import StdlibExt.Relation.Unary
 ```
 
 ### 符号优先级
@@ -48,6 +52,7 @@ infix 100 ~_
 infix 9 _≈_
 infix 8 _⇔_
 infix 7 _⇒_
+infixl 6 _+_
 infixr 6 _∧_
 infixr 5 _∨_
 infix 4 _⊢_
@@ -130,7 +135,18 @@ Sentence = Sentenceₗ 0
 
 ```agda
 Theory : Type (ℓ-suc u)
-Theory = Pred (Sentence) u
+Theory = 𝒫 ∥ Sentence ∥₂ u
+
+isSetTheory : isSet Theory
+isSetTheory = isSet𝒫
+```
+
+```agda
+open 𝒫.SetBased {X = ∥ Sentence ∥₂} squash₂
+open 𝒫.SetBased2 {X = ∥ Sentence ∥₂} {Y = ∥ Free.Formula ∥₂} squash₂ squash₂
+
+_+_ : Theory → Sentence → Theory
+Γ + φ = Γ ⨭ ∣ φ ∣₂
 ```
 
 ### 导出符号
@@ -178,32 +194,32 @@ unbound (∀' φ)      = ∀' (unbound φ)
 
 ```agda
 _⊢_ : Theory → Sentence → Type (ℓ-suc u)
-Γ ⊢ φ = unbound ⟦ Γ ⟧ Free.⊢ unbound φ
+Γ ⊢ φ = map unbound ⟦ Γ ⟧ Free.⊢ unbound φ
 ```
 
 ```agda
 weakening : ∀ {Γ Δ} {φ} → Γ ⊆ Δ → Γ ⊢ φ → Δ ⊢ φ
 weakening Γ⊆Δ Γ⊢φ = Free.weakening (⟦⟧⊆⟦⟧ Γ⊆Δ) Γ⊢φ
 
-weakening1 : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+weakening1 : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₂ → Γ + φ₁ ⊢ φ₂
 weakening1 = weakening ⊆⨭
 
-weakening2 : ∀ {Γ : Theory} {φ₁ φ₂ φ₃} → Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₃ ⨭ φ₁ ⊢ φ₂
+weakening2 : ∀ {Γ : Theory} {φ₁ φ₂ φ₃} → Γ + φ₁ ⊢ φ₂ → Γ + φ₃ + φ₁ ⊢ φ₂
 weakening2 = weakening (⨭⊆⨭ ⊆⨭)
 ```
 
 ```agda
-axiom1 : ∀ {Γ : Theory} {φ} → Γ ⨭ φ ⊢ φ
-axiom1 = axiom (_ , inj₂ refl , refl)
+axiom1 : ∀ {Γ : Theory} {φ} → Γ + φ ⊢ φ
+axiom1 = axiom ∣ _ , inr reflId , reflId ∣₁
 
-axiom2 : ∀ {Γ : Theory} {φ₁ φ₂} → Γ ⨭ φ₁ ⨭ φ₂ ⊢ φ₁
-axiom2 = axiom (_ , inj₁ (inj₂ refl) , refl)
+axiom2 : ∀ {Γ : Theory} {φ₁ φ₂} → Γ + φ₁ + φ₂ ⊢ φ₁
+axiom2 = axiom ∣ _ , inl (inr reflId) , reflId ∣₁
 ```
 
 ## 导出规则
 
 ```agda
-bound⊢ : ∀ {Γ : Theory} {φ₁ φ₂} → Γ ⨭ φ₂ ⊢ φ₁ → unbound ⟦ Γ ⟧ ⨭ unbound φ₂ Free.⊢ unbound φ₁
+bound⊢ : ∀ {Γ : Theory} {φ₁ φ₂} → Γ + φ₂ ⊢ φ₁ → map unbound ⟦ Γ ⟧ Free.+ unbound φ₂ Free.⊢ unbound φ₁
 bound⊢ = Free.weakening ⟦⨭⟧⊆
 ```
 
@@ -212,7 +228,7 @@ bound⊢ = Free.weakening ⟦⨭⟧⊆
 `⇒-intro` 在有些书中称为[**演绎定理 (deduction theorem)**](https://zh.wikipedia.org/wiki/%E4%B8%80%E9%98%B6%E9%80%BB%E8%BE%91#%E6%BC%94%E7%B9%B9%E5%85%83%E5%AE%9A%E7%90%86). 我们这里直接指定为规则. 以下是它的逆命题. 两者结合表明了 `Γ , φ₁ ⊢ φ₂` 与 `Γ ⊢ φ₁ ⇒ φ₂` 的等价性.
 
 ```agda
-⇒-elim-to-axiom : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇒ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+⇒-elim-to-axiom : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇒ φ₂ → Γ + φ₁ ⊢ φ₂
 ⇒-elim-to-axiom Γ⊢⇒ = ⇒-elim (weakening1 Γ⊢⇒) axiom1
 ```
 
@@ -220,7 +236,7 @@ bound⊢ = Free.weakening ⟦⨭⟧⊆
 
 ```agda
 ⇒-intro-tauto : ∀ {φ₁ φ₂} → (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
-⇒-intro-tauto ⊢ = ⇒-intro $ bound⊢ $ weakening inj₂ $ ⊢ $ axiom $ ⊆⟦｛｝⟧ refl
+⇒-intro-tauto {φ₁} ⊢ = ⇒-intro $ bound⊢ $ weakening inr $ ⊢ $ axiom $ ⊆⟦｛｝⟧ reflId
 ```
 
 以下规则我们直接列出名称而不再加以说明.
@@ -257,7 +273,7 @@ tauto-exfalso = Free.tauto-exfalso
 ∨-introᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₂ → Γ ⊢ φ₁ ∨ φ₂
 ∨-introᵣ = Free.∨-introᵣ
 
-∨-elim : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ∨ φ₂ → Γ ⨭ φ₁ ⊢ φ₃ → Γ ⨭ φ₂ ⊢ φ₃ → Γ ⊢ φ₃
+∨-elim : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ∨ φ₂ → Γ + φ₁ ⊢ φ₃ → Γ + φ₂ ⊢ φ₃ → Γ ⊢ φ₃
 ∨-elim Γ⊢∨ ⊢₁ ⊢₂ = Free.∨-elim Γ⊢∨ (bound⊢ ⊢₁) (bound⊢ ⊢₂)
 
 ∨-comm : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ∨ φ₂ → Γ ⊢ φ₂ ∨ φ₁
@@ -287,13 +303,13 @@ tauto-no-contra = Free.tauto-no-contra
 ### `⇔` 的引入引出规则
 
 ```agda
-⇔-intro : ∀ {Γ φ₁ φ₂} → Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₂ ⊢ φ₁ → Γ ⊢ φ₁ ⇔ φ₂
+⇔-intro : ∀ {Γ φ₁ φ₂} → Γ + φ₁ ⊢ φ₂ → Γ + φ₂ ⊢ φ₁ → Γ ⊢ φ₁ ⇔ φ₂
 ⇔-intro ⊢₁ ⊢₂ = Free.⇔-intro (bound⊢ ⊢₁) (bound⊢ ⊢₂)
 
-⇔-elimₗ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+⇔-elimₗ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ + φ₁ ⊢ φ₂
 ⇔-elimₗ ⊢⇔ = ⇒-elim-to-axiom (∧-elimₗ ⊢⇔)
 
-⇔-elimᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₂ ⊢ φ₁
+⇔-elimᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ + φ₂ ⊢ φ₁
 ⇔-elimᵣ ⊢⇔ = ⇒-elim-to-axiom (∧-elimᵣ ⊢⇔)
 ```
 

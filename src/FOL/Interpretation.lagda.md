@@ -29,11 +29,12 @@ open import Cubical.Foundations.Prelude using (isProp; isSet; subst)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
+open import CubicalExt.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_$_)
-open import Relation.Unary using (Pred; _∈_)
 ```
 
 ## 结构 (解释)
@@ -104,7 +105,7 @@ open Realizer
 infix 4 _⊨[_]_ _⊨_
 
 _⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
-𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → φ ∈ Γ → realize 𝒮 𝓋 φ
+𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → ∣ φ ∣₂ ∈ Γ → realize 𝒮 𝓋 φ
 
 _⊨_ : Theory → Formula → Type (ℓ-suc u)
 Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → realize 𝒮 𝓋 φ

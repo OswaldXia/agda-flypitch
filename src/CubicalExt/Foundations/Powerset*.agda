@@ -148,12 +148,6 @@ module SetBased (Xset : isSet X) where
   _⟦｛_｝⟧ : (f : X → Y) (x : X) → 𝒫 Y _
   f ⟦｛ x ｝⟧ = f ⟦ ｛ x ｝ ⟧
 
-  ⟦｛｝⟧⊆ : f ⟦｛ x ｝⟧ ⊆ ｛ f x ｝
-  ⟦｛｝⟧⊆ = elim (λ _ → ∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
-
-  ⊆⟦｛｝⟧ : ｛ f x ｝ ⊆ f ⟦｛ x ｝⟧
-  ⊆⟦｛｝⟧ reflId = ∣ _ , reflId , reflId ∣₁
-
   -- Incusion
 
   infixl 6 _⨭_
@@ -170,20 +164,30 @@ module SetBased (Xset : isSet X) where
       ; (⊎.inr H) → inr H
       }
 
-  ⟦⨭⟧⊆ : f ⟦ A ⨭ x ⟧ ⊆ f ⟦ A ⟧ ⨭ f x
+module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
+  open SetBased Xset renaming (｛_｝ to ｛_｝₁; _⟦｛_｝⟧ to _⟦｛_｝⟧₁; _⨭_ to _⨭₁_)
+  open SetBased Yset renaming (｛_｝ to ｛_｝₂; _⟦｛_｝⟧ to _⟦｛_｝⟧₂; _⨭_ to _⨭₂_)
+
+  ⟦｛｝⟧⊆ : f ⟦｛ x ｝⟧₁ ⊆ ｛ f x ｝₂
+  ⟦｛｝⟧⊆ = elim (λ _ → ∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
+
+  ⊆⟦｛｝⟧ : ｛ f x ｝₂ ⊆ f ⟦｛ x ｝⟧₁
+  ⊆⟦｛｝⟧ reflId = ∣ _ , reflId , reflId ∣₁
+
+  ⟦⨭⟧⊆ : f ⟦ A ⨭₁ x ⟧ ⊆ f ⟦ A ⟧ ⨭₂ f x
   ⟦⨭⟧⊆ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
     λ { (y , y∈⨭ , reflId) →
-        elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭ _) _) (
+        elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭₂ _) _) (
           λ { (⊎.inl y∈A) → inl ∣ y , y∈A , reflId ∣₁
             ; (⊎.inr reflId) → inr reflId
             })
           y∈⨭
       }
 
-  ⊆⟦⨭⟧ : f ⟦ A ⟧ ⨭ f x ⊆ f ⟦ A ⨭ x ⟧
+  ⊆⟦⨭⟧ : f ⟦ A ⟧ ⨭₂ f x ⊆ f ⟦ A ⨭₁ x ⟧
   ⊆⟦⨭⟧ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
     λ { (⊎.inl y∈f) →
-        elim (λ _ → ∈-isProp (f ⟦ A ⨭ _ ⟧) _) (
+        elim (λ _ → ∈-isProp (f ⟦ A ⨭₁ _ ⟧) _) (
           λ { (y , y∈A , reflId) → ∣ y , inl y∈A , reflId ∣₁ })
           y∈f
       ; (⊎.inr reflId) → ∣ _ , inr reflId , reflId ∣₁
