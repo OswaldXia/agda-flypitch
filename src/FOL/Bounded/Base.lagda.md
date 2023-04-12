@@ -155,7 +155,7 @@ _+_ : Theory → Sentence → Theory
 ~_ : Formula n → Formula n
 ~ φ = φ ⇒ ⊥
 
-⊤ : Sentence
+⊤ : Formula n
 ⊤ = ~ ⊥
 
 _∧_ : Formula n → Formula n → Formula n

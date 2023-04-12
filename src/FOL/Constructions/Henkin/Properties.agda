@@ -33,4 +33,3 @@ open import Function using (_∘₂_; _$_)
   , {!   !}
   )
   (∞-witness φ)
- 

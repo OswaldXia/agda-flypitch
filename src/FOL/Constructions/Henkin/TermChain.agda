@@ -5,8 +5,9 @@ module FOL.Constructions.Henkin.TermChain u where
 open import FOL.Constructions.Henkin.LanguageChain u
   renaming (obj to langObj ; morph to langMorph; functorial to langFunctorial)
 open import FOL.Language using (Language)
-open import FOL.Bounded.Base using (Termₗ)
-open Termₗ
+open import FOL.Bounded.Truncated using (Termₗ)
+import FOL.Bounded.Base as Untruncated
+open Untruncated.Termₗ
 
 import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_) renaming (_∘_ to _◯_)
@@ -31,7 +32,7 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation
   using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
 open import CubicalExt.HITs.SetTruncation
-  using (∥_∥₂; ∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
+  using (∣_∣₂; squash₂; rec; rec2; elim2; recComp2; map; map2; map-functorial)
 
 open import StdlibExt.Data.Nat
 open import StdlibExt.Data.Nat.Properties
@@ -49,14 +50,14 @@ abstract
 
 termChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 termChain ℒ n l = record
-  { obj = λ k → ∥ Termₗ ([ k ]-language ℒ) n l ∥₂
+  { obj = λ k → Termₗ ([ k ]-language ℒ) n l
   ; morph = λ i≤j → map $ termMorph $ langMorph i≤j
   ; functorial = map-$-termMorph-functorial langFunctorial
   }
 
 coconeOfTermChain : ∀ ℒ n l → Cocone (termChain ℒ n l)
 coconeOfTermChain ℒ n l = record
-  { Vertex = ∥ Termₗ (∞-language ℒ ) n l ∥₂
+  { Vertex = Termₗ (∞-language ℒ ) n l
   ; isSetVertex = squash₂
   ; map = λ i → map $ termMorph $ languageCanonicalMorph i
   ; compat = λ {i} i~j → map-$-termMorph-functorial (coconeOfLanguageChain .compat i~j)
@@ -65,7 +66,7 @@ coconeOfTermChain ℒ n l = record
 module _ {ℒ n l} where
   open DirectedDiagram (termChain ℒ n l) using (obj; morph; functorial; Colimit) public
 
-  termComparison : Colimit → ∥ Termₗ (∞-language ℒ) n l ∥₂
+  termComparison : Colimit → Termₗ (∞-language ℒ) n l
   termComparison = universalMap (coconeOfTermChain ℒ n l)
 
   _ : ∀ {i} (t : obj i) → termComparison [ i , t ] ≡ₚ map (termMorph $ languageCanonicalMorph i) t
@@ -106,7 +107,7 @@ abstract
     (termMorphComp (langMorph f₂) (langMorph f₁))
 
   map-$-termMorph-distrib-app : ∀ {ℒ₁ ℒ₂ : Language {u}} {n l : ℕ} {F : ℒ₁ ⟶ ℒ₂}
-    (f : ∥ Termₗ ℒ₁ n (suc l) ∥₂) (t : ∥ Termₗ ℒ₁ n 0 ∥₂) →
+    (f : Termₗ ℒ₁ n (suc l)) (t : Termₗ ℒ₁ n 0) →
     map (termMorph F) (map2 app f t) ≡ₚ map2 app (map (termMorph F) f) (map (termMorph F) t)
   map-$-termMorph-distrib-app = elim2 (λ _ _ → isSet→isGroupoid squash₂ _ _) (λ _ _ → reflPath)
 
@@ -117,10 +118,10 @@ abstract
     (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial a)
     (eqToPath $ sym $ cong-app termMorph-$-langMorph-functorial b)
 
-  isSetFiber : ∀ {ℒ n l} {t : Termₗ (∞-language ℒ) n l} → isSet (fiber termComparison ∣ t ∣₂)
+  isSetFiber : ∀ {ℒ n l} {t : Untruncated.Termₗ (∞-language ℒ) n l} → isSet (fiber termComparison ∣ t ∣₂)
   isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ squash₂ _ _
 
-  termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
+  termComparisonFiber : ∀ {ℒ n l} (t : Untruncated.Termₗ (∞-language ℒ) n l) → fiber termComparison ∣ t ∣₂
   termComparisonFiber (var k) = [ 0 , ∣ var k ∣₂ ] , reflPath
   termComparisonFiber {ℒ} {n} {l} (func f) =
     elim→Set {P = λ _ → fiber termComparison ∣ func f ∣₂}
