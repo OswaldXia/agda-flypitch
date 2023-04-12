@@ -4,9 +4,9 @@
 open import FOL.Language
 module FOL.Bounded.Lemmas.Satisfiability (ℒ : Language {u}) where
 
-import FOL.Interpretation ℒ as Free
+import FOL.Semantics ℒ as Free
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Interpretation ℒ
+open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.Lemmas.Realization
 open Closed using (realize-iff)
 

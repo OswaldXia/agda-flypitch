@@ -5,7 +5,7 @@ open import FOL.Bounded.Base using (Theory)
 module FOL.Properties.Completeness {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Interpretation ℒ
+open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ
 open import FOL.Constructions.Henkin.LanguageChain u

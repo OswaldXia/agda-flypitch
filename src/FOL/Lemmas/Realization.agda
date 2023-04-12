@@ -7,8 +7,8 @@ module FOL.Lemmas.Realization (𝒮 : Structure {u} ℒ) where
 open import FOL.Base ℒ hiding (⊥-elim; subst; _+_)
 open import FOL.Lemmas.Lifting ℒ
 open import FOL.Lemmas.Substitution ℒ
-open import FOL.Interpretation ℒ hiding (Structure)
-open Structure ℒ 𝒮
+open import FOL.Semantics ℒ
+open Structure 𝒮
 
 open import Data.Nat
 open import Data.Empty using (⊥-elim)

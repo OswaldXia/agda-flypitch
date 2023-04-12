@@ -5,11 +5,12 @@ open import FOL.Language hiding (u)
 
 open import Cubical.Core.Primitives using (Type)
 open import Cubical.Data.Equality using (funExt)
+open import CubicalExt.HITs.SetTruncation using (map)
+open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
 
 open import Data.Nat using (ℕ)
 open import Function using (_$_; _∘₂_) renaming (id to ⟨id⟩; _∘_ to _⟨∘⟩_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
-open import StdlibExt.Relation.Unary using (_⟦_⟧)
 
 private variable
   ℒ₁ ℒ₂ ℒ₃ ℒ₄ : Language
@@ -64,7 +65,7 @@ module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   sentenceMorph = formulaMorph
 
   theoryMorph : Theory ℒ₁ → Theory ℒ₂
-  theoryMorph Γ = sentenceMorph ⟦ Γ ⟧
+  theoryMorph Γ = map sentenceMorph ⟦ Γ ⟧
 
 module BoundedProperties where
   open import FOL.Bounded.Base {u} hiding (l)

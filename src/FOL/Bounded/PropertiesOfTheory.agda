@@ -5,7 +5,7 @@ module FOL.Bounded.PropertiesOfTheory (ℒ : Language {u}) where
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Substitution ℒ
-open import FOL.Bounded.Interpretation ℒ using (_⊨ᵀ_)
+open import FOL.Bounded.Semantics ℒ using (_⊨ᵀ_)
 open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (Domain)

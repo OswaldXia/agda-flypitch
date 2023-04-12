@@ -6,9 +6,9 @@ module FOL.Bounded.Lemmas.Realization {v} (𝒮 : Structure {u} ℒ {v}) where
 
 open import FOL.Base ℒ using (_[_/_]ᵥ)
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Interpretation ℒ
-import FOL.Interpretation ℒ as Free
-open Structure ℒ 𝒮
+open import FOL.Bounded.Semantics ℒ
+import FOL.Semantics ℒ as Free
+open Structure 𝒮
 
 open import Data.Nat
 open import Data.Fin using (Fin; zero; suc; toℕ)

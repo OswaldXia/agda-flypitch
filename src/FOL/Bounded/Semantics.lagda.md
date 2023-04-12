@@ -1,13 +1,13 @@
 ---
-title: Agda一阶逻辑(?) 解释 (束缚项)
+title: Agda一阶逻辑(?) 语义 (束缚项)
 zhihu-tags: Agda, 数理逻辑
 ---
 
-# Agda一阶逻辑(?) 解释 (束缚项)
+# Agda一阶逻辑(?) 语义 (束缚项)
 
 > 交流Q群: 893531731  
-> 本文源码: [Interpretation.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Bounded/Interpretation.lagda.md)  
-> 高亮渲染: [Interpretation.html](https://choukh.github.io/agda-flypitch/FOL.Bounded.Interpretation.html)  
+> 本文源码: [Semantics.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Bounded/Semantics.lagda.md)  
+> 高亮渲染: [Semantics.html](https://choukh.github.io/agda-flypitch/FOL.Bounded.Semantics.html)  
 
 ## 前言
 
@@ -15,9 +15,9 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.Interpretation (ℒ : Language {u}) where
+module FOL.Bounded.Semantics (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ
-open import FOL.Interpretation ℒ using (Structure; v)
+open import FOL.Structure.Base ℒ
 ```
 
 ### 标准库依赖
@@ -90,7 +90,7 @@ module ClosedRealizer (𝒮 : Structure {v}) where
   open OpenedRealizer 𝒮 [] public
 ```
 
-## 可满足性
+## 语义蕴含
 
 ```agda
 open ClosedRealizer

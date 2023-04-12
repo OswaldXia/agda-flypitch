@@ -1,13 +1,13 @@
 ---
-title: Agda一阶逻辑(?) 解释
+title: Agda一阶逻辑(?) 语义
 zhihu-tags: Agda, 数理逻辑
 ---
 
-# Agda一阶逻辑(?) 解释
+# Agda一阶逻辑(?) 语义
 
 > 交流Q群: 893531731  
-> 本文源码: [Interpretation.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Interpretation.lagda.md)  
-> 高亮渲染: [Interpretation.html](https://choukh.github.io/agda-flypitch/FOL.Interpretation.html)  
+> 本文源码: [Semantics.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Semantics.lagda.md)  
+> 高亮渲染: [Semantics.html](https://choukh.github.io/agda-flypitch/FOL.Semantics.html)  
 
 ## 前言
 
@@ -15,8 +15,9 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Interpretation (ℒ : Language {u}) where
+module FOL.Semantics (ℒ : Language {u}) where
 open import FOL.Base ℒ hiding (subst)
+open import FOL.Structure.Base ℒ
 open Language ℒ
 ```
 
@@ -35,22 +36,6 @@ open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_$_)
-```
-
-## 结构 (解释)
-
-函数符号和关系符号的一套实际所指就构成了一阶逻辑的一种解释, 从解释所得到的实际产物的角度来看又叫做结构. 它由一个集合 `Domain` 以及两个映射 `funMap` 和 `relMap` 组成. 其中 `funMap` 用于映射函数符号到函数, `relMap` 用于映射关系符号到关系. 注意函数和关系的n元参数编码为n维向量.
-
-```agda
-variable
-  v : Level
-
-record Structure : Type (ℓ-max u $ ℓ-suc v) where
-  field
-    Domain : Type v
-    isSetDomain : isSet Domain
-    funMap : ∀ {n} → functions n → Vec Domain n → Domain
-    relMap : ∀ {n} → relations n → Vec Domain n → hProp v
 ```
 
 ## 实现
@@ -98,7 +83,7 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
   isPropRealization φ = Pre.isPropRealization 𝓋 φ []
 ```
 
-## 可满足性
+## 语义蕴含
 
 ```agda
 open Realizer
