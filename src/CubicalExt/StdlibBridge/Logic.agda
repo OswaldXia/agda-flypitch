@@ -20,9 +20,9 @@ private variable
   A B : Type ℓ
   P Q : hProp ℓ
 
-iffToPropTruncPath : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
-iffToPropTruncPath iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
+propTruncExt : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
+propTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
   (map $ to iff ⟨$⟩_) (map $ from iff ⟨$⟩_) (λ x → squash₁ _ x) (λ x → squash₁ _ x)
 
-iffToHPropPath : ⟨ P ⟩ ↔ ⟨ Q ⟩ → P ≡ Q
-iffToHPropPath iff = ⇒∶ to iff ⟨$⟩_ ⇐∶ from iff ⟨$⟩_
+hPropExt : ⟨ P ⟩ ↔ ⟨ Q ⟩ → P ≡ Q
+hPropExt iff = ⇒∶ to iff ⟨$⟩_ ⇐∶ from iff ⟨$⟩_

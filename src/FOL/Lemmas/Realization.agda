@@ -13,7 +13,7 @@ open Structure 𝒮
 open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.HITs.SetTruncation using (∣_∣₂)
-open import CubicalExt.StdlibBridge.Logic using (iffToHPropPath)
+open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 
 open import Data.Nat
 open import Data.Empty using (⊥-elim)
@@ -157,15 +157,15 @@ realizeₜ-subst-lift 𝓋 n t x = Pre.realizeₜ-subst-lift 𝓋 n t x []
 
 realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : Formula)
   → realize 𝓋 ∣ φ ∣₂ ≡ realize 𝓊 ∣ φ ∣₂
-realize-cong 𝓋 𝓊 ext φ = pathToEq $ iffToHPropPath $ Pre.realize-cong 𝓋 𝓊 ext φ []
+realize-cong 𝓋 𝓊 ext φ = pathToEq $ hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ []
 
 realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (s : Term)
   → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / n ] ∣₂
-realize-subst 𝓋 n φ s = pathToEq $ iffToHPropPath $ Pre.realize-subst 𝓋 n φ s []
+realize-subst 𝓋 n φ s = pathToEq $ hPropExt $ Pre.realize-subst 𝓋 n φ s []
 
 realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (x : Domain)
   → realize (𝓋 [ x / n ]ᵥ) ∣ φ ↥[ n ] 1 ∣₂ ≡ realize 𝓋 ∣ φ ∣₂
-realize-subst-lift 𝓋 n φ x = pathToEq $ iffToHPropPath $ Pre.realize-subst-lift 𝓋 n φ x []
+realize-subst-lift 𝓋 n φ x = pathToEq $ hPropExt $ Pre.realize-subst-lift 𝓋 n φ x []
 
 open Eq.≡-Reasoning
 

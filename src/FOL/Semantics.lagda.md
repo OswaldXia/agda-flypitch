@@ -28,6 +28,7 @@ open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; subst)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPropΠ2; isPropΠ3)
+open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
@@ -90,10 +91,10 @@ open Realizer
 infix 4 _⊨[_]_ _⊨_
 
 _⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → hProp (ℓ-max u v)
-𝒮 ⊨[ 𝓋 ] Γ = (∀ φ → φ ∈ Γ → realize 𝒮 𝓋 φ .fst)
+𝒮 ⊨[ 𝓋 ] Γ = (∀ φ → φ ∈ Γ → ⟨ realize 𝒮 𝓋 φ ⟩)
   , isPropΠ2 λ φ _ → realize 𝒮 𝓋 φ .snd
 
 _⊨_ : Theory → ∥ Formula ∥₂ → hProp (ℓ-suc u)
-Γ ⊨ φ = (∀ 𝒮 𝓋 → (𝒮 ⊨[ 𝓋 ] Γ) .fst → realize 𝒮 𝓋 φ .fst)
+Γ ⊨ φ = (∀ 𝒮 𝓋 → ⟨ 𝒮 ⊨[ 𝓋 ] Γ ⟩ → ⟨ realize 𝒮 𝓋 φ ⟩)
   , isPropΠ3 λ 𝒮 𝓋 _ → realize 𝒮 𝓋 φ .snd
 ```
