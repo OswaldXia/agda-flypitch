@@ -74,7 +74,6 @@ module PreRealizer (𝒮 : Structure {v}) where
   realize 𝓋 φ xs = elim (λ _ → isSetHProp) (λ φ → realizeType 𝓋 φ xs , isPropRealize 𝓋 φ xs) φ
 ```
 
-
 ```agda
 open Structure
 module OpenedRealizer (𝒮 : Structure {v}) {n} (𝓋 : Vec (Domain 𝒮) n) where
@@ -107,4 +106,3 @@ _⊨ᵀ_ : Structure {v} → Theory → hProp (ℓ-max u v)
 _⊨_ : Theory → ∥ Sentence ∥₂ → hProp (ℓ-suc u)
 Γ ⊨ φ = (∀ 𝒮 → Domain 𝒮 → ⟨ 𝒮 ⊨ᵀ Γ ⟩ → ⟨ 𝒮 ⊨ˢ φ ⟩) , (isPropΠ3 $ λ 𝒮 _ _ → (𝒮 ⊨ˢ φ) .snd)
 ```
- 

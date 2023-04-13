@@ -10,9 +10,9 @@ open import FOL.Lemmas.Substitution ℒ
 open import FOL.Semantics ℒ
 open Structure 𝒮
 
-open import Cubical.Core.Primitives hiding (_≡_)
+open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Data.Equality using (pathToEq)
-open import Cubical.HITs.SetTruncation using (∣_∣₂)
+open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 
 open import Data.Nat
@@ -158,6 +158,10 @@ realizeₜ-subst-lift 𝓋 n t x = Pre.realizeₜ-subst-lift 𝓋 n t x []
 realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : Formula)
   → realize 𝓋 ∣ φ ∣₂ ≡ realize 𝓊 ∣ φ ∣₂
 realize-cong 𝓋 𝓊 ext φ = pathToEq $ hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ []
+
+realize-cong' : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : ∥ Formula ∥₂)
+  → realize 𝓋 φ ≡ realize 𝓊 φ
+realize-cong' 𝓋 𝓊 ext = elim (λ _ → {!   !}) (λ φ → pathToEq $ hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ [])
 
 realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (s : Term)
   → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / n ] ∣₂
