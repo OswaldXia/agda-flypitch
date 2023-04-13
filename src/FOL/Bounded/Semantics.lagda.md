@@ -119,3 +119,10 @@ isProp-⊨ᵀ 𝒮 Γ = isPropΠ2 $ λ φ _ → isProp⟨⟩ _
 isProp-⊨ : (Γ : Theory) (φ : Sentence) → isProp (Γ ⊨ φ)
 isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isProp-⊨ˢ _ _
 ```
+
+任何一个模型都不会语义蕴含假.
+
+```agda
+[_]⊭⊥ : (𝒮 : Structure {v}) → ¬ (𝒮 ⊨ˢ ⊥)
+[ _ ]⊭⊥ ()
+```

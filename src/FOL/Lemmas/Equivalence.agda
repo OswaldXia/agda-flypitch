@@ -16,7 +16,7 @@ open import Function using (_$_; _∘_; _∘₂_; flip)
 open import Relation.Binary using (_⇒_ ;Rel; Reflexive; Symmetric; Transitive)
 open import Relation.Binary.PropositionalEquality using (_≡_; cong₂; subst₂; refl; sym; trans)
 open import StdlibExt.Data.Vec.Properties using (map-∘-id)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence
+open import StdlibExt.Relation.Binary.PropositionalEquivalence u
   hiding (map) renaming (sym to ↔-sym; _∘_ to _∙_)
 
 private

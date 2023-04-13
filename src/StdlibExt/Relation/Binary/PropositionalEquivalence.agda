@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical-compatible --safe #-}
 
-module StdlibExt.Relation.Binary.PropositionalEquivalence where
+module StdlibExt.Relation.Binary.PropositionalEquivalence u where
 
 open import Level
 open import Function using (_$_)
@@ -11,7 +11,7 @@ open import Relation.Binary.PropositionalEquality as ≡ using (_≡_; sym; tran
 open Equivalence public
 
 module ↔-Reasoning where
-  open import Relation.Binary.Reasoning.Setoid (↔-setoid 0ℓ)
+  open import Relation.Binary.Reasoning.Setoid (↔-setoid u)
     using (begin_; step-≡; step-≡˘; step-≈; step-≈˘; _∎) public
 
 private variable

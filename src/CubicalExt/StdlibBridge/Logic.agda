@@ -13,7 +13,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.PropositionalTruncation using (squash₁; map)
 
 open import Function using (_$_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence as Iff hiding (map)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence ℓ-zero as Iff hiding (map)
 
 private variable
   ℓ : Level

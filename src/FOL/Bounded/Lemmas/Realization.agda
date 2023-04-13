@@ -21,7 +21,7 @@ open import Data.Fin using (Fin; zero; suc; toℕ)
 open import Data.Vec using (Vec; []; _∷_; lookup)
 open import Function using (_$_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence as Iff hiding (map)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence v as Iff hiding (map)
 
 private variable
   n : ℕ

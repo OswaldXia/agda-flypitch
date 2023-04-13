@@ -2,7 +2,7 @@
 
 open import FOL.Language
 open import FOL.Structure.Base using (Structure)
-module FOL.Lemmas.Realization (𝒮 : Structure {u} ℒ) where
+module FOL.Lemmas.Realization {v} (𝒮 : Structure {u} ℒ {v}) where
 
 open import FOL.Base ℒ hiding (⊥-elim; subst; _+_)
 open import FOL.Lemmas.Lifting ℒ
@@ -25,7 +25,7 @@ open import Relation.Binary.PropositionalEquality as Eq
   using (_≡_; refl; sym; cong; subst)
 open import StdlibExt.Data.Vec using (Vec; []; _∷_; []-refl)
 open import StdlibExt.Data.Nat.Properties
-open import StdlibExt.Relation.Binary.PropositionalEquivalence as Iff hiding (sym; map)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence v as Iff hiding (sym; map)
 
 module Preₜ where
   open PreRealizer 𝒮 renaming (realizeₜ to rₜ; realizeType to r) public

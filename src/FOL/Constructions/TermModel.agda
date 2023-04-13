@@ -20,7 +20,7 @@ open import Data.Fin using (fromℕ)
 open import Data.Vec using (Vec; []; _∷_)
 open import Data.Vec.Relation.Binary.Pointwise.Inductive using (Pointwise; []; _∷_)
 open import Function using (_$_; _∘_; _∘₂_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence
+open import StdlibExt.Relation.Binary.PropositionalEquivalence u
   renaming (_∘_ to _⟨∘⟩_) hiding (map)
 
 module TermModel where
