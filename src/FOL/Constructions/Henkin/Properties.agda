@@ -9,7 +9,8 @@ open import FOL.Constructions.Henkin.TheoryChain u
 open import FOL.Base (∞-language ℒ) using (axiom)
 open import FOL.Bounded.Base (∞-language ℒ)
 open import FOL.Bounded.Substitution (∞-language ℒ)
-open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ) using (hasEnoughConstants)
+open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
+  using (hasEnoughConstants; [_witnessing_])
 open Language (∞-language ℒ) using (Constant)
 
 import FOL.Language.Homomorphism as LHom
@@ -29,10 +30,10 @@ open import Function using (_∘_; _∘₂_; _$_)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
 ∞-theory-hasEnoughConstants T φ = elim
-  {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ ∃' φ ⇒ φ [ const c / 0 ]}
+  {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ [ c witnessing φ ]}
   (λ _ → squash₁)
   (λ { (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $ ∣_∣₁ $
-      coconeMap (suc i) (map ([ witnessOf φᵢ witnessing_] ∘ formulaMorph languageMorph) φᵢ)
+      coconeMap (suc i) {! witnessStatement  !}
     , {!   !}
     , {!   !}
   })

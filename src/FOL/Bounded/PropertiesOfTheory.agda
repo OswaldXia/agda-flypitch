@@ -32,8 +32,11 @@ Con T = ¬ T ⊢ ⊥
 
 -- 有足够常元的理论
 
+[_witnessing_] : Constant → Formula 1 → Sentence
+[_witnessing_] c φ = (∃' φ) ⇒ φ [ const c / 0 ]
+
 hasEnoughConstants : Theory → Type (ℓ-suc u)
-hasEnoughConstants T = ∀ (φ : Formula 1) → ∃[ c ∈ Constant ] T ⊢ ∃' φ ⇒ φ [ const c / 0 ]
+hasEnoughConstants T = ∀ (φ : Formula 1) → ∃[ c ∈ Constant ] T ⊢ [ c witnessing φ ]
 
 -- 存在模型的理论
 

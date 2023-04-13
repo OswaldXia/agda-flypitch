@@ -25,20 +25,21 @@ open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; e
 open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; rec)
 
 open import StdlibExt.Data.Nat hiding (_/_)
-open import Function using (_∘_; _$_)
+open import Function using (_∘_; _∘₂_; _$_)
 open import CubicalExt.Foundations.Powerset* using (_∪_; ⋃_; replacement-syntax)
 
-witnessOf : ∥ Formula ℒ 1 ∥₂ → Constant $ languageStep ℒ
-witnessOf = witness
+module _ {ℒ : Language} where
+  open LHom.Bounded (languageMorph {ℒ})
 
-[_witnessing_] : Constant ℒ → Formula ℒ 1 → Sentence ℒ
-[_witnessing_] {ℒ} c φ = (∃' φ) ⇒ φ [ const c / 0 ] where
-  open import FOL.Bounded.Base ℒ using (∃'_; _⇒_; const)
-  open import FOL.Bounded.Substitution ℒ
+  witnessOf : ∥ Formula ℒ 1 ∥₂ → Constant $ languageStep ℒ
+  witnessOf = witness
 
-theoryStep : Theory ℒ → Theory $ languageStep ℒ
-theoryStep {ℒ} Γ = theoryMorph Γ --∪ ｛ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣ φ ∈ Formula ℒ 1 ｝
-  where open LHom.Bounded languageMorph
+  witnessStatement : Formula ℒ 1 → ∥ Sentence $ languageStep ℒ ∥₂
+  witnessStatement φ = ∣ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣₂
+    where open import FOL.Bounded.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
+
+  theoryStep : Theory ℒ → Theory $ languageStep ℒ
+  theoryStep Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Formula ℒ 1 ｝
 
 [_]-theory : ∀ n → Theory ℒ → Theory $ [ n ]-language ℒ
 [ zero ]-theory T = T
