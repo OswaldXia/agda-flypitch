@@ -30,7 +30,7 @@ open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPr
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
+open import Cubical.HITs.SetTruncation using (∥_∥₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
@@ -97,12 +97,23 @@ module ClosedRealizer (𝒮 : Structure {v}) where
 open ClosedRealizer
 infix 6 _⊨ˢ_ --_⊨ᵀ_ _⊨_
 
-_⊨ˢ_ : Structure {v} → ∥ Sentence ∥₂ → hProp v
-𝒮 ⊨ˢ φ = realize 𝒮 φ
+_⊨ˢ_ : Structure {v} → ∥ Sentence ∥₂ → Type v
+𝒮 ⊨ˢ φ = ⟨ realize 𝒮 φ ⟩
 
-_⊨ᵀ_ : Structure {v} → Theory → hProp (ℓ-max u v)
-𝒮 ⊨ᵀ Γ = (∀ φ → φ ∈ Γ → ⟨ 𝒮 ⊨ˢ φ ⟩) , (isPropΠ2 $ λ φ _ → (𝒮 ⊨ˢ φ) .snd)
+_⊨ᵀ_ : Structure {v} → Theory → Type (ℓ-max u v)
+𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → 𝒮 ⊨ˢ φ
 
-_⊨_ : Theory → ∥ Sentence ∥₂ → hProp (ℓ-suc u)
-Γ ⊨ φ = (∀ 𝒮 → Domain 𝒮 → ⟨ 𝒮 ⊨ᵀ Γ ⟩ → ⟨ 𝒮 ⊨ˢ φ ⟩) , (isPropΠ3 $ λ 𝒮 _ _ → (𝒮 ⊨ˢ φ) .snd)
+_⊨_ : Theory → ∥ Sentence ∥₂ → Type (ℓ-suc u)
+Γ ⊨ φ = ∀ 𝒮 → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
+```
+
+```agda
+isProp-⊨ˢ : (𝒮 : Structure {v}) (φ : ∥ Sentence ∥₂) → isProp (𝒮 ⊨ˢ φ)
+isProp-⊨ˢ 𝒮 φ = realize 𝒮 φ .snd
+
+isProp-⊨ᵀ : (𝒮 : Structure {v}) (Γ : Theory) → isProp (𝒮 ⊨ᵀ Γ)
+isProp-⊨ᵀ 𝒮 Γ = isPropΠ2 $ λ φ _ → isProp-⊨ˢ 𝒮 φ
+
+isProp-⊨ : (Γ : Theory) (φ : ∥ Sentence ∥₂) → isProp (Γ ⊨ φ)
+isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isProp-⊨ˢ 𝒮 φ
 ```

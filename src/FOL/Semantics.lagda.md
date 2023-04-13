@@ -31,7 +31,7 @@ open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPr
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
@@ -90,11 +90,17 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
 open Realizer
 infix 4 _⊨[_]_ _⊨_
 
-_⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → hProp (ℓ-max u v)
-𝒮 ⊨[ 𝓋 ] Γ = (∀ φ → φ ∈ Γ → ⟨ realize 𝒮 𝓋 φ ⟩)
-  , isPropΠ2 λ φ _ → realize 𝒮 𝓋 φ .snd
+_⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
+𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → φ ∈ Γ → ⟨ realize 𝒮 𝓋 φ ⟩
 
-_⊨_ : Theory → ∥ Formula ∥₂ → hProp (ℓ-suc u)
-Γ ⊨ φ = (∀ 𝒮 𝓋 → ⟨ 𝒮 ⊨[ 𝓋 ] Γ ⟩ → ⟨ realize 𝒮 𝓋 φ ⟩)
-  , isPropΠ3 λ 𝒮 𝓋 _ → realize 𝒮 𝓋 φ .snd
+_⊨_ : Theory → ∥ Formula ∥₂ → Type (ℓ-suc u)
+Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → ⟨ realize 𝒮 𝓋 φ ⟩
+```
+
+```agda
+isProp-⊨[] : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) (Γ : Theory) → isProp (𝒮 ⊨[ 𝓋 ] Γ)
+isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → realize 𝒮 𝓋 φ .snd
+
+isProp-⊨ : (Γ : Theory) (φ : ∥ Formula ∥₂) → isProp (Γ ⊨ φ)
+isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → realize 𝒮 𝓋 φ .snd
 ```

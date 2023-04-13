@@ -11,8 +11,8 @@ open import FOL.Semantics ℒ
 open Structure 𝒮
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
-open import Cubical.Data.Equality using (pathToEq)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
+open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
+open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 
 open import Data.Nat
@@ -24,7 +24,7 @@ open import Relation.Binary.PropositionalEquality as Eq
   using (_≡_; refl; sym; cong; subst)
 open import StdlibExt.Data.Vec using (Vec; []; _∷_; []-refl)
 open import StdlibExt.Data.Nat.Properties
-open import StdlibExt.Relation.Binary.PropositionalEquivalence as Iff hiding (sym)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence as Iff hiding (sym; map)
 
 module Preₜ where
   open PreRealizer 𝒮 renaming (realizeₜ to rₜ; realizeType to r) public
@@ -155,27 +155,12 @@ realizeₜ-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (t : Term) (x : Domain
   → realizeₜ (𝓋 [ x / n ]ᵥ) (t ↑[ n ] 1) ≡ realizeₜ 𝓋 t
 realizeₜ-subst-lift 𝓋 n t x = Pre.realizeₜ-subst-lift 𝓋 n t x []
 
-realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : Formula)
-  → realize 𝓋 ∣ φ ∣₂ ≡ realize 𝓊 ∣ φ ∣₂
-realize-cong 𝓋 𝓊 ext φ = pathToEq $ hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ []
+realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : ∥ Formula ∥₂)
+  → realize 𝓋 φ ≡ₚ realize 𝓊 φ
+realize-cong 𝓋 𝓊 ext = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
+  (λ φ → hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ [])
 
-realize-cong' : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : ∥ Formula ∥₂)
-  → realize 𝓋 φ ≡ realize 𝓊 φ
-realize-cong' 𝓋 𝓊 ext = elim (λ _ → {!   !}) (λ φ → pathToEq $ hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ [])
-
-realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (s : Term)
-  → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / n ] ∣₂
-realize-subst 𝓋 n φ s = pathToEq $ hPropExt $ Pre.realize-subst 𝓋 n φ s []
-
-realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (x : Domain)
-  → realize (𝓋 [ x / n ]ᵥ) ∣ φ ↥[ n ] 1 ∣₂ ≡ realize 𝓋 ∣ φ ∣₂
-realize-subst-lift 𝓋 n φ x = pathToEq $ hPropExt $ Pre.realize-subst-lift 𝓋 n φ x []
-
-open Eq.≡-Reasoning
-
-realize-subst0 : (𝓋 : ℕ → Domain) (φ : Formula) (s : Term)
-  → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) ∣ φ ∣₂ ≡ realize 𝓋 ∣ φ [ s / 0 ] ∣₂
-realize-subst0 𝓋 φ s = begin
-  realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) ∣ φ ∣₂  ≡˘⟨ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) ∣ φ ∣₂) (↑0 s) ⟩
-  realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) ∣ φ ∣₂  ≡⟨ realize-subst 𝓋 0 φ s ⟩
-  realize 𝓋 ∣ φ [ s / 0 ] ∣₂                      ∎
+realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (s : Term) (φ : ∥ Formula ∥₂)
+  → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) φ ≡ₚ realize 𝓋 (map _[ s / n ] φ)
+realize-subst 𝓋 n s = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
+  (λ φ → hPropExt (Pre.realize-subst 𝓋 n φ s []))
