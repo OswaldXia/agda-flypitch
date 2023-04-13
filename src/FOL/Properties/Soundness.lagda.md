@@ -19,6 +19,7 @@ module FOL.Properties.Soundness (ℒ : Language {u}) where
 open import Cubical.Core.Primitives using (_,_)
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (lift)
+  renaming (sym to symPath; subst to substPath)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Functions.Logic using (isProp⟨⟩)
 open import Cubical.Data.Sigma using (_×_)
@@ -28,8 +29,8 @@ open import Cubical.HITs.SetTruncation using (∣_∣₂)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Classical using (byContra*)
 
-open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)
+open import Function using (_∘_; _$_)
 ```
 
 ```agda
@@ -53,9 +54,14 @@ module Free where
   soundness (⇒-elim ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = (soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ) (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
   soundness (∀-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ x =
     soundness ⊢₀ 𝒮 _ λ φ → elim (λ _ → isProp⟨⟩ _)
-      λ { (ψ , ψ∈Γ , reflId) → {! realize-subst-lift 𝒮 𝓋 0 x ψ  !} }
-  soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ = {!   !}
-  soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = {!   !}
+      λ { (ψ , ψ∈Γ , reflId) → substPath ⟨_⟩ (symPath $ realize-subst-lift 𝒮 𝓋 0 x ψ) (𝒮⊨Γ ψ ψ∈Γ) }
+  soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ =
+    substPath ⟨_⟩ (realize-subst0 𝒮 𝓋 t ∣ φ ∣₂) (soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _)
+  soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ =
+    substPath ⟨_⟩ (realize-subst0 𝒮 𝓋 t ∣ φ ∣₂) H where
+      H : ⟨ realize 𝒮 (𝓋 [ realizeₜ 𝒮 𝓋 t / 0 ]ᵥ) ∣ φ ∣₂ ⟩
+      H rewrite sym $ soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ =
+        substPath ⟨_⟩ (symPath $ realize-subst0 𝒮 𝓋 s ∣ φ ∣₂) (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
 ```
 
 ```agda

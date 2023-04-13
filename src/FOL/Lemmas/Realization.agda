@@ -12,7 +12,7 @@ open Structure 𝒮
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
-open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.Data.Equality using (eqToPath; pathToEq)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 
@@ -174,8 +174,8 @@ realize-subst-lift 𝓋 n x = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
 open Eq.≡-Reasoning
 
 realize-subst0 : (𝓋 : ℕ → Domain) (s : Term) (φ : ∥ Formula ∥₂)
-  → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ ≡ realize 𝓋 (map _[ s / 0 ] φ)
-realize-subst0 𝓋 s φ =                      begin
+  → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ ≡ₚ realize 𝓋 (map _[ s / 0 ] φ)
+realize-subst0 𝓋 s φ = eqToPath $ begin
   realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) φ ≡˘⟨ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ) (↑0 s) ⟩ --
   realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) φ ≡⟨ pathToEq $ realize-subst 𝓋 0 s φ ⟩
   realize 𝓋 (map _[ s / 0 ] φ)              ∎
