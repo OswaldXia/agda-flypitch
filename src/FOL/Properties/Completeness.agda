@@ -1,4 +1,5 @@
 {-# OPTIONS --cubical #-}
+{-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
 open import FOL.Bounded.Base using (Theory)
@@ -31,7 +32,7 @@ existsModel→Con (ℳ , x , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ (soundness T⊢⊥
 Con→existsModel : Con T → existsModel T
 Con→existsModel T⊭⊥ =
     reduct termModel
-  , reductId (nonemptyDomain {!   !})
+  , reductId {!   !} --(nonemptyDomain {!   !})
   , {!   !}
   where open import FOL.Structure.Reduction (henkinization ℒ)
         open import FOL.Constructions.TermModel (∞-theory T)
