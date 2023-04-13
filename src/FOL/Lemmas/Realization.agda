@@ -12,6 +12,7 @@ open Structure 𝒮
 
 open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
+open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 
@@ -158,9 +159,23 @@ realizeₜ-subst-lift 𝓋 n t x = Pre.realizeₜ-subst-lift 𝓋 n t x []
 realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n) (φ : ∥ Formula ∥₂)
   → realize 𝓋 φ ≡ₚ realize 𝓊 φ
 realize-cong 𝓋 𝓊 ext = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
-  (λ φ → hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ [])
+  λ φ → hPropExt $ Pre.realize-cong 𝓋 𝓊 ext φ []
 
 realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (s : Term) (φ : ∥ Formula ∥₂)
   → realize (𝓋 [ realizeₜ 𝓋 (s ↑ n) / n ]ᵥ) φ ≡ₚ realize 𝓋 (map _[ s / n ] φ)
 realize-subst 𝓋 n s = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
-  (λ φ → hPropExt (Pre.realize-subst 𝓋 n φ s []))
+  λ φ → hPropExt $ Pre.realize-subst 𝓋 n φ s []
+
+realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (x : Domain) (φ : ∥ Formula ∥₂)
+  → realize (𝓋 [ x / n ]ᵥ) (map (_↥[ n ] 1) φ) ≡ₚ realize 𝓋 φ
+realize-subst-lift 𝓋 n x = elim (λ _ → isSet→isGroupoid isSetHProp _ _)
+  λ φ → hPropExt $ Pre.realize-subst-lift 𝓋 n φ x []
+
+open Eq.≡-Reasoning
+
+realize-subst0 : (𝓋 : ℕ → Domain) (s : Term) (φ : ∥ Formula ∥₂)
+  → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ ≡ realize 𝓋 (map _[ s / 0 ] φ)
+realize-subst0 𝓋 s φ =                      begin
+  realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) φ ≡˘⟨ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ) (↑0 s) ⟩ --
+  realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) φ ≡⟨ pathToEq $ realize-subst 𝓋 0 s φ ⟩
+  realize 𝓋 (map _[ s / 0 ] φ)              ∎

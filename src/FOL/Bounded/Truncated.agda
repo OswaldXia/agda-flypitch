@@ -3,15 +3,19 @@
 open import FOL.Language
 module FOL.Bounded.Truncated (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ as Untruncated using (l; Theory) public
+import FOL.Base ℒ as Free
 open Language ℒ
 
 open import Cubical.Core.Primitives using (Type; ℓ-suc; _,_)
-open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
+open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; map; map2; elim)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; map; map2)
 
 open import Data.Nat using (ℕ; suc)
 open import Data.Vec using (Vec)
+
+private variable
+  n : ℕ
 
 Termₗ : ℕ → ℕ → Type u
 Termₗ n l = ∥ Untruncated.Termₗ n l ∥₂
@@ -37,11 +41,11 @@ Sentenceₗ l = Formulaₗ 0 l
 Sentence : Type u
 Sentence = Sentenceₗ 0
 
+unbound : Formulaₗ n l → ∥ Free.Formulaₗ l ∥₂
+unbound = map Untruncated.unbound
+
 _⊢_ : Theory → Untruncated.Sentence → hProp (ℓ-suc u)
 Γ ⊢ φ = ∥ Γ Untruncated.⊢ φ ∥₁ , squash₁
-
-private variable
-  n : ℕ
 
 ⊥ : Formula n
 ⊥ = ∣ Untruncated.⊥ ∣₂

@@ -59,7 +59,7 @@ module Free where
 module _ where
   open import FOL.Bounded.Base ℒ using (_⊢_)
   open import FOL.Bounded.Semantics ℒ using (_⊨_)
-  open import FOL.Bounded.Lemmas.Satisfiability ℒ using (bound⊨)
+  open import FOL.Bounded.Lemmas.Semantics ℒ using (bound⊨)
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
   soundness = bound⊨ ∘ Free.soundness
