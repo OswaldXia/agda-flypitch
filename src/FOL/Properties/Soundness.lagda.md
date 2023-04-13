@@ -17,16 +17,19 @@ open import FOL.Language
 module FOL.Properties.Soundness (ℒ : Language {u}) where
 
 open import Cubical.Core.Primitives using (_,_)
+open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (lift)
+open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Functions.Logic using (isProp⟨⟩)
 open import Cubical.Data.Sigma using (_×_)
+open import Cubical.Data.Sum using (inl; inr)
+open import Cubical.HITs.PropositionalTruncation using (elim)
+open import Cubical.HITs.SetTruncation using (∣_∣₂)
+open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Classical using (byContra*)
 
-open import Data.Nat using (ℕ)
-open import Data.Sum using (inj₁; inj₂)
 open import Function using (_∘_; _$_)
-open import Relation.Unary using (Pred; _∈_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence hiding (_∘_; sym)
 ```
 
 ```agda
@@ -38,21 +41,16 @@ module Free where
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
   soundness (axiom φ∈Γ) _ _ 𝒮⊨Γ = 𝒮⊨Γ _ φ∈Γ
-  soundness {_} {φ} (⊥-elim ⊢₀) 𝒮 𝓋 𝒮⊨Γ = byContra* (isPropRealization 𝒮 𝓋 φ)
-    $ λ ¬ → soundness ⊢₀ 𝒮 𝓋
-      λ { φ (inj₁ φ∈Γ)  → 𝒮⊨Γ φ φ∈Γ
-        ; φ (inj₂ refl) → lift ∘ ¬ }
+  soundness {_} {φ} (⊥-elim ⊢₀) 𝒮 𝓋 𝒮⊨Γ = byContra* {!   !} $
+    λ ¬ → soundness ⊢₀ 𝒮 𝓋 λ φ → elim (λ _ → isProp⟨⟩ _)
+      λ { (inl φ∈Γ) → 𝒮⊨Γ φ φ∈Γ
+        ; (inr reflId) → lift ∘ ¬ }
   soundness ≈-refl _ _ _ = refl
-  soundness (⇒-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ r = soundness ⊢₀ 𝒮 𝓋
-    λ { φ (inj₁ φ∈Γ)  → 𝒮⊨Γ φ φ∈Γ
-      ; φ (inj₂ refl) → r }
+  soundness (⇒-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ r = soundness ⊢₀ 𝒮 𝓋 {!   !}
   soundness (⇒-elim ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = (soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ) (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
-  soundness (∀-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ x = soundness ⊢₀ 𝒮 _
-    λ { φ (ψ , ψ∈Γ , refl) → from (realize-subst-lift 𝒮 𝓋 0 ψ x) ⟨$⟩ 𝒮⊨Γ ψ ψ∈Γ }
-  soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ = to (realize-subst0 𝒮 𝓋 φ t) ⟨$⟩ soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _
-  soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = to (realize-subst0 𝒮 𝓋 φ t) ⟨$⟩ H where
-    H : realize 𝒮 (𝓋 [ realizeₜ 𝒮 𝓋 t / 0 ]ᵥ) φ
-    H rewrite sym $ soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ = from (realize-subst0 𝒮 𝓋 φ s) ⟨$⟩ (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
+  soundness (∀-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ x = soundness ⊢₀ 𝒮 _ {!   !}
+  soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ = {!   !}
+  soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = {!   !}
 ```
 
 ```agda

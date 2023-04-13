@@ -13,6 +13,7 @@ zhihu-tags: Agda, 数理逻辑
 
 ```agda
 {-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
 module FOL.Bounded.Semantics (ℒ : Language {u}) where
@@ -28,9 +29,10 @@ open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isProp; subst)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Functions.Logic using (isProp⟨⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; elim)
+open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
@@ -97,23 +99,23 @@ module ClosedRealizer (𝒮 : Structure {v}) where
 open ClosedRealizer
 infix 6 _⊨ˢ_ --_⊨ᵀ_ _⊨_
 
-_⊨ˢ_ : Structure {v} → ∥ Sentence ∥₂ → Type v
-𝒮 ⊨ˢ φ = ⟨ realize 𝒮 φ ⟩
+_⊨ˢ_ : Structure {v} → Sentence → Type v
+𝒮 ⊨ˢ φ = ⟨ realize 𝒮 ∣ φ ∣₂ ⟩
 
 _⊨ᵀ_ : Structure {v} → Theory → Type (ℓ-max u v)
-𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → 𝒮 ⊨ˢ φ
+𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → ⟨ realize 𝒮 φ ⟩
 
-_⊨_ : Theory → ∥ Sentence ∥₂ → Type (ℓ-suc u)
+_⊨_ : Theory → Sentence → Type (ℓ-suc u)
 Γ ⊨ φ = ∀ 𝒮 → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
 ```
 
 ```agda
-isProp-⊨ˢ : (𝒮 : Structure {v}) (φ : ∥ Sentence ∥₂) → isProp (𝒮 ⊨ˢ φ)
-isProp-⊨ˢ 𝒮 φ = realize 𝒮 φ .snd
+isProp-⊨ˢ : (𝒮 : Structure {v}) (φ : Sentence) → isProp (𝒮 ⊨ˢ φ)
+isProp-⊨ˢ 𝒮 φ = realize 𝒮 ∣ φ ∣₂ .snd
 
 isProp-⊨ᵀ : (𝒮 : Structure {v}) (Γ : Theory) → isProp (𝒮 ⊨ᵀ Γ)
-isProp-⊨ᵀ 𝒮 Γ = isPropΠ2 $ λ φ _ → isProp-⊨ˢ 𝒮 φ
+isProp-⊨ᵀ 𝒮 Γ = isPropΠ2 $ λ φ _ → isProp⟨⟩ _
 
-isProp-⊨ : (Γ : Theory) (φ : ∥ Sentence ∥₂) → isProp (Γ ⊨ φ)
-isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isProp-⊨ˢ 𝒮 φ
+isProp-⊨ : (Γ : Theory) (φ : Sentence) → isProp (Γ ⊨ φ)
+isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isProp-⊨ˢ _ _
 ```

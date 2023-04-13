@@ -13,6 +13,7 @@ zhihu-tags: Agda, 数理逻辑
 
 ```agda
 {-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
 module FOL.Semantics (ℒ : Language {u}) where
@@ -29,9 +30,10 @@ open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; subst)
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp; isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Functions.Logic using (isProp⟨⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; elim)
+open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
@@ -93,14 +95,14 @@ infix 4 _⊨[_]_ _⊨_
 _⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
 𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → φ ∈ Γ → ⟨ realize 𝒮 𝓋 φ ⟩
 
-_⊨_ : Theory → ∥ Formula ∥₂ → Type (ℓ-suc u)
-Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → ⟨ realize 𝒮 𝓋 φ ⟩
+_⊨_ : Theory → Formula → Type (ℓ-suc u)
+Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → ⟨ realize 𝒮 𝓋 ∣ φ ∣₂ ⟩
 ```
 
 ```agda
 isProp-⊨[] : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) (Γ : Theory) → isProp (𝒮 ⊨[ 𝓋 ] Γ)
-isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → realize 𝒮 𝓋 φ .snd
+isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → isProp⟨⟩ _
 
-isProp-⊨ : (Γ : Theory) (φ : ∥ Formula ∥₂) → isProp (Γ ⊨ φ)
-isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → realize 𝒮 𝓋 φ .snd
+isProp-⊨ : (Γ : Theory) (φ : Formula) → isProp (Γ ⊨ φ)
+isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → isProp⟨⟩ _
 ```
