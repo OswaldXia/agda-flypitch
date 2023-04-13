@@ -30,8 +30,8 @@ open Free._⊢_
 ```agda
 open import Agda.Builtin.Equality
 open import Cubical.Core.Primitives using (Type; ℓ-suc; _,_)
-open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Core.Id using (reflId)
+open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; squash₂; map)
