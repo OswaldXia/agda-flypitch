@@ -66,8 +66,11 @@ module _ {ℒ} where
     λ { (⊎.inl ∈) → ∣ φ , inl ∈ , reflId ∣₁
       ; (⊎.inr ∈) → ∣ φ , inr ∈ , reflId ∣₁ }
 
-∞-witnessing : (φ : Formula (∞-language ℒ) 1) → Type u
-∞-witnessing {ℒ} φ =
+∞-witness : ∀ {i} → ∥ Formula (obj ℒ i) 1 ∥₂ → Constant (∞-language ℒ)
+∞-witness {_} {i} φ = languageCanonicalMorph (suc i) .funMorph (witnessOf φ)
+
+∞-Witnessing : (φ : Formula (∞-language ℒ) 1) → Type u
+∞-Witnessing {ℒ} φ =
   ∃[ c ∈ Constant $ ∞-language ℒ ]
   Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
   Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
@@ -75,13 +78,12 @@ module _ {ℒ} where
   × formulaComparison φ∞ ≡ ∣ φ ∣₂
   × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
 
-∞-witness : (φ : Formula (∞-language ℒ) 1) → ∞-witnessing φ
-∞-witness {ℒ} φ = let (φ∞ , Hφ∞) = formulaComparisonFiber φ in
-  elim {P = λ _ → ∞-witnessing φ}
+∞-witnessing : (φ : Formula (∞-language ℒ) 1) → ∞-Witnessing φ
+∞-witnessing {ℒ} φ = let (φ∞ , Hφ∞) = formulaComparisonFiber φ in
+  elim {P = λ _ → ∞-Witnessing φ}
     (λ _ → squash₁)
-    (λ (φₚ@(i , φᵢ) , Hi) →
-      ∣ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
-      , φ∞ , φₚ , Hi , Hφ∞ , refl
-      ∣₁)
+    (λ { (φₚ@(i , φᵢ) , Hi) →
+      ∣ ∞-witness φᵢ , φ∞ , φₚ , Hi , Hφ∞ , refl ∣₁
+    })
     (representative φ∞)
   where open DirectedDiagram (formulaChain ℒ 1 0) using (representative)
