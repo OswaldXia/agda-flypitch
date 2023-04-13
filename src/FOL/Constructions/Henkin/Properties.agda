@@ -5,9 +5,10 @@ open import FOL.Language
 module FOL.Constructions.Henkin.Properties (ℒ : Language {u}) where
 open import FOL.Constructions.Henkin.LanguageChain u using (∞-language; languageCanonicalMorph)
 open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
+open import FOL.Constructions.Henkin.Witness u using (witnessStatement; ∞-witnessing)
 open import FOL.Constructions.Henkin.TheoryChain u
 
-open import FOL.Base (∞-language ℒ) using (axiom)
+open import FOL.Base (∞-language ℒ) as Free using (axiom)
 open import FOL.Bounded.Base (∞-language ℒ)
 open import FOL.Bounded.Substitution (∞-language ℒ)
 open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
@@ -46,4 +47,4 @@ open import Function using (_$_)
           ∣₁)
         φᵢ
     })
-    (∞-witness φ)
+    (∞-witnessing φ)
