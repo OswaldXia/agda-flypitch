@@ -2,7 +2,8 @@
 
 open import FOL.Language
 module FOL.Constructions.Henkin.Properties (ℒ : Language {u}) where
-open import FOL.Constructions.Henkin.LanguageChain u
+open import FOL.Constructions.Henkin.LanguageChain u using (∞-language; languageMorph)
+open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
 open import FOL.Constructions.Henkin.TheoryChain u
 
 open import FOL.Base (∞-language ℒ) using (axiom)
@@ -14,6 +15,9 @@ open Language (∞-language ℒ) using (Constant)
 import FOL.Language.Homomorphism as LHom
 open LHom.Bounded using (formulaMorph)
 
+open import Tools.DirectedDiagram using (Cocone)
+open Cocone (coconeOfFormulaChain ℒ 0 0) renaming (map to coconeMap)
+
 open import Cubical.Core.Primitives
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
@@ -21,15 +25,15 @@ open import Cubical.HITs.SetTruncation using (map)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ; suc)
-open import Function using (_∘₂_; _$_)
+open import Function using (_∘_; _∘₂_; _$_)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
 ∞-theory-hasEnoughConstants T φ = elim
   {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ ∃' φ ⇒ φ [ const c / 0 ]}
   (λ _ → squash₁)
-  (λ (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $ ∣_∣₁ $
-    (map $ formulaMorph $ languageCanonicalMorph $ suc i) ((map [ witnessOf φᵢ witnessing_]) ((map $ formulaMorph $ languageMorph) φᵢ))
-  , {!   !}
-  , {!   !}
-  )
+  (λ { (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $ ∣_∣₁ $
+      coconeMap (suc i) (map ([ witnessOf φᵢ witnessing_] ∘ formulaMorph languageMorph) φᵢ)
+    , {!   !}
+    , {!   !}
+  })
   (∞-witness φ)
