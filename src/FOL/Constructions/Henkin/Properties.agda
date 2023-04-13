@@ -41,7 +41,7 @@ open import Function using (_$_)
       elim₂ {B = λ _ → Goal} (λ _ → isProp→isSet squash₁)
         (λ ψ → ∣_∣₁ $ c ,_ $ axiom $
           ∣ coconeMap (suc i) (witnessStatement ψ)
-          , ∣ suc i , ∈-→∞-theory i (witnessStatement ψ) (inr ∣ ψ , tt* , reflId ∣₁) ∣₁
+          , ∣ suc i , ∈-∞-theory i (witnessStatement ψ) (inr ∣ ψ , tt* , reflId ∣₁) ∣₁
           , {!   !}
           ∣₁)
         φᵢ

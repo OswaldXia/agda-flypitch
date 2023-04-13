@@ -60,9 +60,9 @@ module _ {ℒ : Language} where
 module _ {ℒ} where
   open Cocone (coconeOfFormulaChain ℒ 0 0) using (map)
 
-  ∈-→∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : ∥ Sentence $ obj ℒ $ suc i ∥₂) →
+  ∈-∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : ∥ Sentence $ obj ℒ $ suc i ∥₂) →
     φ ∈ [ suc i ]-theory T → map (suc i) φ ∈ [ suc i ]→∞-theory T
-  ∈-→∞-theory {ℒ} i φ = elim (λ _ → ∈-isProp _ _)
+  ∈-∞-theory {ℒ} i φ = elim (λ _ → ∈-isProp _ _)
     λ { (⊎.inl ∈) → ∣ φ , inl ∈ , reflId ∣₁
       ; (⊎.inr ∈) → ∣ φ , inr ∈ , reflId ∣₁ }
 
