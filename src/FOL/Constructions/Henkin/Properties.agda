@@ -2,7 +2,7 @@
 
 open import FOL.Language
 module FOL.Constructions.Henkin.Properties (ℒ : Language {u}) where
-open import FOL.Constructions.Henkin.LanguageChain u using (∞-language; languageMorph)
+open import FOL.Constructions.Henkin.LanguageChain u using (∞-language; languageCanonicalMorph)
 open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
 open import FOL.Constructions.Henkin.TheoryChain u
 
@@ -33,7 +33,7 @@ open import Function using (_∘_; _∘₂_; _$_)
   {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ [ c witnessing φ ]}
   (λ _ → squash₁)
   (λ { (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) → (∣_∣₁ ∘₂ _,_) c $ axiom $ ∣_∣₁ $
-      coconeMap (suc i) {! witnessStatement  !}
+      coconeMap (suc i) (map witnessStatement φᵢ)
     , {!   !}
     , {!   !}
   })

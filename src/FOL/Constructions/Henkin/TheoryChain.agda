@@ -34,12 +34,12 @@ module _ {ℒ : Language} where
   witnessOf : ∥ Formula ℒ 1 ∥₂ → Constant $ languageStep ℒ
   witnessOf = witness
 
-  witnessStatement : Formula ℒ 1 → ∥ Sentence $ languageStep ℒ ∥₂
-  witnessStatement φ = ∣ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣₂
+  witnessStatement : Formula ℒ 1 → Sentence $ languageStep ℒ
+  witnessStatement φ = [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ]
     where open import FOL.Bounded.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
 
   theoryStep : Theory ℒ → Theory $ languageStep ℒ
-  theoryStep Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Formula ℒ 1 ｝
+  theoryStep Γ = theoryMorph Γ ∪ ｛ ∣ witnessStatement φ ∣₂ ∣ φ ∈ Formula ℒ 1 ｝
 
 [_]-theory : ∀ n → Theory ℒ → Theory $ [ n ]-language ℒ
 [ zero ]-theory T = T
