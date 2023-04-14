@@ -10,10 +10,12 @@ zhihu-url: https://zhuanlan.zhihu.com/p/604316553
 > 本文源码: [Language.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Language.lagda.md)  
 > 高亮渲染: [Language.html](https://choukh.github.io/agda-flypitch/FOL.Language.html)  
 
-本系列文章采用立方类型论作为元语言, 讨论一阶逻辑及其性质.
+本系列文章采用经典立方类型论作为元语言, 讨论一阶逻辑及其性质.
 
 ```agda
 {-# OPTIONS --cubical --safe #-}
+
+open import CubicalExt.Axiom.ExcludedMiddle
 ```
 
 一阶逻辑是一种形式语言, 其语句由一些原始符号按一定的语法组合而成. 符号又分为逻辑符号和非逻辑符号. 本篇先讲非逻辑符号.
@@ -33,18 +35,17 @@ $$R^n_0,\ R^n_1,\ R^n_2,\ R^n_3,\ ...$$
 较现代的方式是根据最终要实现的一阶理论来指定该理论所需的非逻辑符号. 这些特定的符号以及它们的元数所组成的资料叫做理论的**签名 (signature)**. 在这种处理下, 每种签名都对应一种一阶逻辑语言, 因此签名又叫做**语言 (language)**, 语言的实例按惯例记作 ℒ. 由于一阶逻辑的其他部分都是参数化到语言的, 我们把它单独作为一个模块.
 
 ```agda
-module FOL.Language where
-```
+module FOL.Language ⦃ _ : ExcludedMiddle ⦄ where
 
-本篇只需要立方类型论的关于类型和宇宙的核心概念以及自然数.
-
-```agda
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Foundations.Function using (_∘_)
+open import Cubical.Relation.Nullary using (Discrete)
+open import CubicalExt.Classical using (isSet→Discrete)
 ```
 
-**定义 (语言)** 由按元数分类的函数符号集族 `functions : ℕ → Type u` 以及按元数分类的关系符号集族 `relations : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
+**定义 (语言)** 由按元数分类的函数符号离散集族 `functions : ℕ → Type u` 以及按元数分类的关系符号离散集族 `relations : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
 
 ```agda
 variable
@@ -56,6 +57,13 @@ record Language : Type (ℓ-suc u) where
     relations : ℕ → Type u
     isSetFunctions : ∀ n → isSet (functions n)
     isSetRelations : ∀ n → isSet (relations n)
+
+  discreteFunctions : ∀ n → Discrete (functions n)
+  discreteFunctions = isSet→Discrete ∘ isSetFunctions
+
+  discreteRelations : ∀ n → Discrete (relations n)
+  discreteRelations = isSet→Discrete ∘ isSetRelations
+
   Constant = functions 0
 ```
 
@@ -67,7 +75,7 @@ private module ExampleLanguagePA where
   open import Cubical.Data.Empty using (⊥)
   open import Cubical.Foundations.Prelude using (refl; subst)
   open import Cubical.Foundations.Function using (_∘_)
-  open import Cubical.Relation.Nullary using (yes; no; Discrete; Discrete→isSet)
+  open import Cubical.Relation.Nullary using (yes; no; Discrete→isSet)
 
   data func : ℕ → Type where
     O : func 0
