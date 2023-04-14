@@ -2,16 +2,20 @@
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Sethood ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Base ⦃ em ⦄ ℒ
+module FOL.Bounded.Sethood ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Bounded.Base ⦃ em ⦄ ℒ
 open Language ℒ
 
 open import Agda.Builtin.Equality using (_≡_; refl)
 open import Cubical.Foundations.Prelude using (isSet)
 open import CubicalExt.Relation.Nullary using (¬_; yes; no; DiscreteEq; DiscreteEq→isSet)
-open import Cubical.Data.Nat using (ℕ; zero; suc)
+open import Cubical.Data.Nat using (ℕ)
+open import Data.Fin using (Fin; zero; suc)
 
-discreteTerm : DiscreteEq (Termₗ l)
+private variable
+  n : ℕ
+
+discreteTerm : DiscreteEq (Termₗ n l)
 discreteTerm (var zero)     (var zero)      = yes refl
 discreteTerm (var zero)     (var (suc _))   = no λ ()
 discreteTerm (var (suc _))  (var zero)      = no λ ()
@@ -35,10 +39,10 @@ discreteTerm (app f₁ t₁) (app f₂ t₂) with discreteTerm f₁ f₂ | discr
 ... | no  ¬p   | _        = no λ { refl → ¬p refl }
 ... | _        | no  ¬q   = no λ { refl → ¬q refl }
 
-isSetTerm : isSet (Termₗ l)
+isSetTerm : isSet (Termₗ n l)
 isSetTerm = DiscreteEq→isSet discreteTerm
 
-discreteFormula : DiscreteEq (Formulaₗ l)
+discreteFormula : DiscreteEq (Formulaₗ n l)
 discreteFormula ⊥           ⊥           = yes refl
 discreteFormula ⊥           (rel _)     = no λ ()
 discreteFormula ⊥           (appᵣ _ _)  = no λ ()
@@ -94,5 +98,5 @@ discreteFormula (∀' φ₁) (∀' φ₂) with discreteFormula φ₁ φ₂
 ... | yes refl = yes refl
 ... | no  ¬p   = no λ { refl → ¬p refl }
 
-isSetFormula : isSet (Formulaₗ l)
+isSetFormula : isSet (Formulaₗ n l)
 isSetFormula = DiscreteEq→isSet discreteFormula

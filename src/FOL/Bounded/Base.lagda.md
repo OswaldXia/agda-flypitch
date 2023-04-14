@@ -13,7 +13,6 @@ zhihu-tags: Agda, 数理逻辑
 
 ```agda
 {-# OPTIONS --cubical --safe #-}
-{-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
