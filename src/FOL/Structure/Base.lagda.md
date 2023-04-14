@@ -32,6 +32,6 @@ record Structure : Type (ℓ-max u (ℓ-suc v)) where
   field
     Domain : Type v
     isSetDomain : isSet Domain
-    funMap : ∀ {n} → functions n → Vec Domain n → Domain
-    relMap : ∀ {n} → relations n → Vec Domain n → hProp v
+    funMap : ∀ {n} → 𝔉 n → Vec Domain n → Domain
+    relMap : ∀ {n} → ℜ n → Vec Domain n → hProp v
 ```

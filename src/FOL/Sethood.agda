@@ -1,8 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Sethood (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (⊥)
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Sethood ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Base ⦃ em ⦄ ℒ hiding (⊥)
 open Language ℒ
 
 open import Cubical.Core.Primitives
@@ -39,7 +40,7 @@ discreteTerm (func f) (var k) = no helper where
   helper : ¬ func f ≡ var k
   helper p with pathToEq p
   ... | ()
-discreteTerm (func f₁) (func f₂) with discreteFunctions _ f₁ f₂
+discreteTerm (func f₁) (func f₂) with discrete𝔉 _ f₁ f₂
 ... | yes p = {!   !}
 ... | no ¬p = {!   !}
 discreteTerm (func f) (app t₁ t₂) = no helper where

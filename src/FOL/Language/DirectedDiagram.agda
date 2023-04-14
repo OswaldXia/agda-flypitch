@@ -36,34 +36,34 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
 
     functionsᴰ : DirectedDiagram {u} {ℓ-max u v} D
     functionsᴰ = record
-      { obj = λ i → obj i .functions n
+      { obj = λ i → obj i .𝔉 n
       ; morph = λ i~j → funMorph (morph i~j)
       ; functorial = cong (λ f → funMorph f) functorial
       }
 
     relationsᴰ : DirectedDiagram {u} {ℓ-max u v} D
     relationsᴰ = record
-      { obj = λ i → obj i .relations n
+      { obj = λ i → obj i .ℜ n
       ; morph = λ i~j → relMorph (morph i~j)
       ; functorial = cong (λ f → relMorph f) functorial
       }
 
   CoproductLanguage : Language
   CoproductLanguage = record
-    { functions = Coproduct ∘ functionsᴰ
-    ; relations = Coproduct ∘ relationsᴰ
-    ; isSetFunctions = λ n → isSetΣ isSetCarrier λ i → isSetFunctions (obj i) n
-    ; isSetRelations = λ n → isSetΣ isSetCarrier λ i → isSetRelations (obj i) n
+    { 𝔉 = Coproduct ∘ functionsᴰ
+    ; ℜ = Coproduct ∘ relationsᴰ
+    ; isSet𝔉 = λ n → isSetΣ isSetCarrier λ i → isSet𝔉 (obj i) n
+    ; isSetℜ = λ n → isSetΣ isSetCarrier λ i → isSetℜ (obj i) n
     } where open DirectedDiagram using (Coproduct)
 
   ColimitLanguage : Language
   ColimitLanguage = record
-    { functions = λ n → funcs n / (_≃_ $ functionsᴰ n)
-    ; relations = λ n → rels  n / (_≃_ $ relationsᴰ n)
-    ; isSetFunctions = λ _ → squash/
-    ; isSetRelations = λ _ → squash/
+    { 𝔉 = λ n → funcs n / (_≃_ $ functionsᴰ n)
+    ; ℜ = λ n → rels  n / (_≃_ $ relationsᴰ n)
+    ; isSet𝔉 = λ _ → squash/
+    ; isSetℜ = λ _ → squash/
     } where open DirectedDiagram using (_≃_)
-            open Language CoproductLanguage renaming (functions to funcs; relations to rels)
+            open Language CoproductLanguage renaming (𝔉 to funcs; ℜ to rels)
 
   canonicalMorph : ∀ i → obj i ⟶ ColimitLanguage
   canonicalMorph i = ⟪ (λ f → [ i , f ]) , (λ r → [ i , r ]) ⟫
@@ -79,22 +79,22 @@ record CoconeLanguage {D} (F : DirectedDiagramLanguage {u} {v} D) : Type (ℓ-ma
 
   universalMap : ColimitLanguage ⟶ Vertex
   universalMap = record
-    { funMorph = rec (isSetFunctions _) (λ (i , x) → funMorph (map i) x)
-        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetFunctions _ _ _))
+    { funMorph = rec (isSet𝔉 _) (λ (i , x) → funMorph (map i) x)
+        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSet𝔉 _ _ _))
           (λ (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
             funMorph (map i) x                        ≡⟨ cong-app (cong (λ f → funMorph f) (compat i~k)) x ⟩
             funMorph (map k) (funMorph (morph i~k) x) ≡⟨ cong (funMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
             funMorph (map k) (funMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → funMorph f) (compat j~k)) y ⟩
             funMorph (map j) y                        ∎)
-          (λ _ _ → isSetFunctions _ _ _ _ _)
-    ; relMorph = rec (isSetRelations _) (λ (i , x) → relMorph (map i) x)
-        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetRelations _ _ _))
+          (λ _ _ → isSet𝔉 _ _ _ _ _)
+    ; relMorph = rec (isSetℜ _) (λ (i , x) → relMorph (map i) x)
+        λ (i , x) (j , y) → elim→Set (λ _ → isProp→isSet (isSetℜ _ _ _))
           (λ (k , z , i~k , j~k , H₁ , H₂) → eqToPath $ begin
             relMorph (map i) x                        ≡⟨ cong-app (cong (λ f → relMorph f) (compat i~k)) x ⟩
             relMorph (map k) (relMorph (morph i~k) x) ≡⟨ cong (relMorph $ map k) (trans H₁ $ sym $ H₂) ⟩
             relMorph (map k) (relMorph (morph j~k) y) ≡˘⟨ cong-app (cong (λ f → relMorph f) (compat j~k)) y ⟩
             relMorph (map j) y                        ∎)
-          (λ _ _ → isSetRelations _ _ _ _ _)
+          (λ _ _ → isSetℜ _ _ _ _ _)
     } where open Language Vertex
 
 coconeOfColimitLanguage : ∀ {u v D} (F : DirectedDiagramLanguage {u} {v} D) → CoconeLanguage F

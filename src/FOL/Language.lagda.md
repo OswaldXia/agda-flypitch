@@ -35,7 +35,7 @@ $$R^n_0,\ R^n_1,\ R^n_2,\ R^n_3,\ ...$$
 较现代的方式是根据最终要实现的一阶理论来指定该理论所需的非逻辑符号. 这些特定的符号以及它们的元数所组成的资料叫做理论的**签名 (signature)**. 在这种处理下, 每种签名都对应一种一阶逻辑语言, 因此签名又叫做**语言 (language)**, 语言的实例按惯例记作 ℒ. 由于一阶逻辑的其他部分都是参数化到语言的, 我们把它单独作为一个模块.
 
 ```agda
-module FOL.Language ⦃ _ : ExcludedMiddle ⦄ where
+module FOL.Language ⦃ _ : EM ⦄ where
 
 open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Foundations.Prelude using (isSet)
@@ -45,7 +45,7 @@ open import Cubical.Relation.Nullary using (Discrete)
 open import CubicalExt.Classical using (isSet→Discrete)
 ```
 
-**定义 (语言)** 由按元数分类的函数符号离散集族 `functions : ℕ → Type u` 以及按元数分类的关系符号离散集族 `relations : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
+**定义 (语言)** 由按元数分类的函数符号离散集族 `𝔉 : ℕ → Type u` 以及按元数分类的关系符号离散集族 `ℜ : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
 
 ```agda
 variable
@@ -53,18 +53,18 @@ variable
 
 record Language : Type (ℓ-suc u) where
   field
-    functions : ℕ → Type u
-    relations : ℕ → Type u
-    isSetFunctions : ∀ n → isSet (functions n)
-    isSetRelations : ∀ n → isSet (relations n)
+    𝔉 : ℕ → Type u
+    ℜ : ℕ → Type u
+    isSet𝔉 : ∀ n → isSet (𝔉 n)
+    isSetℜ : ∀ n → isSet (ℜ n)
 
-  discreteFunctions : ∀ n → Discrete (functions n)
-  discreteFunctions = isSet→Discrete ∘ isSetFunctions
+  discrete𝔉 : ∀ n → Discrete (𝔉 n)
+  discrete𝔉 = isSet→Discrete ∘ isSet𝔉
 
-  discreteRelations : ∀ n → Discrete (relations n)
-  discreteRelations = isSet→Discrete ∘ isSetRelations
+  discreteℜ : ∀ n → Discrete (ℜ n)
+  discreteℜ = isSet→Discrete ∘ isSetℜ
 
-  Constant = functions 0
+  Constant = 𝔉 0
 ```
 
 **例** 下面给出了语言的一个实例 `ℒ`, 它可以作为皮亚诺算术 (一种一阶理论) 的语言. 注意符号的元数被编码到了类型里面. 例如, 常量 `O` 的类型是 `func 0`, 后继函数 `S` 的类型是 `func 1`, 加法 `+` 以及乘法 `*` 的类型是 `func 2`, 小于关系 `<` 的类型是 `rel 2`.
@@ -111,10 +111,10 @@ private module ExampleLanguagePA where
 
   ℒ : Language
   ℒ = record
-    { functions = func
-    ; relations = rel
-    ; isSetFunctions = isSetFunc
-    ; isSetRelations = isSetRel
+    { 𝔉 = func
+    ; ℜ = rel
+    ; isSet𝔉 = isSetFunc
+    ; isSetℜ = isSetRel
     }
 ```
 

@@ -28,10 +28,10 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; con
 
 languageStep : Language → Language
 languageStep ℒ = record
-  { functions = HekinFunctions ℒ
-  ; relations = ℒ .relations
-  ; isSetFunctions = isSetHekinFunctions
-  ; isSetRelations = ℒ .isSetRelations
+  { 𝔉 = HekinFunctions ℒ
+  ; ℜ = ℒ .ℜ
+  ; isSet𝔉 = isSetHekinFunctions
+  ; isSetℜ = ℒ .isSetℜ
   }
 
 languageMorph : ℒ ⟶ languageStep ℒ

@@ -11,6 +11,6 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.HITs.SetTruncation using (∥_∥₂)
 
 data HekinFunctions : ℕ → Type u where
-  include  : ∀ {n} → functions n → HekinFunctions n
+  include  : ∀ {n} → 𝔉 n → HekinFunctions n
   witness : ∥ Formula 1 ∥₂ → HekinFunctions 0
   isSetHekinFunctions : ∀ n → isSet (HekinFunctions n)

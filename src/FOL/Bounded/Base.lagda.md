@@ -63,7 +63,7 @@ infix 4 _⊢_
 ```agda
 data Termₗ (n : ℕ) : ℕ → Type u where
   var  : (k : Fin n) → Termₗ n 0
-  func : (f : functions l) → Termₗ n l
+  func : (f : 𝔉 l) → Termₗ n l
   app  : (t₁ : Termₗ n (suc l)) (t₂ : Termₗ n 0) → Termₗ n l
 
 Term : ℕ → Type u
@@ -103,7 +103,7 @@ ClosedTerm = ClosedTermₗ 0
 ```agda
 data Formulaₗ (n : ℕ) : ℕ → Type u where
   ⊥     : Formulaₗ n 0
-  rel   : (R : relations l) → Formulaₗ n l
+  rel   : (R : ℜ l) → Formulaₗ n l
   appᵣ  : (φ : Formulaₗ n (suc l)) (t : Term n) → Formulaₗ n l
   _≈_   : (t₁ t₂ : Term n) → Formulaₗ n 0
   _⇒_   : (φ₁ φ₂ : Formulaₗ n 0) → Formulaₗ n 0

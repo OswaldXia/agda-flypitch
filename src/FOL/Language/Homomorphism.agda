@@ -20,8 +20,8 @@ record _⟶_ (ℒ₁ : Language) (ℒ₂ : Language) : Type u where
   constructor ⟪_,_⟫
   open Language {u}
   field
-    funMorph : ∀ {n} → ℒ₁ .functions n → ℒ₂ .functions n
-    relMorph : ∀ {n} → ℒ₁ .relations n → ℒ₂ .relations n
+    funMorph : ∀ {n} → ℒ₁ .𝔉 n → ℒ₂ .𝔉 n
+    relMorph : ∀ {n} → ℒ₁ .ℜ n → ℒ₂ .ℜ n
 
 id : ℒ ⟶ ℒ
 id = ⟪ ⟨id⟩ , ⟨id⟩ ⟫

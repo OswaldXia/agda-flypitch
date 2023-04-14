@@ -19,7 +19,8 @@ zhihu-url: https://zhuanlan.zhihu.com/p/604316612
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Base (ℒ : Language {u}) where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Base ⦃ _ : EM ⦄ (ℒ : Language {u}) where
 open Language ℒ
 ```
 
@@ -76,7 +77,7 @@ variable
 
 data Termₗ : ℕ → Type u where
   var  : (k : ℕ) → Termₗ 0
-  func : (f : functions l) → Termₗ l
+  func : (f : 𝔉 l) → Termₗ l
   app  : (t₁ : Termₗ (suc l)) (t₂ : Termₗ 0) → Termₗ l
 
 Term = Termₗ 0
@@ -144,7 +145,7 @@ n元关系在公式中的处理与n元函数在项中的处理类似, 我们把�
 ```agda
 data Formulaₗ : ℕ → Type u where
   ⊥     : Formulaₗ 0
-  rel   : (R : relations l) → Formulaₗ l
+  rel   : (R : ℜ l) → Formulaₗ l
   appᵣ  : (φ : Formulaₗ (suc l)) (t : Term) → Formulaₗ l
   _≈_   : (t₁ t₂ : Term) → Formulaₗ 0
   _⇒_   : (φ₁ φ₂ : Formulaₗ 0) → Formulaₗ 0
