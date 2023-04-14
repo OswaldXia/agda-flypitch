@@ -8,7 +8,7 @@ open import FOL.Bounded.Casting ℒ
 open import FOL.Bounded.Lifting ℒ
 
 open import Data.Fin using (Fin; toℕ; fromℕ<; reduce≥)
-open import Data.Fin.Properties using (toℕ-fromℕ<)
+open import StdlibExt.Data.Fin.Properties using (toℕ-fromℕ<; toℕ-reduce≥)
 open import Data.Nat using (ℕ; suc; _+_; s≤s; z≤n; _≤_)
 open import Data.Nat.Properties
 open import Function using (_$_)
@@ -44,7 +44,7 @@ unbound-substₜ : (t : Termₗ (suc n + m) l) (s : Term m) →
 unbound-substₜ {n} (var k) s with <-cmp (toℕ k) n
 ... | tri< k<n _ _  = cong Free.var (toℕ-fromℕ< _)
 ... | tri≈ _ _ _    = {!   !}
-... | tri> _ _ n<k  = {!   !}
+... | tri> _ _ n<k  = cong Free.var (toℕ-reduce≥ k (≤-trans (s≤s z≤n) n<k))
 unbound-substₜ (func f) s   = refl
 unbound-substₜ (app t t₁) s = {!   !}
 
