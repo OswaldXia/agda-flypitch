@@ -19,7 +19,7 @@ module FOL.Bounded.Syntactics ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open import FOL.Bounded.Base ⦃ em ⦄ ℒ
 open import FOL.Bounded.Sethood ⦃ em ⦄ ℒ
 
-module Free where
+private module Free where
   open import FOL.Base ⦃ em ⦄ ℒ public
   open import FOL.Sethood ⦃ em ⦄ ℒ public
   open import FOL.Syntactics ⦃ em ⦄ ℒ public

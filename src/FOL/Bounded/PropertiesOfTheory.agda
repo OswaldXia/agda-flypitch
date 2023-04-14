@@ -1,11 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.PropertiesOfTheory (ℒ : Language {u}) where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Bounded.PropertiesOfTheory ⦃ em : EM ⦄ (ℒ : Language {u}) where
 
-open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Substitution ℒ
-open import FOL.Bounded.Semantics ℒ using (_⊨ᵀ_)
+open import FOL.Bounded.Base ⦃ em ⦄ ℒ
+open import FOL.Bounded.Syntactics ⦃ em ⦄ ℒ
+open import FOL.Bounded.Substitution ⦃ em ⦄ ℒ
+open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ using (_⊨ᵀ_)
 open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (Domain)

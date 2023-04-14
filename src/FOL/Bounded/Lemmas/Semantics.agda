@@ -2,26 +2,27 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Bounded.Lemmas.Semantics (ℒ : Language {u}) where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Bounded.Lemmas.Semantics ⦃ em : EM ⦄ (ℒ : Language {u}) where
 
-import FOL.Semantics ℒ as Free
-open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Semantics ℒ
-open import FOL.Bounded.Lemmas.Realization
-open Closed using (realize-eq)
+import FOL.Semantics ⦃ em ⦄ ℒ as Free
+open import FOL.Bounded.Base ⦃ em ⦄ ℒ
+open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ
+open import FOL.Bounded.Lemmas.Realization ⦃ em ⦄
+open Free.Realizer using (isPropRealize)
+open Closed using (realize-iff)
 
-open import Cubical.Core.Primitives
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (sym; subst)
-open import Cubical.Foundations.Structure using (⟨_⟩)
-open import Cubical.Functions.Logic using (isProp⟨⟩)
-open import Cubical.HITs.PropositionalTruncation using (elim)
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
-open import CubicalExt.HITs.SetTruncation using (∣_∣₂; map)
-open import Function using (_$_)
+open import Cubical.HITs.PropositionalTruncation using (elim)
 
-bound⊨ : ∀ {Γ φ} → map unbound ⟦ Γ ⟧ Free.⊨ unbound φ → Γ ⊨ φ
-bound⊨ {Γ} {φ} free⊨ 𝒮 x 𝒮⊨φ = let 𝓋 = λ _ → x in
-  subst ⟨_⟩ (sym $ realize-eq 𝒮 𝓋 ∣ φ ∣₂) $ free⊨ 𝒮 𝓋 λ _ →
-    elim (λ x → isProp⟨⟩ _) $ λ { (ψ , ψ∈Γ , reflId) →
-      subst ⟨_⟩ (realize-eq 𝒮 𝓋 ψ) (𝒮⊨φ ψ ψ∈Γ) }
+open import Agda.Builtin.Sigma using (_,_)
+open import Function.Equality using (_⟨$⟩_) public
+open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+open import StdlibExt.Relation.Binary.PropositionalEquivalence
+
+bound⊨ : ∀ {Γ φ} → unbound ⟦ Γ ⟧ Free.⊨ unbound φ → Γ ⊨ φ
+bound⊨ {Γ} {φ} ⊨ 𝒮 x vld = let 𝓋 = λ _ → x in
+  from (realize-iff 𝒮 𝓋 φ) ⟨$⟩ ⊨ 𝒮 𝓋 λ φ' →
+    elim (λ _ → isPropRealize _ _ _) λ { (ψ , ψ∈Γ , reflId) →
+      to (realize-iff 𝒮 𝓋 ψ) ⟨$⟩ (vld ψ ψ∈Γ) }
