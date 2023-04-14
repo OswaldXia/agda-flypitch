@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
-module FOL.Language.DirectedDiagram where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Language.DirectedDiagram ⦃ em : EM ⦄ where
 
 open import FOL.Language hiding (u)
 open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)

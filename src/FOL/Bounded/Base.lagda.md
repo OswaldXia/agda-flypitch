@@ -1,9 +1,9 @@
 ---
-title: Agda一阶逻辑(?) 束缚
+title: Agda一阶逻辑(?) 束缚项与束缚公式
 zhihu-tags: Agda, 数理逻辑
 ---
 
-# Agda一阶逻辑(?) 束缚
+# Agda一阶逻辑(?) 束缚项与束缚公式
 
 > 交流Q群: 893531731  
 > 本文源码: [Base.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/FOL/Bounded/Base.lagda.md)  

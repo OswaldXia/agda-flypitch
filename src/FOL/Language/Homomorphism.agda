@@ -2,7 +2,7 @@
 
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Language.Homomorphism ⦃ em : EM ⦄ {u} where
-open import FOL.Language ⦃ em ⦄ hiding (u)
+open import FOL.Language hiding (u)
 
 open import Cubical.Core.Primitives using (Type)
 open import Cubical.Data.Equality using (funExt)
@@ -44,7 +44,7 @@ module _ where
 
 module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   open import FOL.Bounded.Base {u} hiding (l)
-  open import FOL.Syntactics ⦃ em ⦄ using (Theory)
+  open import FOL.Bounded.Syntactics using (Theory)
   open _⟶_ {ℒ₁} {ℒ₂} F
 
   termMorph : Termₗ ℒ₁ n l → Termₗ ℒ₂ n l
@@ -66,8 +66,8 @@ module Bounded (F : ℒ₁ ⟶ ℒ₂) where
   sentenceMorph : Sentence ℒ₁ → Sentence ℒ₂
   sentenceMorph = formulaMorph
 
-  theoryMorph : Theory ℒ₁ → Theory ℒ₂
-  theoryMorph Γ = sentenceMorph ⟦ Γ ⟧
+  --theoryMorph : Theory ℒ₁ → Theory ℒ₂
+  --theoryMorph Γ = sentenceMorph ⟦ Γ ⟧
 
 module BoundedProperties where
   open import FOL.Bounded.Base {u} hiding (l)
