@@ -16,9 +16,11 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Semantics (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (subst)
-open import FOL.Structure.Base ℒ
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Semantics ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Base ⦃ em ⦄ ℒ
+open import FOL.Syntactics ⦃ em ⦄ ℒ hiding (subst)
+open import FOL.Structure.Base ⦃ em ⦄ ℒ
 open Language ℒ
 ```
 
@@ -33,7 +35,6 @@ open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Functions.Logic using (isProp⟨⟩)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
-open import CubicalExt.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)

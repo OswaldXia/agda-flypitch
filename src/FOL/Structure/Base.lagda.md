@@ -13,7 +13,8 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Structure.Base (ℒ : Language {u}) where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Structure.Base ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open Language ℒ
 
 open import Cubical.Core.Primitives
