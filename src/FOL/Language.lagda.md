@@ -41,11 +41,11 @@ open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
 open import Cubical.Foundations.Prelude using (isSet)
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Foundations.Function using (_∘_)
-open import Cubical.Relation.Nullary using (Discrete)
-open import CubicalExt.Classical using (isSet→Discrete)
+open import CubicalExt.Relation.Nullary using (DiscreteEq)
+open import CubicalExt.Classical using (isSet→DiscreteEq)
 ```
 
-**定义 (语言)** 由按元数分类的函数符号离散集族 `𝔉 : ℕ → Type u` 以及按元数分类的关系符号离散集族 `ℜ : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
+**定义 (语言)** 由按元数分类的函数符号集族 `𝔉 : ℕ → Type u` 以及按元数分类的关系符号集族 `ℜ : ℕ → Type u` 组成的资料叫做一阶逻辑的语言. 特别地, 常量集是元数为 0 的函数集. 我们约定 `u` 是语言专用的宇宙多态参数, 语言比符号集高一个宇宙.
 
 ```agda
 variable
@@ -58,24 +58,26 @@ record Language : Type (ℓ-suc u) where
     isSet𝔉 : ∀ n → isSet (𝔉 n)
     isSetℜ : ∀ n → isSet (ℜ n)
 
-  discrete𝔉 : ∀ n → Discrete (𝔉 n)
-  discrete𝔉 = isSet→Discrete ∘ isSet𝔉
-
-  discreteℜ : ∀ n → Discrete (ℜ n)
-  discreteℜ = isSet→Discrete ∘ isSetℜ
-
   Constant = 𝔉 0
+```
+
+在经典逻辑中, `isSet` 蕴含 `DiscreteEq`, 且实际上它们是等价的. 在后文的例子中, 我们通过证明 `DiscreteEq` 证明了 `𝔉` 和 `ℜ` 的 `isSet` 条件.
+
+```agda
+  discrete𝔉 : ∀ n → DiscreteEq (𝔉 n)
+  discrete𝔉 = isSet→DiscreteEq ∘ isSet𝔉
+
+  discreteℜ : ∀ n → DiscreteEq (ℜ n)
+  discreteℜ = isSet→DiscreteEq ∘ isSetℜ
 ```
 
 **例** 下面给出了语言的一个实例 `ℒ`, 它可以作为皮亚诺算术 (一种一阶理论) 的语言. 注意符号的元数被编码到了类型里面. 例如, 常量 `O` 的类型是 `func 0`, 后继函数 `S` 的类型是 `func 1`, 加法 `+` 以及乘法 `*` 的类型是 `func 2`, 小于关系 `<` 的类型是 `rel 2`.
 
 ```agda
 private module ExampleLanguagePA where
-  open import Agda.Builtin.Unit using (⊤; tt)
-  open import Cubical.Data.Empty using (⊥)
-  open import Cubical.Foundations.Prelude using (refl; subst)
+  open import Agda.Builtin.Equality using (refl)
   open import Cubical.Foundations.Function using (_∘_)
-  open import Cubical.Relation.Nullary using (yes; no; Discrete→isSet)
+  open import CubicalExt.Relation.Nullary using (¬_; yes; no; DiscreteEq→isSet)
 
   data func : ℕ → Type where
     O : func 0
@@ -86,28 +88,22 @@ private module ExampleLanguagePA where
   data rel : ℕ → Type where
     < : rel 2
 
-  discreteFunc : ∀ n → Discrete (func n)
+  discreteFunc : ∀ n → DiscreteEq (func n)
   discreteFunc 0 O O = yes refl
   discreteFunc 1 S S = yes refl
   discreteFunc 2 + + = yes refl
   discreteFunc 2 * * = yes refl
-  discreteFunc 2 + * = no λ +≡* → subst P +≡* tt where
-    P : func 2 → Type
-    P * = ⊥
-    P + = ⊤
-  discreteFunc 2 * + = no λ *≡+ → subst P *≡+ tt where
-    P : func 2 → Type
-    P + = ⊥
-    P * = ⊤
+  discreteFunc 2 + * = no λ ()
+  discreteFunc 2 * + = no λ ()
 
   isSetFunc : ∀ n → isSet (func n)
-  isSetFunc = Discrete→isSet ∘ discreteFunc
+  isSetFunc = DiscreteEq→isSet ∘ discreteFunc
 
-  discreteRel : ∀ n → Discrete (rel n)
+  discreteRel : ∀ n → DiscreteEq (rel n)
   discreteRel 2 < < = yes refl
 
   isSetRel : ∀ n → isSet (rel n)
-  isSetRel = Discrete→isSet ∘ discreteRel
+  isSetRel = DiscreteEq→isSet ∘ discreteRel
 
   ℒ : Language
   ℒ = record
