@@ -1,8 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Lemmas.Substitution (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (⊥-elim; _+_)
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Lemmas.Substitution ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Base ⦃ em ⦄ ℒ
 
 open import Cubical.Core.Primitives using (Type; Level)
 open import Data.Nat
@@ -61,10 +62,6 @@ private variable
 ... | tri> ¬s ¬t _  | tri≈ _ u _    with n₂
 ... | zero   rewrite +-identityʳ n₁ = ⊥-elim $ ¬t $ u
 ... | suc n₂ rewrite u              = ⊥-elim $ ¬s (m<m+n n₁ (s≤s z≤n))
-
-≈-≡-subst : ∀ {Γ t₁ t₂} (φ₁ : Formula) {φ₂ : Formula}
-  → Γ ⊢ t₁ ≈ t₂ → Γ ⊢ φ₁ [ t₁ / 0 ] → φ₁ [ t₂ / 0 ] ≡ φ₂ → Γ ⊢ φ₂
-≈-≡-subst φ₁ H₁ H₂ refl = subst H₁ H₂
 
 apps/ : (f : Termₗ l) (xs : Vec Term l) (s : Term) (n : ℕ)
   → apps f xs [ s / n ]ₜ ≡ apps (f [ s / n ]ₜ) (map _[ s / n ]ₜ xs)

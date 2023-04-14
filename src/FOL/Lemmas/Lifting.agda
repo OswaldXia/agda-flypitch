@@ -1,9 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
-{-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Lemmas.Lifting (ℒ : Language {u}) where
-open import FOL.Base ℒ hiding (⊥-elim; subst; _+_)
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Lemmas.Lifting ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Base ⦃ em ⦄ ℒ
 
 open import Data.Nat
 open import Data.Nat.Properties

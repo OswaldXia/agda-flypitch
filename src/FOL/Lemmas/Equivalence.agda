@@ -2,12 +2,14 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import FOL.Base using (Theory)
-module FOL.Lemmas.Equivalence {ℒ : Language {u}} (T : Theory ℒ) where
+open import CubicalExt.Axiom.ExcludedMiddle
+open import FOL.Syntactics using (Theory)
+module FOL.Lemmas.Equivalence ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
 
-open import FOL.Base ℒ hiding (_⇒_)
-open import FOL.Lemmas.Lifting ℒ
-open import FOL.Lemmas.Substitution ℒ
+open import FOL.Base ⦃ em ⦄ ℒ hiding (_⇒_)
+open import FOL.Syntactics ⦃ em ⦄ ℒ
+open import FOL.Lemmas.Lifting ⦃ em ⦄ ℒ
+open import FOL.Lemmas.Substitution ⦃ em ⦄ ℒ
 
 open import Agda.Primitive using (lsuc)
 open import Data.Nat using (ℕ; zero; suc)
