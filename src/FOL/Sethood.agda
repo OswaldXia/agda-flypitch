@@ -6,8 +6,7 @@ module FOL.Sethood ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open import FOL.Base ⦃ em ⦄ ℒ hiding (⊥)
 open Language ℒ
 
-open import Cubical.Core.Primitives
-open import Cubical.Foundations.Prelude using (refl; cong)
+open import Cubical.Foundations.Prelude
 open import Cubical.Data.Equality using (eqToPath; pathToEq)
 open import Cubical.Relation.Nullary using (¬_; yes; no; Discrete; Discrete→isSet)
 
@@ -41,8 +40,8 @@ discreteTerm (func f) (var k) = no helper where
   helper p with pathToEq p
   ... | ()
 discreteTerm (func f₁) (func f₂) with discrete𝔉 _ f₁ f₂
-... | yes p = {!   !}
-... | no ¬p = {!   !}
+... | yes p = yes (cong func p)
+... | no ¬p = no λ q → ¬p $ eqToPath $ func-injective $ pathToEq q
 discreteTerm (func f) (app t₁ t₂) = no helper where
   helper : ¬ func f ≡ app t₁ t₂
   helper p with pathToEq p
@@ -55,4 +54,10 @@ discreteTerm (app t₁ t₂) (func f) = no helper where
   helper : ¬ app t₁ t₂ ≡ func f
   helper p with pathToEq p
   ... | ()
-discreteTerm (app t₁ t₂) (app s₁ s₂) = {!   !}
+discreteTerm (app f₁ t₁) (app f₂ t₂) with discreteTerm f₁ f₂ | discreteTerm t₁ t₂
+... | yes p | yes q = yes (cong₂ app p q)
+... | no ¬p | _     = no λ r → ¬p $ eqToPath $ app-injectiveˡ $ pathToEq r
+... | _     | no ¬q = no λ r → ¬q $ eqToPath $ app-injectiveʳ $ pathToEq r
+
+isSetTerm : isSet Term
+isSetTerm = Discrete→isSet discreteTerm

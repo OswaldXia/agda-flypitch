@@ -86,19 +86,22 @@ Term = Termₗ 0
 由构造子的单射性立即有
 
 ```agda
-var-injective : ∀ {k₁ k₂} → var k₁ ≡ var k₂ → k₁ ≡ k₂
+var-injective : ∀ {k₁ k₂ : ℕ} → var k₁ ≡ var k₂ → k₁ ≡ k₂
 var-injective refl = refl
+
+func-injective : ∀ {f₁ f₂ : 𝔉 l} → func f₁ ≡ func f₂ → f₁ ≡ f₂
+func-injective refl = refl
 ```
 
 这意味着对任意两个变量如果它们相等, 那么它们所使用的自然数相等. 类似地有
 
 ```agda
-app-injectiveˡ : {t₁ t₂ : Termₗ (suc l)} {t₃ t₄ : Term}
-  → app t₁ t₃ ≡ app t₂ t₄ → t₁ ≡ t₂
+app-injectiveˡ : {f₁ f₂ : Termₗ (suc l)} {t₁ t₂ : Term}
+  → app f₁ t₁ ≡ app f₂ t₂ → f₁ ≡ f₂
 app-injectiveˡ refl = refl
 
-app-injectiveʳ : {t₁ t₂ : Termₗ (suc l)} {t₃ t₄ : Term}
-  → app t₁ t₃ ≡ app t₂ t₄ → t₃ ≡ t₄
+app-injectiveʳ : {f₁ f₂ : Termₗ (suc l)} {t₁ t₂ : Term}
+  → app f₁ t₁ ≡ app f₂ t₂ → t₁ ≡ t₂
 app-injectiveʳ refl = refl
 ```
 
