@@ -33,11 +33,11 @@ open import Cubical.Foundations.Prelude using (isProp; subst)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
+open import CubicalExt.Foundations.Function using (_$_; _$--)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_)
-open import Function using (_$_)
 ```
 
 ## 实现
@@ -85,10 +85,17 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
   isPropRealize φ = Pre.isPropRealize 𝓋 φ []
 ```
 
+```agda
+open Realizer
+
+instance
+  isPropImplicitRealize : ∀ {𝒮 : Structure {v}} {𝓋 φ} → isPropImplicit (realize 𝒮 𝓋 φ)
+  isPropImplicitRealize {_} {𝒮} {𝓋} {φ} = isPropRealize 𝒮 𝓋 φ $--
+```
+
 ## 语义蕴含
 
 ```agda
-open Realizer
 infix 4 _⊨[_]_ _⊨_
 
 _⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
