@@ -58,13 +58,3 @@ witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
     })
     (representative φ∞)
   where open DirectedDiagram (formulaChain ℒ 1 0) using (representative)
-
-module _ {ℒ : Language} where
-  import FOL.Base (∞-language ℒ) as Free
-  open import FOL.Bounded.Base (∞-language ℒ) using (unbound; ∃'_; _⇒_; const)
-  open import FOL.Bounded.Substitution (∞-language ℒ)
-
-  unbound-witness : ∀ {i} → (φ : Formula (∞-language ℒ) 1) (φᵢ : Formula (obj ℒ i) 1) →
-      unbound ((∃' φ) ⇒ φ [ const (∞-witness φᵢ) / 0 ])
-    ≡ unbound (∃' φ) Free.⇒ unbound φ Free.[ Free.func (∞-witness φᵢ) / 0 ]
-  unbound-witness φ φᵢ = cong (unbound (∃' φ) Free.⇒_) (eqToPath $ unbound-subst _ _)

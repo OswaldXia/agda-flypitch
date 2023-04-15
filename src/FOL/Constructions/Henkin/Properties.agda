@@ -57,12 +57,11 @@ open import Function using (_$_)
     let ψ = formulaMorph languageMorph φᵢ in
     unbound [ c witnessing φ ]
       ≡⟨ {!   !} ⟩
-    unbound ((∃' (map1 (suc i) ψ)) ⇒ {! map1 (suc i) ψ  !})
-      ≡⟨ {!   !} ⟩
-    unbound ((∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (ψ [ const (witnessOf φᵢ) / 0 ]))
-      ≡⟨⟩
-    Free.∃' (unbound (map1 (suc i) ψ)) Free.⇒ unbound (map0 (suc i) (ψ [ const (witnessOf φᵢ) / 0 ]))
+    unbound ((∃' (map1 (suc i) ψ)) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ))))
+      ≡⟨ {! map0 (suc i)  !} ⟩
+    unbound ((∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ))))
       ≡⟨⟩
     unbound (map0 (suc i) (witnessStatement φᵢ)) ∎
-    where open import FOL.Bounded.Base ⦃ em ⦄ (languageStep ([ i ]-language ℒ)) using (const)
-          open import FOL.Bounded.Substitution ⦃ em ⦄ (languageStep ([ i ]-language ℒ)) using (subst)
+    where open import FOL.Bounded.Base ⦃ em ⦄ using (const)
+          open import FOL.Bounded.Substitution ⦃ em ⦄ using (subst)
+          open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
