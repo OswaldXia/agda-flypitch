@@ -11,7 +11,7 @@ open import FOL.Bounded.Sethood using (isSetTerm)
 open Termₗ
 
 import FOL.Language.Homomorphism as LHom
-open LHom using (_⟶_) renaming (_∘_ to _◯_)
+open LHom using (_∘_ )
 open LHom.Bounded using (termMorph)
 open LHom.BoundedProperties
 
@@ -68,7 +68,7 @@ module _ {ℒ n l} where
     _≡↑ʳ_ {i} {tᵢ} H j = flip compPath H $ eq/ _ _
       ∣ i + j , tᵢ ↑ʳ j , ≤₃-refl , m≤₃m+n
       , (sym $ (flip cong-app) tᵢ $ termMorphFunctorial
-             $ subst (λ x → langMorph m≤₃m+n ≡ x ◯ langMorph m≤₃m+n) (sym endomorph≡id) refl)
+             $ subst (λ x → langMorph m≤₃m+n ≡ x ∘ langMorph m≤₃m+n) (sym endomorph≡id) refl)
       , refl
       ∣₁
 
@@ -77,7 +77,7 @@ module _ {ℒ n l} where
     _≡↑ˡ_ {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
       ∣ i + j , tⱼ ↑ˡ i , ≤₃-refl , m≤₃n+m
       , (sym $ (flip cong-app) tⱼ $ termMorphFunctorial
-             $ subst (λ x → langMorph m≤₃n+m ≡ x ◯ langMorph m≤₃n+m) (sym endomorph≡id) refl)
+             $ subst (λ x → langMorph m≤₃n+m ≡ x ∘ langMorph m≤₃n+m) (sym endomorph≡id) refl)
       , refl
       ∣₁
 
@@ -90,14 +90,14 @@ abstract
     (morph f₀) (app↑ f t) ≡ₚ app (morph f₁ f) (morph f₂ t)
   morph-distrib-app↑ f t = cong₂ app (eqToPath $ sym $ cong-app functorial f) (eqToPath $ sym $ cong-app functorial t)
 
-  isSetTermComparisonFiber : ∀ {ℒ n l} {t : Termₗ (∞-language ℒ) n l} → isSet (fiber termComparison t)
-  isSetTermComparisonFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ isSetTerm _ _ _
+  isSetFiber : ∀ {ℒ n l} {t : Termₗ (∞-language ℒ) n l} → isSet (fiber termComparison t)
+  isSetFiber = isSetΣ squash/ $ λ _ → isProp→isSet $ isSetTerm _ _ _
 
   termComparisonFiber : ∀ {ℒ n l} (t : Termₗ (∞-language ℒ) n l) → fiber termComparison t
   termComparisonFiber (var k) = [ 0 , var k ] , reflPath
   termComparisonFiber {ℒ} {n} {l} (func f) =
     elim→Set {P = λ _ → fiber termComparison (func f)}
-      (λ _ → isSetTermComparisonFiber)
+      (λ _ → isSetFiber)
       (λ ((i , fᵢ) , H) → [ i , func fᵢ ] , congPath func H)
       (λ ((i , fᵢ) , Hi) ((j , fⱼ) , Hj) → ΣPathP $
         (eq/ _ _ $ elim {P = λ _ → (i , func fᵢ) ≃ (j , func fⱼ)}
@@ -114,7 +114,7 @@ abstract
     let (f , Hf) = termComparisonFiber g
         (t , Ht) = termComparisonFiber s in
     elim2→Set {P = λ _ _ → fiber termComparison (app g s)}
-      (λ _ _ → isSetTermComparisonFiber)
+      (λ _ _ → isSetFiber)
       (λ ((i , fᵢ) , Hi) ((j , tⱼ) , Hj) → [ i + j , app↑ fᵢ tⱼ ]
       , ( termMorph _ (app↑ fᵢ tⱼ) ≡⟨⟩
           app (termComparison [ i + j , fᵢ ↑ʳ j ]) (termComparison [ i + j , tⱼ ↑ˡ i ])
@@ -175,7 +175,7 @@ abstract
             ∣₁)
           (effᵗ $ compPath Hj $ symPath Hk))
       , (toPathP $ isSetTerm _ _ _ _ _))
-      (λ _ _ _ _ → toPathP $ isSetTermComparisonFiber _ _ _ _)
+      (λ _ _ _ _ → toPathP $ isSetFiber _ _ _ _)
       (repᶠ f) (repᵗ t)
     where open DirectedDiagram (termChain ℒ n l) using (_≃_)
           open DirectedDiagram (termChain ℒ n (suc l)) using () renaming (representative to repᶠ; effective to effᶠ)
