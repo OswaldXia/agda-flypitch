@@ -6,7 +6,6 @@ module FOL.Lemmas.Substitution ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open import FOL.Base ⦃ em ⦄ ℒ
 
 open import Cubical.Foundations.Prelude using (Type; Level)
-open import Data.Nat
 open import Data.Empty using (⊥-elim)
 open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_$_)
@@ -14,7 +13,7 @@ open import Relation.Nullary using (Dec; yes; no)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; cong; sym; trans) renaming (subst to ≡-subst)
-open import StdlibExt.Data.Nat.Properties
+open import StdlibExt.Data.Nat
 
 private variable
   ℓ : Level

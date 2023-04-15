@@ -7,8 +7,9 @@ import FOL.Base ⦃ em ⦄ ℒ as Free
 open import FOL.Bounded.Base ⦃ em ⦄ ℒ
 
 open import Data.Fin using (Fin; inject≤)
+open import Data.Fin.Properties using (toℕ-inject≤)
 open import Data.Nat using (ℕ; _≤_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong₂)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 
 private variable
   m n : ℕ
@@ -19,6 +20,6 @@ castₜ m≤n (func f)    = func f
 castₜ m≤n (app t₁ t₂) = app (castₜ m≤n t₁) (castₜ m≤n t₂)
 
 unbound-castₜ : (m≤n : m ≤ n) (t : Termₗ m l) → unboundₜ (castₜ m≤n t) ≡ unboundₜ t
-unbound-castₜ m≤n (var k)     = {!   !}
+unbound-castₜ m≤n (var k)     = cong Free.var (toℕ-inject≤ k m≤n)
 unbound-castₜ m≤n (func f)    = refl
 unbound-castₜ m≤n (app t₁ t₂) = cong₂ Free.app (unbound-castₜ m≤n t₁) (unbound-castₜ m≤n t₂)

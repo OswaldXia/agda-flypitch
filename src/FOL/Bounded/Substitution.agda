@@ -8,14 +8,14 @@ open import FOL.Bounded.Base ⦃ em ⦄ ℒ
 open import FOL.Bounded.Casting ⦃ em ⦄ ℒ
 open import FOL.Bounded.Lifting ⦃ em ⦄ ℒ
 
-open import Data.Fin using (Fin; toℕ; fromℕ<; reduce≥)
-open import StdlibExt.Data.Fin.Properties using (toℕ-fromℕ<; toℕ-reduce≥)
-open import Data.Nat using (ℕ; suc; _+_; s≤s; z≤n; _≤_)
-open import Data.Nat.Properties
+open import StdlibExt.Data.Fin
+  using (Fin; toℕ; fromℕ<; reduce≥; toℕ-fromℕ<; toℕ-reduce≥)
+open import StdlibExt.Data.Nat
+  using (ℕ; suc; _+_; s≤s; z≤n; _≤_; ≤-trans; <-cmp; m+n≤n+m; m≤m+n)
 open import Function using (_$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality
-  using (_≡_; refl; cong; cong₂) renaming (subst to ≡-subst)
+  using (_≡_; refl; trans; cong; cong₂) renaming (subst to ≡-subst)
 
 private variable
   n m : ℕ
@@ -23,7 +23,7 @@ private variable
 substₜ : (t : Termₗ (suc n + m) l) (s : Term m) → Termₗ (n + m) l
 substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
 ... | tri< k<n _ _  = var $ fromℕ< $ ≤-trans k<n (m≤m+n _ _)
-... | tri≈ _ _ _    = castₜ (≡-subst (_≤ n + m) (+-comm n _) ≤-refl) (s ↑ n)
+... | tri≈ _ _ _    = castₜ (m+n≤n+m m n) (s ↑ n)
 ... | tri> _ _ n<k  = var (reduce≥ k (≤-trans (s≤s z≤n) n<k))
 substₜ (func f) s = func f
 substₜ (app t₁ t₂) s = app (substₜ t₁ s) (substₜ t₂ s)
@@ -42,9 +42,9 @@ syntax subst {n} φ s = φ [ s / n ]
 
 unbound-substₜ : (t : Termₗ (suc n + m) l) (s : Term m) →
   unboundₜ (t [ s / n ]ₜ) ≡ unboundₜ t Free.[ unboundₜ s / n ]ₜ
-unbound-substₜ {n} (var k) s with <-cmp (toℕ k) n
+unbound-substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
 ... | tri< k<n _ _  = cong Free.var (toℕ-fromℕ< _)
-... | tri≈ _ k≡n _  = {!   !}
+... | tri≈ _ k≡n _  = trans (unbound-castₜ (m+n≤n+m m n) _) (unbound↑ s n)
 ... | tri> _ _ n<k  = cong Free.var (toℕ-reduce≥ k (≤-trans (s≤s z≤n) n<k))
 unbound-substₜ (func f) s   = refl
 unbound-substₜ (app t₁ t₂) s = cong₂ Free.app (unbound-substₜ t₁ s) (unbound-substₜ t₂ s)

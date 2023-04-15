@@ -13,11 +13,10 @@ open import FOL.Lemmas.Substitution ⦃ em ⦄ ℒ
 
 open import Agda.Primitive using (lsuc)
 open import Data.Nat using (ℕ; zero; suc)
-open import Data.Vec using (Vec; []; _∷_; map)
+open import StdlibExt.Data.Vec using (Vec; []; _∷_; map; map-∘-id)
 open import Function using (_$_; _∘_; _∘₂_; flip)
 open import Relation.Binary using (_⇒_ ;Rel; Reflexive; Symmetric; Transitive)
 open import Relation.Binary.PropositionalEquality using (_≡_; cong₂; subst₂; refl; sym; trans)
-open import StdlibExt.Data.Vec.Properties using (map-∘-id)
 open import StdlibExt.Relation.Binary.PropositionalEquivalence u
   hiding (map) renaming (sym to ↔-sym; _∘_ to _∙_)
 

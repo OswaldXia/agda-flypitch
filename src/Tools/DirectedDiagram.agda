@@ -12,8 +12,7 @@ open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; 
 open import Cubical.Relation.Binary
 open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
 
-open import StdlibExt.Data.Nat using (ℕ; _+_; _≤₃_; ≤⇒≤₃; ≤₃⇒≤)
-open import StdlibExt.Data.Nat.Properties
+open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; sym; trans; cong; cong-app)
 open Eq.≡-Reasoning

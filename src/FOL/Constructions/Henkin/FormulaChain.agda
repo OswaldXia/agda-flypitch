@@ -31,7 +31,6 @@ open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim→Set; elim2→Set)
 
 open import StdlibExt.Data.Nat
-open import StdlibExt.Data.Nat.Properties
 open import Function using (flip; _$_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong-app; subst)
 
