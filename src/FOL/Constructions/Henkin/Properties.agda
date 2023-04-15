@@ -46,22 +46,22 @@ open import Function using (_$_)
       ∣_∣₁ $ c ,_ $ axiom $ ∣_∣₁ $
         map0 (suc i) (witnessStatement φᵢ)
       , ∣ suc i , ∈-∞-theory i (witnessStatement φᵢ) (inr ∣ φᵢ , tt* , reflId ∣₁) ∣₁
-      , pathToId (H c φ i φᵢ)
+      , pathToId (cong unbound (H c φ i φᵢ))
     })
     (∞-witnessing φ)
   where
   open import FOL.Bounded.Base ⦃ em ⦄ using (Formula)
   H : (c : Constant) (φ : Formula (∞-language ℒ) 1) (i : ℕ) (φᵢ : Formula ([ i ]-language ℒ) 1) →
-    unbound [ c witnessing φ ] ≡ unbound (map0 (suc i) (witnessStatement φᵢ))
+    [ c witnessing φ ] ≡ map0 (suc i) (witnessStatement φᵢ)
   H c φ i φᵢ =
     let ψ = formulaMorph languageMorph φᵢ in
-    unbound [ c witnessing φ ]
+    [ c witnessing φ ]
       ≡⟨ {!   !} ⟩
-    unbound ((∃' (map1 (suc i) ψ)) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ))))
+    (∃' (map1 (suc i) ψ)) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ)))
       ≡⟨ {! map0 (suc i)  !} ⟩
-    unbound ((∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ))))
+    (∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))
       ≡⟨⟩
-    unbound (map0 (suc i) (witnessStatement φᵢ)) ∎
+    map0 (suc i) (witnessStatement φᵢ) ∎
     where open import FOL.Bounded.Base ⦃ em ⦄ using (const)
           open import FOL.Bounded.Substitution ⦃ em ⦄ using (subst)
           open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
