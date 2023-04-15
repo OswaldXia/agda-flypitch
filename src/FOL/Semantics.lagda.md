@@ -28,8 +28,7 @@ open Language ℒ
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Primitives hiding (_≡_)
-open import Cubical.Foundations.Prelude using (isProp; subst)
+open import Cubical.Foundations.Prelude hiding (_≡_)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
 open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)

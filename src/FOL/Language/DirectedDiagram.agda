@@ -8,8 +8,8 @@ open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
 open import Tools.DirectedDiagram
 open _⟶_
 
-open import Cubical.Core.Primitives using (Type; Level; ℓ-suc; ℓ-max; _,_)
-open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet)
+open import Cubical.Foundations.Prelude
+  using (Type; Level; ℓ-suc; ℓ-max; _,_; isProp; isSet; isProp→isSet)
 open import Cubical.Foundations.HLevels using (isSetΣ)
 open import Cubical.Data.Sigma using (_×_)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)

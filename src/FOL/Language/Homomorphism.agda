@@ -4,7 +4,7 @@ open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Language.Homomorphism ⦃ em : EM ⦄ {u} where
 open import FOL.Language hiding (u)
 
-open import Cubical.Core.Primitives using (Type)
+open import Cubical.Foundations.Prelude using (Type)
 open import Cubical.Data.Equality using (funExt)
 open import CubicalExt.HITs.SetTruncation using (map)
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)

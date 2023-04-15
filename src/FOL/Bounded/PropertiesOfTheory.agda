@@ -12,7 +12,7 @@ open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (Domain)
 
-open import Cubical.Core.Primitives using (Type; ℓ-suc; ℓ-max; Σ-syntax)
+open import Cubical.Foundations.Prelude using (Type; ℓ-suc; ℓ-max; Σ-syntax)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.Data.Sum using () renaming (_⊎_ to infixr 3 _⊎_)
 open import Function using (_$_)

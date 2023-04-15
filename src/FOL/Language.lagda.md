@@ -37,8 +37,7 @@ $$R^n_0,\ R^n_1,\ R^n_2,\ R^n_3,\ ...$$
 ```agda
 module FOL.Language ⦃ em : EM ⦄ where
 
-open import Cubical.Core.Primitives using (Type; Level; ℓ-suc)
-open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.Prelude using (Type; Level; ℓ-suc; isSet)
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Foundations.Function using (_∘_)
 open import CubicalExt.Relation.Nullary using (DiscreteEq)
@@ -79,7 +78,7 @@ record Language : Type (ℓ-suc u) where
 private module ExampleLanguagePA where
   open import Agda.Builtin.Equality using (refl)
   open import Cubical.Foundations.Function using (_∘_)
-  open import CubicalExt.Relation.Nullary using (¬_; yes; no; DiscreteEq→isSet)
+  open import CubicalExt.Relation.Nullary using (yes; no; DiscreteEq→isSet)
 
   data func : ℕ → Type where
     O : func 0

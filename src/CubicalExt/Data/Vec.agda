@@ -2,9 +2,7 @@
 
 module CubicalExt.Data.Vec where
 
-open import Cubical.Core.Primitives
-open import Cubical.Foundations.Prelude
-  using (_≡_; cong₂; _∙_; isSet; funExt; implicitFunExt; toPathP)
+open import Cubical.Foundations.Prelude hiding (refl)
 open import Cubical.HITs.SetQuotients using (_/_; rec)
 
 open import Data.Nat using (ℕ; zero; suc)

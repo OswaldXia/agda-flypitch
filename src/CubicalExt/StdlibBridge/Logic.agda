@@ -2,8 +2,7 @@
 
 module CubicalExt.StdlibBridge.Logic where
 
-open import Cubical.Core.Primitives
-open import Cubical.Foundations.Prelude using (isPropIsProp)
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.Foundations.Isomorphism using (iso; isoToEquiv)
 open import Cubical.Foundations.Structure using (⟨_⟩)

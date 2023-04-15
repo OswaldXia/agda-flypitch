@@ -21,9 +21,8 @@ open LHom.Bounded using (formulaMorph)
 open import Tools.DirectedDiagram using (Cocone)
 open Cocone (coconeOfFormulaChain ℒ 0 0) renaming (map to coconeMap)
 
-open import Cubical.Core.Primitives
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (isProp→isSet)
+open import Cubical.Foundations.Prelude
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.Data.Unit using (tt*)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)

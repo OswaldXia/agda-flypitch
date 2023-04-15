@@ -2,8 +2,7 @@
 
 module CubicalExt.Axiom.UniquenessOfIdentity.Loop where
 
-open import Cubical.Core.Primitives hiding (_≡_)
-open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.Prelude using (Type; Level; isSet)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; pathToEq-eqToPath)
 
 open import Function using (_$_)

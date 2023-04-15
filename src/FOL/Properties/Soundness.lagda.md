@@ -17,9 +17,8 @@ open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Properties.Soundness ⦃ em : EM ⦄ (ℒ : Language {u}) where
 
-open import Cubical.Core.Primitives using (_,_)
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (lift)
+open import Cubical.Foundations.Prelude using (lift; _,_)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sum using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (elim)

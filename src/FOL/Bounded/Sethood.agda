@@ -8,7 +8,7 @@ open Language ℒ
 
 open import Agda.Builtin.Equality using (_≡_; refl)
 open import Cubical.Foundations.Prelude using (isSet)
-open import CubicalExt.Relation.Nullary using (¬_; yes; no; DiscreteEq; DiscreteEq→isSet)
+open import CubicalExt.Relation.Nullary using (yes; no; DiscreteEq; DiscreteEq→isSet)
 open import Cubical.Data.Nat using (ℕ)
 open import Data.Fin using (Fin; zero; suc)
 

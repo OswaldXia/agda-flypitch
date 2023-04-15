@@ -9,11 +9,10 @@ open import FOL.Structure.Base ⦃ em ⦄ ℒ
 open import FOL.Bounded.Syntactics ⦃ em ⦄ ℒ
 open import FOL.Bounded.PropertiesOfTheory ⦃ em ⦄ ℒ
 
-open import Cubical.Core.Primitives
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation using (elim→Set)
-open import Cubical.Foundations.Prelude using (_≡_; refl; _∙_)
-open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
 open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; propTruncExt)
 open import CubicalExt.Data.Vec using (quotientLift)
 

@@ -2,7 +2,6 @@
 
 module CubicalExt.HITs.SetTruncation where
 
-open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (isSet→isGroupoid)
 open import Cubical.Foundations.Function using (_∘_; _$_)

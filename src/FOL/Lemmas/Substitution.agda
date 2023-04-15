@@ -5,7 +5,7 @@ open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Lemmas.Substitution ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open import FOL.Base ⦃ em ⦄ ℒ
 
-open import Cubical.Core.Primitives using (Type; Level)
+open import Cubical.Foundations.Prelude using (Type; Level)
 open import Data.Nat
 open import Data.Empty using (⊥-elim)
 open import Data.Vec using (Vec; []; _∷_; map)

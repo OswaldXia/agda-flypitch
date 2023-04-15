@@ -5,7 +5,6 @@
 
 module CubicalExt.Foundations.Powerset* where
 
-open import Cubical.Core.Primitives
 open import Cubical.Core.Id renaming (_≡_ to _≡ⁱᵈ_)
 open import CubicalExt.Foundations.Id using (path≡Id-termLevel)
 open import Cubical.Foundations.Prelude

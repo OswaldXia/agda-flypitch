@@ -24,9 +24,8 @@ open import FOL.Sethood ⦃ em ⦄ ℒ
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Primitives using (Type; ℓ-suc)
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.Prelude using (Type; ℓ-suc; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
 open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)
 

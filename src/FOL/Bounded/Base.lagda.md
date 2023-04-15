@@ -28,7 +28,7 @@ open Free.Formulaₗ
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Primitives using (Type)
+open import Cubical.Foundations.Prelude using (Type)
 open import Data.Nat using (ℕ; suc)
 open import Data.Fin using (Fin; toℕ)
 open import Data.Fin.Properties using (toℕ-injective)

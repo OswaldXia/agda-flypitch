@@ -2,7 +2,7 @@
 
 module CubicalExt.Foundations.Id where
 
-open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
+open import Cubical.Foundations.Prelude renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Id public
 open import Cubical.Foundations.Isomorphism using (isoToPath; iso)
 

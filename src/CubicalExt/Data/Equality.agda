@@ -2,7 +2,7 @@
 
 module CubicalExt.Data.Equality where
 
-open import Cubical.Core.Primitives hiding (_≡_)
+open import Cubical.Foundations.Prelude hiding (_≡_; implicitFunExt)
 open import Cubical.Data.Equality renaming (implicitFunExt to implicitFunExtPath) public
 
 private variable

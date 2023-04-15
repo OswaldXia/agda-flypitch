@@ -2,14 +2,14 @@
 
 module CubicalExt.StdlibBridge.Vec where
 
-open import Data.Nat using (ℕ)
-open import Cubical.Core.Primitives
-open import Cubical.Foundations.Prelude using (refl; cong)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv using (_≃_)
 open import Cubical.Foundations.Isomorphism using (Iso; iso; isoToEquiv)
 open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Data.Nat using (ℕ)
 
 open import Data.Vec as Stdlib
-open import CubicalExt.Data.Vec as Cubical
+open import Cubical.Data.Vec as Cubical
 
 private variable
   ℓ : Level

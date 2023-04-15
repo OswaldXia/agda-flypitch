@@ -25,9 +25,8 @@ private module Free where
   open import FOL.Syntactics ⦃ em ⦄ ℒ public
 open Free._⊢_
 
-open import Cubical.Core.Primitives using (Type; ℓ-suc; _,_)
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.Prelude using (Type; ℓ-suc; _,_; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)

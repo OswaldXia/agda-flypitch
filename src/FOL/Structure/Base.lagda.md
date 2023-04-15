@@ -17,8 +17,7 @@ open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Structure.Base ⦃ em : EM ⦄ (ℒ : Language {u}) where
 open Language ℒ
 
-open import Cubical.Core.Primitives
-open import Cubical.Foundations.Prelude using (isSet)
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp)
 open import Data.Vec using (Vec; []; _∷_)
 ```

@@ -11,9 +11,9 @@ open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ
 import FOL.Semantics ⦃ em ⦄ ℒ as Free
 open Structure 𝒮
 
-open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
-open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.Foundations.Prelude renaming (_≡_ to _≡ₚ_) hiding (refl; cong)
 open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
+open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
 

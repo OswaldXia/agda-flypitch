@@ -27,7 +27,7 @@ open Language ℒ
 
 ```agda
 open import Agda.Builtin.Equality
-open import Cubical.Core.Primitives using (Type)
+open import Cubical.Foundations.Prelude using (Type)
 open import Data.Nat as ℕ using (ℕ; suc; _∸_; _<?_)
 open import Data.Nat.Properties using (<-cmp)
 open import Data.Vec using (Vec; []; _∷_)
