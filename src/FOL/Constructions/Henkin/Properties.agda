@@ -2,16 +2,17 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Constructions.Henkin.Properties (ℒ : Language {u}) where
-open import FOL.Constructions.Henkin.LanguageChain u using (∞-language; languageCanonicalMorph)
-open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
-open import FOL.Constructions.Henkin.Witness u using (witnessStatement; ∞-witnessing)
-open import FOL.Constructions.Henkin.TheoryChain u
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Constructions.Henkin.Properties ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Constructions.Henkin.LanguageChain ⦃ em ⦄ u using (∞-language; languageCanonicalMorph)
+open import FOL.Constructions.Henkin.FormulaChain ⦃ em ⦄ u using (coconeOfFormulaChain)
+open import FOL.Constructions.Henkin.Witness ⦃ em ⦄ u using (witnessStatement; ∞-witnessing)
+open import FOL.Constructions.Henkin.TheoryChain ⦃ em ⦄ u
 
-open import FOL.Base (∞-language ℒ) as Free using (axiom)
-open import FOL.Bounded.Base (∞-language ℒ)
-open import FOL.Bounded.Substitution (∞-language ℒ)
-open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
+open import FOL.Syntactics ⦃ em ⦄ (∞-language ℒ) using (axiom)
+open import FOL.Bounded.Syntactics ⦃ em ⦄ (∞-language ℒ)
+open import FOL.Bounded.Substitution ⦃ em ⦄ (∞-language ℒ)
+open import FOL.Bounded.PropertiesOfTheory ⦃ em ⦄ (∞-language ℒ)
   using (hasEnoughConstants; [_witnessing_])
 open Language (∞-language ℒ) using (Constant)
 
@@ -26,8 +27,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.Data.Unit using (tt*)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁) renaming (elim to elim₁)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂; map) renaming (elim to elim₂)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp)
 
 open import Data.Nat using (ℕ; suc)
@@ -35,15 +35,12 @@ open import Function using (_$_)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
 ∞-theory-hasEnoughConstants T φ =
-  let Goal = ∃[ c ∈ Constant ] (∞-theory T) ⊢ [ c witnessing φ ] in
-  elim₁ {P = λ _ → Goal} (λ _ → squash₁)
+  elim {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ [ c witnessing φ ]}
+    (λ _ → squash₁)
     (λ { (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡∣φ∣₂ , c≡) →
-      elim₂ {B = λ _ → Goal} (λ _ → isProp→isSet squash₁)
-        (λ ψ → ∣_∣₁ $ c ,_ $ axiom $
-          ∣ coconeMap (suc i) (witnessStatement ψ)
-          , ∣ suc i , ∈-∞-theory i (witnessStatement ψ) (inr ∣ ψ , tt* , reflId ∣₁) ∣₁
-          , {!   !}
-          ∣₁)
-        φᵢ
+      ∣_∣₁ $ c ,_ $ axiom $ ∣_∣₁ $
+        coconeMap (suc i) (witnessStatement φᵢ)
+      , ∣ suc i , ∈-∞-theory i (witnessStatement φᵢ) (inr ∣ φᵢ , tt* , reflId ∣₁) ∣₁
+      , {!   !}
     })
     (∞-witnessing φ)

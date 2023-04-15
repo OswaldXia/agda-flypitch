@@ -1,7 +1,8 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
-module FOL.Constructions.Henkin.Witness u where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Constructions.Henkin.Witness ⦃ em : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
 open import FOL.Constructions.Henkin.LanguageChain u
   using (obj; languageStep; languageMorph; ∞-language; languageCanonicalMorph)
@@ -26,20 +27,19 @@ import Cubical.Data.Sum as ⊎
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.HITs.SetQuotients using ([_])
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂)
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_$_)
 
-witnessOf : ∥ Formula ℒ 1 ∥₂ → Constant $ languageStep ℒ
+witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
 witnessOf = witness
 
-witnessStatement : Formula ℒ 1 → ∥ Sentence $ languageStep ℒ ∥₂
-witnessStatement {ℒ} φ = ∣ [ witnessOf ∣ φ ∣₂ witnessing formulaMorph φ ] ∣₂
+witnessStatement : Formula ℒ 1 → Sentence $ languageStep ℒ
+witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
   where open LHom.Bounded (languageMorph {ℒ}) using (formulaMorph)
         open import FOL.Bounded.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
 
-∞-witness : ∀ {i} → ∥ Formula (obj ℒ i) 1 ∥₂ → Constant (∞-language ℒ)
+∞-witness : ∀ {i} → Formula (obj ℒ i) 1 → Constant (∞-language ℒ)
 ∞-witness {_} {i} φ = languageCanonicalMorph (suc i) .funMorph (witnessOf φ)
 
 ∞-Witnessing : (φ : Formula (∞-language ℒ) 1) → Type u
@@ -48,7 +48,7 @@ witnessStatement {ℒ} φ = ∣ [ witnessOf ∣ φ ∣₂ witnessing formulaMorp
   Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
   Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
     [ φₚ ] ≡ φ∞
-  × formulaComparison φ∞ ≡ ∣ φ ∣₂
+  × formulaComparison φ∞ ≡ φ
   × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
 
 ∞-witnessing : (φ : Formula (∞-language ℒ) 1) → ∞-Witnessing φ

@@ -1,13 +1,15 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
-module FOL.Constructions.Henkin.TheoryChain u where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Constructions.Henkin.TheoryChain ⦃ em : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
 open import FOL.Constructions.Henkin.LanguageChain u
   using (obj; languageStep; languageMorph; [_]-language; ∞-language; languageCanonicalMorph)
 open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
 open import FOL.Constructions.Henkin.Witness u using (witnessStatement)
-open import FOL.Bounded.Base using (Formula; Sentence; Theory)
+open import FOL.Bounded.Base using (Formula; Sentence)
+open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.Language hiding (u)
 open Language {u}
 
@@ -20,7 +22,6 @@ open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×
 import Cubical.Data.Sum as ⊎
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; elim)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂)
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_$_)
@@ -44,7 +45,7 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Form
 module _ {ℒ : Language} where
   open Cocone (coconeOfFormulaChain ℒ 0 0) using (map)
 
-  ∈-∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : ∥ Sentence $ obj ℒ $ suc i ∥₂) →
+  ∈-∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : Sentence $ obj ℒ $ suc i) →
     φ ∈ [ suc i ]-theory T → map (suc i) φ ∈ [ suc i ]→∞-theory T
   ∈-∞-theory {ℒ} i φ = elim (λ _ → ∈-isProp _ _)
     λ { (⊎.inl ∈) → ∣ φ , inl ∈ , reflId ∣₁
