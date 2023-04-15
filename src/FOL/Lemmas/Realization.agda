@@ -17,7 +17,8 @@ open import Relation.Nullary using (Dec; yes; no)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality as Eq
   using (_≡_; refl; sym; cong; subst)
-  open import StdlibExt.Data.Nat
+
+open import StdlibExt.Data.Nat
 open import StdlibExt.Data.Vec using (Vec; []; _∷_; []-refl)
 open import StdlibExt.Relation.Binary.PropositionalEquivalence v as Iff hiding (sym; map)
 
