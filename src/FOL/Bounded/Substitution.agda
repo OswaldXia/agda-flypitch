@@ -46,7 +46,7 @@ unbound-substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
 ... | tri< k<n _ _  = cong Free.var (toℕ-fromℕ< _)
 ... | tri≈ _ k≡n _  = trans (unbound-castₜ (m+n≤n+m m n) _) (unbound↑ s n)
 ... | tri> _ _ n<k  = cong Free.var (toℕ-reduce≥ k (≤-trans (s≤s z≤n) n<k))
-unbound-substₜ (func f) s   = refl
+unbound-substₜ (func f) s    = refl
 unbound-substₜ (app t₁ t₂) s = cong₂ Free.app (unbound-substₜ t₁ s) (unbound-substₜ t₂ s)
 
 unbound-subst : (φ : Formulaₗ (suc n + m) l) (s : Term m) →
@@ -55,5 +55,5 @@ unbound-subst ⊥ s           = refl
 unbound-subst (rel R) s     = refl
 unbound-subst (appᵣ r t) s  = cong₂ Free.appᵣ (unbound-subst r s) (unbound-substₜ t s)
 unbound-subst (t₁ ≈ t₂) s   = cong₂ Free._≈_ (unbound-substₜ t₁ s) (unbound-substₜ t₂ s)
-unbound-subst (φ₁ ⇒ φ₂) s    = cong₂ Free._⇒_ (unbound-subst φ₁ s) (unbound-subst φ₂ s)
+unbound-subst (φ₁ ⇒ φ₂) s   = cong₂ Free._⇒_ (unbound-subst φ₁ s) (unbound-subst φ₂ s)
 unbound-subst (∀' φ) s      = cong Free.∀'_ (unbound-subst φ s)
