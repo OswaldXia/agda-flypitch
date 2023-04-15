@@ -59,7 +59,7 @@ record Language : Type (ℓ-suc u) where
   Constant = 𝔉 0
 ```
 
-在经典逻辑中, `isSet` 蕴含 `DiscreteEq`.
+在有排中律 (任意命题可判定) 的情况下, 集合一定是离散的 (任意两个元素的相等可判定), 因为集合意味着元素的相等是命题.
 
 ```agda
   discrete𝔉 : ∀ {n} → DiscreteEq (𝔉 n)
@@ -69,7 +69,7 @@ record Language : Type (ℓ-suc u) where
   discreteℜ = isSet→DiscreteEq isSetℜ
 ```
 
-实际上, `isSet` 与 `DiscreteEq` 等价. 在下面的例子中, 我们通过证明 `DiscreteEq` 证明了函数符号集和关系符号集的 `isSet` 条件.
+实际上, "类型是集合"与"类型离散"等价. 在下面的例子中, 我们通过证明离散而证明了函数符号集和关系符号集确实是集合.
 
 **例** 下面给出了语言的一个实例 `ℒ`, 它可以作为皮亚诺算术 (一种一阶理论) 的语言. 注意符号的元数被编码到了类型里面. 例如, 常量 `O` 的类型是 `func 0`, 后继函数 `S` 的类型是 `func 1`, 加法 `+` 以及乘法 `*` 的类型是 `func 2`, 小于关系 `<` 的类型是 `rel 2`.
 
