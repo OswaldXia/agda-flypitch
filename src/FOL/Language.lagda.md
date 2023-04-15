@@ -39,7 +39,6 @@ module FOL.Language ⦃ em : EM ⦄ where
 
 open import Cubical.Foundations.Prelude using (Type; Level; ℓ-suc; isSet)
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Foundations.Function using (_∘_)
 open import CubicalExt.Relation.Nullary using (DiscreteEq)
 open import CubicalExt.Classical ⦃ em ⦄ using (isSet→DiscreteEq)
 ```
@@ -54,8 +53,8 @@ record Language : Type (ℓ-suc u) where
   field
     𝔉 : ℕ → Type u
     ℜ : ℕ → Type u
-    isSet𝔉 : ∀ n → isSet (𝔉 n)
-    isSetℜ : ∀ n → isSet (ℜ n)
+    isSet𝔉 : ∀ {n} → isSet (𝔉 n)
+    isSetℜ : ∀ {n} → isSet (ℜ n)
 
   Constant = 𝔉 0
 ```
@@ -63,11 +62,11 @@ record Language : Type (ℓ-suc u) where
 在经典逻辑中, `isSet` 蕴含 `DiscreteEq`.
 
 ```agda
-  discrete𝔉 : ∀ n → DiscreteEq (𝔉 n)
-  discrete𝔉 = isSet→DiscreteEq ∘ isSet𝔉
+  discrete𝔉 : ∀ {n} → DiscreteEq (𝔉 n)
+  discrete𝔉 = isSet→DiscreteEq isSet𝔉
 
-  discreteℜ : ∀ n → DiscreteEq (ℜ n)
-  discreteℜ = isSet→DiscreteEq ∘ isSetℜ
+  discreteℜ : ∀ {n} → DiscreteEq (ℜ n)
+  discreteℜ = isSet→DiscreteEq isSetℜ
 ```
 
 实际上, `isSet` 与 `DiscreteEq` 等价. 在下面的例子中, 我们通过证明 `DiscreteEq` 证明了函数符号集和关系符号集的 `isSet` 条件.
@@ -89,22 +88,22 @@ private module ExampleLanguagePA where
   data rel : ℕ → Type where
     < : rel 2
 
-  discreteFunc : ∀ n → DiscreteEq (func n)
-  discreteFunc 0 O O = yes refl
-  discreteFunc 1 S S = yes refl
-  discreteFunc 2 + + = yes refl
-  discreteFunc 2 * * = yes refl
-  discreteFunc 2 + * = no λ ()
-  discreteFunc 2 * + = no λ ()
+  discreteFunc : ∀ {n} → DiscreteEq (func n)
+  discreteFunc {0} O O = yes refl
+  discreteFunc {1} S S = yes refl
+  discreteFunc {2} + + = yes refl
+  discreteFunc {2} * * = yes refl
+  discreteFunc {2} + * = no λ ()
+  discreteFunc {2} * + = no λ ()
 
-  isSetFunc : ∀ n → isSet (func n)
-  isSetFunc = DiscreteEq→isSet ∘ discreteFunc
+  isSetFunc : ∀ {n} → isSet (func n)
+  isSetFunc = DiscreteEq→isSet discreteFunc
 
-  discreteRel : ∀ n → DiscreteEq (rel n)
-  discreteRel 2 < < = yes refl
+  discreteRel : ∀ {n} → DiscreteEq (rel n)
+  discreteRel {2} < < = yes refl
 
-  isSetRel : ∀ n → isSet (rel n)
-  isSetRel = DiscreteEq→isSet ∘ discreteRel
+  isSetRel : ∀ {n} → isSet (rel n)
+  isSetRel = DiscreteEq→isSet discreteRel
 
   ℒ : Language
   ℒ = record

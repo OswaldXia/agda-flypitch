@@ -26,7 +26,7 @@ discreteTerm (var (suc k₁)) (var (suc k₂)) with discreteTerm (var k₁) (var
 ... | yes refl = yes refl
 ... | no  ¬p   = no λ { refl → ¬p refl }
 
-discreteTerm (func f₁) (func f₂) with discrete𝔉 _ f₁ f₂
+discreteTerm (func f₁) (func f₂) with discrete𝔉 f₁ f₂
 ... | yes refl = yes refl
 ... | no  ¬p   = no λ { refl → ¬p refl }
 
@@ -71,7 +71,7 @@ discreteFormula (∀' _)      (appᵣ _ _)  = no λ ()
 discreteFormula (∀' _)      (_ ≈ _)     = no λ ()
 discreteFormula (∀' _)      (_ ⇒ _)     = no λ ()
 
-discreteFormula (rel R₁) (rel R₂) with discreteℜ _ R₁ R₂
+discreteFormula (rel R₁) (rel R₂) with discreteℜ R₁ R₂
 ... | yes refl = yes refl
 ... | no  ¬p   = no λ { refl → ¬p refl }
 

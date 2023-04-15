@@ -1,9 +1,10 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
-module FOL.Constructions.Henkin.LanguageChain u where
+open import CubicalExt.Axiom.ExcludedMiddle
+module FOL.Constructions.Henkin.LanguageChain ⦃ em : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
-open import FOL.Bounded.Base using (Formula; Sentence; Theory)
+open import FOL.Bounded.Base using (Formula; Sentence)
 open import FOL.Language hiding (u)
 open Language {u}
 
@@ -30,7 +31,7 @@ languageStep : Language → Language
 languageStep ℒ = record
   { 𝔉 = HekinFunctions ℒ
   ; ℜ = ℒ .ℜ
-  ; isSet𝔉 = isSetHekinFunctions
+  ; isSet𝔉 = isSetHekinFunctions ℒ
   ; isSetℜ = ℒ .isSetℜ
   }
 
