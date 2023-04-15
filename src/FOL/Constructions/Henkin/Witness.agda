@@ -19,8 +19,8 @@ open LHom._⟶_ using (funMorph)
 open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
 open DirectedDiagram using (Colimit; Coproduct)
 
-open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude using (Type; Σ-syntax; _,_) renaming (_≡_ to _≡ₚ_)
+open import Cubical.Foundations.Prelude
+open import Cubical.Data.Equality using (eqToPath)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.HITs.SetQuotients using ([_])
@@ -28,7 +28,6 @@ open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; e
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_$_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
 witnessOf : Formula ℒ 1 → Constant $ languageStep ℒ
 witnessOf = witness
@@ -46,8 +45,8 @@ witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
   ∃[ c ∈ Constant $ ∞-language ℒ ]
   Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
   Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
-    [ φₚ ] ≡ₚ φ∞
-  × formulaComparison φ∞ ≡ₚ φ
+    [ φₚ ] ≡ φ∞
+  × formulaComparison φ∞ ≡ φ
   × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
 
 ∞-witnessing : (φ : Formula (∞-language ℒ) 1) → ∞-Witnessing φ
@@ -68,4 +67,4 @@ module _ {ℒ : Language} where
   unbound-witness : ∀ {i} → (φ : Formula (∞-language ℒ) 1) (φᵢ : Formula (obj ℒ i) 1) →
       unbound ((∃' φ) ⇒ φ [ const (∞-witness φᵢ) / 0 ])
     ≡ unbound (∃' φ) Free.⇒ unbound φ Free.[ Free.func (∞-witness φᵢ) / 0 ]
-  unbound-witness φ φᵢ = cong (unbound (∃' φ) Free.⇒_) (unbound-subst _ _)
+  unbound-witness φ φᵢ = cong (unbound (∃' φ) Free.⇒_) (eqToPath $ unbound-subst _ _)
