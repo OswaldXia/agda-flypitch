@@ -23,7 +23,7 @@ open import Cubical.Foundations.Prelude using (lift)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sum using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (elim)
-open import CubicalExt.Classical using (byContra*)
+open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
 
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)
@@ -34,13 +34,16 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (_∘_; 
 module Free where
   open import FOL.Base ⦃ em ⦄ ℒ
   open import FOL.Syntactics ⦃ em ⦄ ℒ
-  open import FOL.Semantics ⦃ em ⦄ ℒ
   open import FOL.Lemmas.Realization ⦃ em ⦄
+  open import FOL.Semantics ⦃ em ⦄ ℒ
   open Realizer
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
   soundness (axiom φ∈Γ) _ _ 𝒮⊨Γ = 𝒮⊨Γ _ φ∈Γ
-  soundness {_} {φ} (⊥-elim ⊢₀) 𝒮 𝓋 𝒮⊨Γ = {!   !}
+  soundness {_} {φ} (⊥-elim ⊢₀) 𝒮 𝓋 𝒮⊨Γ = byContra* λ ¬ →
+    soundness ⊢₀ 𝒮 𝓋 λ φ → elim (λ _ → isPropRealize _ _ _)
+      λ { (inl φ∈Γ) → 𝒮⊨Γ φ φ∈Γ
+        ; (inr reflId) → lift ∘ ¬ }
   soundness ≈-refl _ _ _ = refl
   soundness (⇒-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ realization =
     soundness ⊢₀ 𝒮 𝓋 λ φ → elim (λ _ → isPropRealize _ _ _)

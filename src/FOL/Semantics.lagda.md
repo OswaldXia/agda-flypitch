@@ -85,6 +85,8 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
   isPropRealize φ = Pre.isPropRealize 𝓋 φ []
 ```
 
+我们把 `realize` 是命题的这个性质作为一个实例，这样就可以在 `realize` 上方便地使用排中律.
+
 ```agda
 open Realizer
 
