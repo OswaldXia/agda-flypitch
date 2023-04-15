@@ -16,7 +16,7 @@ UIP : Type ℓ → Type ℓ
 UIP A = {x : A} (p : x ≡ x) → refl ≡ p
 
 isSet→UIP : ∀ {A : Type ℓ} → isSet A → UIP A
-isSet→UIP Aset p =          begin
+isSet→UIP Aset p =         begin
   refl                     ≡˘⟨ pathToEq $ pathToEq-eqToPath refl ⟩
   pathToEq (eqToPath refl) ≡⟨ cong pathToEq (pathToEq $ Aset _ _ (eqToPath refl) (eqToPath p)) ⟩
   pathToEq (eqToPath p)    ≡⟨ pathToEq $ pathToEq-eqToPath p ⟩

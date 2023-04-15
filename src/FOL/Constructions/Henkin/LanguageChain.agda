@@ -15,7 +15,6 @@ import FOL.Language.Homomorphism as LHom
 open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
 open LHom.Bounded using (termMorph)
 
-open import Cubical.Core.Primitives hiding (_≡_)
 open import Cubical.Foundations.Prelude using (isSet)
 open import CubicalExt.Data.Nat using (ℕ-UIP)
 
