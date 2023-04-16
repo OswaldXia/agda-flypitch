@@ -32,6 +32,7 @@ open import Cubical.Foundations.Id using (pathToId)
 open import Cubical.Functions.Logic using (inl; inr)
 open import Cubical.Data.Unit using (tt*)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
+open import Cubical.HITs.SetQuotients using ([_])
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp)
 
@@ -42,19 +43,24 @@ open import Function using (_$_)
 ∞-theory-hasEnoughConstants T φ =
   elim {P = λ _ → ∃[ c ∈ Constant ] (∞-theory T) ⊢ [ c witnessing φ ]}
     (λ _ → squash₁)
-    (λ { (c , φ∞ , φₚ@(i , φᵢ) , [φₚ]≡φ∞ , fCφ∞≡φ , c≡) →
+    (λ { (c , φ∞ , φₚ@(i , φᵢ) , φ∞≡ , φ≡ , c≡) →
       ∣_∣₁ $ c ,_ $ axiom $ ∣_∣₁ $
         map0 (suc i) (witnessStatement φᵢ)
       , ∣ suc i , ∈-∞-theory i (witnessStatement φᵢ) (inr ∣ φᵢ , tt* , reflId ∣₁) ∣₁
       , let open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
-            ψ = formulaMorph languageMorph φᵢ in
+            ψ = formulaMorph languageMorph φᵢ
+            H : φ ≡ map1 (suc i) ψ
+            H = φ ≡⟨ φ≡ ⟩ formulaComparison φ∞ ≡⟨ cong formulaComparison φ∞≡ ⟩
+              formulaComparison [ i , φᵢ ] ≡⟨ {!   !} ⟩ map1 (suc i) ψ ∎
+              --(formulaMorph $ languageCanonicalMorph i) φ
+        in
         pathToId (cong unbound $
           [ c witnessing φ ]
             ≡⟨ cong [_witnessing φ ] c≡ ⟩
           [ funMorph (witnessOf φᵢ) witnessing φ ]
             ≡⟨⟩
           ∃' φ ⇒ subst _ {0} φ (const _ (funMorph (witnessOf φᵢ)))
-            ≡⟨ {!   !} ⟩
+            ≡⟨ cong (λ φ → ∃' φ ⇒ subst _ {0} φ _) H ⟩
           ∃' (map1 (suc i) ψ) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ)))
             ≡⟨ {!   !} ⟩
           ∃' (map1 (suc i) ψ) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))

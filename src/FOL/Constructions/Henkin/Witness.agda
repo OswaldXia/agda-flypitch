@@ -45,8 +45,8 @@ witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
   ∃[ c ∈ Constant $ ∞-language ℒ ]
   Σ[ φ∞ ∈ Colimit (formulaChain ℒ 1 0) ]
   Σ[ φₚ@(i , φᵢ) ∈ Coproduct (formulaChain ℒ 1 0) ]
-    [ φₚ ] ≡ φ∞
-  × formulaComparison φ∞ ≡ φ
+    φ∞ ≡ [ φₚ ]
+  × φ ≡ formulaComparison φ∞
   × c ≡ languageCanonicalMorph (suc i) .funMorph (witnessOf φᵢ)
 
 ∞-witnessing : (φ : Formula (∞-language ℒ) 1) → ∞-Witnessing φ
@@ -54,7 +54,7 @@ witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
   elim {P = λ _ → ∞-Witnessing φ}
     (λ _ → squash₁)
     (λ { (φₚ@(i , φᵢ) , Hi) →
-      ∣ ∞-witness φᵢ , φ∞ , φₚ , Hi , Hφ∞ , refl ∣₁
+      ∣ ∞-witness φᵢ , φ∞ , φₚ , sym Hi , sym Hφ∞ , refl ∣₁
     })
     (representative φ∞)
   where open DirectedDiagram (formulaChain ℒ 1 0) using (representative)
