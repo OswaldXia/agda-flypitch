@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Language.Homomorphism ⦃ em : EM ⦄ {u} where
+module FOL.Language.Homomorphism {u} where
 open import FOL.Language hiding (u)
 
 open import Cubical.Foundations.Prelude using (Type)

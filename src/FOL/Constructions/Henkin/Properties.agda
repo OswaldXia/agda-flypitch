@@ -3,18 +3,18 @@
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Constructions.Henkin.Properties ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Constructions.Henkin.LanguageChain ⦃ em ⦄ u
-open import FOL.Constructions.Henkin.TermChain ⦃ em ⦄ u
-open import FOL.Constructions.Henkin.FormulaChain ⦃ em ⦄ u
-open import FOL.Constructions.Henkin.Witness ⦃ em ⦄ u
-open import FOL.Constructions.Henkin.TheoryChain ⦃ em ⦄ u
+module FOL.Constructions.Henkin.Properties ⦃ _ : EM ⦄ (ℒ : Language {u}) where
+open import FOL.Constructions.Henkin.LanguageChain u
+open import FOL.Constructions.Henkin.TermChain u
+open import FOL.Constructions.Henkin.FormulaChain u
+open import FOL.Constructions.Henkin.Witness u
+open import FOL.Constructions.Henkin.TheoryChain u
 
-import FOL.Base ⦃ em ⦄ (∞-language ℒ) as Free
-open import FOL.Syntactics ⦃ em ⦄ (∞-language ℒ) using (axiom)
-open import FOL.Bounded.Base ⦃ em ⦄ (∞-language ℒ) using (_⇒_; ∃'_; unbound)
-open import FOL.Bounded.Syntactics ⦃ em ⦄ (∞-language ℒ) using (_⊢_)
-open import FOL.Bounded.PropertiesOfTheory ⦃ em ⦄ (∞-language ℒ)
+import FOL.Base (∞-language ℒ) as Free
+open import FOL.Syntactics (∞-language ℒ) using (axiom)
+open import FOL.Bounded.Base (∞-language ℒ) using (_⇒_; ∃'_; unbound)
+open import FOL.Bounded.Syntactics (∞-language ℒ) using (_⊢_)
+open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
   using (hasEnoughConstants; [_witnessing_])
 open Language (∞-language ℒ) using (Constant)
 
@@ -50,7 +50,7 @@ open import Function using (_$_)
     })
     (∞-witnessing φ)
   where
-  open import FOL.Bounded.Base ⦃ em ⦄ using (Formula)
+  open import FOL.Bounded.Base using (Formula)
   helper : (c : Constant) (φ : Formula (∞-language ℒ) 1) (i : ℕ) (φᵢ : Formula ([ i ]-language ℒ) 1) →
     [ c witnessing φ ] ≡ map0 (suc i) (witnessStatement φᵢ)
   helper c φ i φᵢ =
@@ -67,6 +67,6 @@ open import Function using (_$_)
     (∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))
       ≡⟨⟩
     map0 (suc i) (witnessStatement φᵢ) ∎
-    where open import FOL.Bounded.Base ⦃ em ⦄ using (const)
-          open import FOL.Bounded.Substitution ⦃ em ⦄ using (subst)
+    where open import FOL.Bounded.Base using (const)
+          open import FOL.Bounded.Substitution using (subst)
           open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)

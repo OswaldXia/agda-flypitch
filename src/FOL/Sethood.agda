@@ -1,9 +1,8 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Sethood ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Base ⦃ em ⦄ ℒ
+module FOL.Sethood (ℒ : Language {u}) where
+open import FOL.Base ℒ
 open Language ℒ
 
 open import Agda.Builtin.Equality using (_≡_; refl)

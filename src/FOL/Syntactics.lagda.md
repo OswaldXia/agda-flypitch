@@ -14,10 +14,9 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Syntactics ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Base ⦃ em ⦄ ℒ
-open import FOL.Sethood ⦃ em ⦄ ℒ
+module FOL.Syntactics (ℒ : Language {u}) where
+open import FOL.Base ℒ
+open import FOL.Sethood ℒ
 ```
 
 ### 标准库依赖

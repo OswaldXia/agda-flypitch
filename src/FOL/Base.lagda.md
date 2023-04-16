@@ -18,8 +18,7 @@ zhihu-url: https://zhuanlan.zhihu.com/p/604316612
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Base ⦃ _ : EM ⦄ (ℒ : Language {u}) where
+module FOL.Base (ℒ : Language {u}) where
 open Language ℒ
 ```
 

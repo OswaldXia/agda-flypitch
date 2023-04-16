@@ -16,13 +16,15 @@ zhihu-tags: Agda, 数理逻辑
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Properties.Soundness ⦃ em : EM ⦄ (ℒ : Language {u}) where
+open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
+```
 
+```agda
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (lift; _,_)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sum using (inl; inr)
 open import Cubical.HITs.PropositionalTruncation using (elim)
-open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
 
 open import Function using (_∘_; _$_)
 open import Relation.Binary.PropositionalEquality using (refl; sym)
@@ -31,10 +33,10 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (_∘_; 
 
 ```agda
 module Free where
-  open import FOL.Base ⦃ em ⦄ ℒ
-  open import FOL.Syntactics ⦃ em ⦄ ℒ
-  open import FOL.Lemmas.Realization ⦃ em ⦄
-  open import FOL.Semantics ⦃ em ⦄ ℒ
+  open import FOL.Base ℒ
+  open import FOL.Syntactics ℒ
+  open import FOL.Lemmas.Realization
+  open import FOL.Semantics ℒ
   open Realizer
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
@@ -60,9 +62,9 @@ module Free where
 
 ```agda
 module _ where
-  open import FOL.Bounded.Syntactics ⦃ em ⦄ ℒ using (_⊢_)
-  open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ using (_⊨_)
-  open import FOL.Bounded.Lemmas.Semantics ⦃ em ⦄ ℒ using (bound⊨)
+  open import FOL.Bounded.Syntactics ℒ using (_⊢_)
+  open import FOL.Bounded.Semantics ℒ using (_⊨_)
+  open import FOL.Bounded.Lemmas.Semantics ℒ using (bound⊨)
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
   soundness = bound⊨ ∘ Free.soundness

@@ -2,7 +2,7 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Constructions.Henkin.TheoryChain ⦃ em : EM ⦄ u where
+module FOL.Constructions.Henkin.TheoryChain ⦃ _ : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
 open import FOL.Constructions.Henkin.LanguageChain u
   using (obj; languageStep; languageMorph; [_]-language; ∞-language; languageCanonicalMorph)

@@ -1,9 +1,8 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Lemmas.Substitution ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Base ⦃ em ⦄ ℒ
+module FOL.Lemmas.Substitution (ℒ : Language {u}) where
+open import FOL.Base ℒ
 
 open import Cubical.Foundations.Prelude using (Type; Level)
 open import Data.Empty using (⊥-elim)

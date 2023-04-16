@@ -1,14 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
-module FOL.Bounded.Lemmas.Equivalence ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
+module FOL.Bounded.Lemmas.Equivalence {ℒ : Language {u}} (T : Theory ℒ) where
 
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ hiding (_⇒_)
-open import FOL.Bounded.Syntactics ⦃ em ⦄ ℒ
+open import FOL.Bounded.Base ℒ hiding (_⇒_)
+open import FOL.Bounded.Syntactics ℒ
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
-import FOL.Lemmas.Equivalence ⦃ em ⦄ (unbound ⟦ T ⟧) as Free
+import FOL.Lemmas.Equivalence (unbound ⟦ T ⟧) as Free
 
 open import Agda.Primitive using (lsuc)
 open import Data.Nat using (ℕ; zero; suc)

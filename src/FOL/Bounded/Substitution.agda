@@ -1,12 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Substitution ⦃ em : EM ⦄ (ℒ : Language {u}) where
-import FOL.Base ⦃ em ⦄ ℒ as Free
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
-open import FOL.Bounded.Casting ⦃ em ⦄ ℒ
-open import FOL.Bounded.Lifting ⦃ em ⦄ ℒ
+module FOL.Bounded.Substitution (ℒ : Language {u}) where
+import FOL.Base ℒ as Free
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Casting ℒ
+open import FOL.Bounded.Lifting ℒ
 
 open import StdlibExt.Data.Fin
   using (Fin; toℕ; fromℕ<; reduce≥; toℕ-fromℕ<; toℕ-reduce≥)

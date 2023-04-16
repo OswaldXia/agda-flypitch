@@ -2,7 +2,7 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Constructions.Henkin.LanguageChain ⦃ em : EM ⦄ u where
+module FOL.Constructions.Henkin.LanguageChain ⦃ _ : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
 open import FOL.Bounded.Base using (Formula; Sentence)
 open import FOL.Language hiding (u)
@@ -30,8 +30,8 @@ languageStep : Language → Language
 languageStep ℒ = record
   { 𝔉 = HekinFunctions ℒ
   ; ℜ = ℒ .ℜ
-  ; isSet𝔉 = isSetHekinFunctions ℒ
-  ; isSetℜ = ℒ .isSetℜ
+  ; discrete𝔉 = discreteHekinFunctions ℒ
+  ; discreteℜ = ℒ .discreteℜ
   }
 
 languageMorph : ℒ ⟶ languageStep ℒ

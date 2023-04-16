@@ -2,13 +2,12 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Lemmas.Semantics ⦃ em : EM ⦄ (ℒ : Language {u}) where
+module FOL.Bounded.Lemmas.Semantics (ℒ : Language {u}) where
 
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
-open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ
-open import FOL.Bounded.Lemmas.Realization ⦃ em ⦄
-import FOL.Semantics ⦃ em ⦄ ℒ as Free
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Semantics ℒ
+open import FOL.Bounded.Lemmas.Realization
+import FOL.Semantics ℒ as Free
 open Free.Realizer using (isPropRealize)
 open Closed using (realize-iff)
 

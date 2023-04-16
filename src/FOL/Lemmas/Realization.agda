@@ -2,13 +2,12 @@
 
 open import FOL.Language
 open import FOL.Structure.Base
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Lemmas.Realization ⦃ em : EM ⦄ {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
+module FOL.Lemmas.Realization {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
 
-open import FOL.Base ⦃ em ⦄ ℒ
-open import FOL.Lemmas.Lifting ⦃ em ⦄ ℒ
-open import FOL.Lemmas.Substitution ⦃ em ⦄ ℒ
-open import FOL.Semantics ⦃ em ⦄ ℒ
+open import FOL.Base ℒ
+open import FOL.Lemmas.Lifting ℒ
+open import FOL.Lemmas.Substitution ℒ
+open import FOL.Semantics ℒ
 open Structure 𝒮
 
 open import Data.Empty using (⊥-elim)

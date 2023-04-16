@@ -15,9 +15,8 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Base ⦃ em : EM ⦄ (ℒ : Language {u}) where
-import FOL.Base ⦃ em ⦄ ℒ as Free
+module FOL.Bounded.Base (ℒ : Language {u}) where
+import FOL.Base ℒ as Free
 open Language ℒ
 open Free using (l) public
 open Free.Termₗ

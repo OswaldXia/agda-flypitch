@@ -14,15 +14,14 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Syntactics ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
-open import FOL.Bounded.Sethood ⦃ em ⦄ ℒ
+module FOL.Bounded.Syntactics (ℒ : Language {u}) where
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Sethood ℒ
 
 private module Free where
-  open import FOL.Base ⦃ em ⦄ ℒ public
-  open import FOL.Sethood ⦃ em ⦄ ℒ public
-  open import FOL.Syntactics ⦃ em ⦄ ℒ public
+  open import FOL.Base ℒ public
+  open import FOL.Sethood ℒ public
+  open import FOL.Syntactics ℒ public
 open Free._⊢_
 
 open import Cubical.Core.Id using (reflId)

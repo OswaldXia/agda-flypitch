@@ -2,10 +2,12 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import FOL.Bounded.Base using (Theory)
-module FOL.Properties.Completeness {ℒ : Language {u}} (T : Theory ℒ) where
+open import CubicalExt.Axiom.ExcludedMiddle
+open import FOL.Bounded.Syntactics using (Theory)
+module FOL.Properties.Completeness ⦃ _ : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ

@@ -1,10 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Language.Homomorphism using (_⟶_)
-module FOL.Structure.Reduction ⦃ em : EM ⦄ {ℒ₁ ℒ₂ : Language {u}} (F : ℒ₁ ⟶ ℒ₂) where
-open import FOL.Structure.Base ⦃ em ⦄ {u}
+module FOL.Structure.Reduction {ℒ₁ ℒ₂ : Language {u}} (F : ℒ₁ ⟶ ℒ₂) where
+open import FOL.Structure.Base {u}
 
 open import Function using (_∘_; id)
 

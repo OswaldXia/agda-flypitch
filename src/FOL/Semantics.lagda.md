@@ -16,11 +16,10 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Semantics ⦃ em : EM ⦄ (ℒ : Language {u}) where
-open import FOL.Base ⦃ em ⦄ ℒ
-open import FOL.Syntactics ⦃ em ⦄ ℒ hiding (subst)
-open import FOL.Structure.Base ⦃ em ⦄ ℒ
+module FOL.Semantics (ℒ : Language {u}) where
+open import FOL.Base ℒ
+open import FOL.Syntactics ℒ hiding (subst)
+open import FOL.Structure.Base ℒ
 open Language ℒ
 ```
 
@@ -87,6 +86,7 @@ module Realizer (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) where
 我们把 `realize` 是命题的这个性质作为一个实例，这样就可以在 `realize` 上方便地使用排中律.
 
 ```agda
+open import CubicalExt.Axiom.ExcludedMiddle using (isPropImplicit)
 open Realizer
 
 instance

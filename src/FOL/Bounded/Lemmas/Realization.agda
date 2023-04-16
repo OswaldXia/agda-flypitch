@@ -1,14 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Structure.Base using (Structure)
-module FOL.Bounded.Lemmas.Realization ⦃ em : EM ⦄ {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
+module FOL.Bounded.Lemmas.Realization {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
 
-open import FOL.Base ⦃ em ⦄ ℒ using (_[_/_]ᵥ)
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
-open import FOL.Bounded.Semantics ⦃ em ⦄ ℒ
-import FOL.Semantics ⦃ em ⦄ ℒ as Free
+open import FOL.Base ℒ using (_[_/_]ᵥ)
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Semantics ℒ
+import FOL.Semantics ℒ as Free
 open Structure 𝒮
 
 open import Cubical.Foundations.Prelude renaming (_≡_ to _≡ₚ_) hiding (refl; cong)

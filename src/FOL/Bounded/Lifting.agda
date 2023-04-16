@@ -1,10 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Lifting ⦃ em : EM ⦄ (ℒ : Language {u}) where
-import FOL.Base ⦃ em ⦄ ℒ as Free
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
+module FOL.Bounded.Lifting (ℒ : Language {u}) where
+import FOL.Base ℒ as Free
+open import FOL.Bounded.Base ℒ
 
 open import Data.Nat using (ℕ; _+_; _<?_)
 open import Data.Nat.Properties

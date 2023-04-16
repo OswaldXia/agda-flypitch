@@ -1,10 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Bounded.Casting ⦃ em : EM ⦄ (ℒ : Language {u}) where
-import FOL.Base ⦃ em ⦄ ℒ as Free
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ
+module FOL.Bounded.Casting (ℒ : Language {u}) where
+import FOL.Base ℒ as Free
+open import FOL.Bounded.Base ℒ
 
 open import Data.Fin using (Fin; inject≤)
 open import Data.Fin.Properties using (toℕ-inject≤)

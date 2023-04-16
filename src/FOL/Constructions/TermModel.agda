@@ -2,12 +2,11 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
-module FOL.Constructions.TermModel ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
-open import FOL.Structure.Base ⦃ em ⦄ ℒ
-open import FOL.Bounded.Syntactics ⦃ em ⦄ ℒ
-open import FOL.Bounded.PropertiesOfTheory ⦃ em ⦄ ℒ
+module FOL.Constructions.TermModel {ℒ : Language {u}} (T : Theory ℒ) where
+open import FOL.Structure.Base ℒ
+open import FOL.Bounded.Syntactics ℒ
+open import FOL.Bounded.PropertiesOfTheory ℒ
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
@@ -25,8 +24,8 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence u
   renaming (_∘_ to _⟨∘⟩_) hiding (map)
 
 module TermModel where
-  open import FOL.Bounded.Base ⦃ em ⦄ ℒ hiding (func; rel)
-  open import FOL.Bounded.Lemmas.Equivalence ⦃ em ⦄ T
+  open import FOL.Bounded.Base ℒ hiding (func; rel)
+  open import FOL.Bounded.Lemmas.Equivalence T
   private
     _≋ₚ_ = Pointwise _≋_
     𝐯₀ = var (fromℕ 0)
@@ -66,7 +65,7 @@ module TermModel where
   rel r = quotientLift ≋-refl isSetHProp (λ xs → ∥ (preRel r xs) ∥ₚ) λ xs≈ys →
     propTruncExt $ preRel-pointwiseIff r xs≈ys
 
-open import FOL.Bounded.Base ⦃ em ⦄ ℒ using (func; rel)
+open import FOL.Bounded.Base ℒ using (func; rel)
 
 termModel : Structure
 termModel = record

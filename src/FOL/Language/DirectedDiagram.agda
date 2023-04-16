@@ -2,6 +2,7 @@
 
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Language.DirectedDiagram ⦃ em : EM ⦄ where
+open import CubicalExt.Classical ⦃ em ⦄ using (isSet→DiscreteEq)
 
 open import FOL.Language hiding (u)
 open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
@@ -11,10 +12,11 @@ open _⟶_
 open import Cubical.Foundations.Prelude
   using (Type; Level; ℓ-suc; ℓ-max; _,_; isProp; isSet; isProp→isSet)
 open import Cubical.Foundations.HLevels using (isSetΣ)
-open import Cubical.Data.Sigma using (_×_)
+open import Cubical.Data.Sigma using (_×_; discreteΣ)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; rec)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; elim→Set)
 open import CubicalExt.Data.Equality using (eqToPath; pathToEq; funExt; implicitFunExt)
+open import CubicalExt.Relation.Nullary using (Discrete→DiscreteEq; DiscreteEq→Discrete)
 
 open import Data.Nat using (ℕ)
 open import Function using (_∘_; _$_)
@@ -53,16 +55,16 @@ record DirectedDiagramLanguage (D : DirectedType {u}) : Type (ℓ-max (ℓ-suc u
   CoproductLanguage = record
     { 𝔉 = Coproduct ∘ functionsᴰ
     ; ℜ = Coproduct ∘ relationsᴰ
-    ; isSet𝔉 = isSetΣ isSetCarrier λ i → isSet𝔉 (obj i)
-    ; isSetℜ = isSetΣ isSetCarrier λ i → isSetℜ (obj i)
+    ; discrete𝔉 = Discrete→DiscreteEq $ discreteΣ discreteCarrier (λ i → DiscreteEq→Discrete $ discrete𝔉 $ obj i)
+    ; discreteℜ = Discrete→DiscreteEq $ discreteΣ discreteCarrier (λ i → DiscreteEq→Discrete $ discreteℜ $ obj i)
     } where open DirectedDiagram using (Coproduct)
 
   ColimitLanguage : Language
   ColimitLanguage = record
     { 𝔉 = λ n → funcs n / (_≃_ $ functionsᴰ n)
     ; ℜ = λ n → rels  n / (_≃_ $ relationsᴰ n)
-    ; isSet𝔉 = squash/
-    ; isSetℜ = squash/
+    ; discrete𝔉 = isSet→DiscreteEq squash/
+    ; discreteℜ = isSet→DiscreteEq squash/
     } where open DirectedDiagram using (_≃_)
             open Language CoproductLanguage renaming (𝔉 to funcs; ℜ to rels)
 

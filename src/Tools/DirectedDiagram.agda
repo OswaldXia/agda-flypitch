@@ -6,9 +6,10 @@ open import Cubical.Core.Primitives renaming (_≡_ to _≡ₚ_)
 open import Cubical.Foundations.Prelude using (isProp; isSet; isProp→isSet; toPathP; isPropIsProp)
 open import Cubical.Data.Equality using (eqToPath; pathToEq; funExt; reflPath)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
-open import Cubical.Data.Nat using (isSetℕ)
+open import Cubical.Data.Nat using (discreteℕ)
 open import Cubical.HITs.SetQuotients as Quot using (_/_; [_]; eq/; squash/; rec; []surjective)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim→Set; elim2→Set)
+open import Cubical.Relation.Nullary using (Discrete; Discrete→isSet)
 open import Cubical.Relation.Binary
 open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
 
@@ -23,18 +24,19 @@ private variable
 record DirectedType : Type (ℓ-suc u) where
   field
     Carrier : Type u
-    isSetCarrier : isSet Carrier
+    discreteCarrier : Discrete Carrier
     _~_ : Rel Carrier Carrier ℓ-zero
     isRefl~ : isRefl _~_
     isTrans~ : isTrans _~_
     directed : ∀ x y → Σ[ z ∈ _ ] x ~ z × y ~ z
   ~-refl = λ {a} → isRefl~ a
   ~-trans = λ {a b c} → isTrans~ a b c
+  isSetCarrier = Discrete→isSet discreteCarrier
 
 ℕᴰ : DirectedType
 ℕᴰ = record
   { Carrier = ℕ
-  ; isSetCarrier = isSetℕ
+  ; discreteCarrier = discreteℕ
   ; _~_ = _≤₃_
   ; isRefl~ = λ _ → ≤₃-refl
   ; isTrans~ = λ _ _ _ p q → ≤⇒≤₃ $ ≤-trans (≤₃⇒≤ p) (≤₃⇒≤ q)
