@@ -46,27 +46,21 @@ open import Function using (_$_)
       ∣_∣₁ $ c ,_ $ axiom $ ∣_∣₁ $
         map0 (suc i) (witnessStatement φᵢ)
       , ∣ suc i , ∈-∞-theory i (witnessStatement φᵢ) (inr ∣ φᵢ , tt* , reflId ∣₁) ∣₁
-      , pathToId (cong unbound (substPath (λ c → [ c witnessing φ ] ≡ _) (sym c≡) {!   !})) --helper c φ i φᵢ
+      , let open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
+            ψ = formulaMorph languageMorph φᵢ in
+        pathToId (cong unbound $
+          [ c witnessing φ ]
+            ≡⟨ cong [_witnessing φ ] c≡ ⟩
+          [ funMorph (witnessOf φᵢ) witnessing φ ]
+            ≡⟨⟩
+          ∃' φ ⇒ subst _ {0} φ (const _ (funMorph (witnessOf φᵢ)))
+            ≡⟨ {!   !} ⟩
+          ∃' (map1 (suc i) ψ) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ)))
+            ≡⟨ {!   !} ⟩
+          ∃' (map1 (suc i) ψ) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))
+            ≡⟨⟩
+          map0 (suc i) (witnessStatement φᵢ) ∎)
     })
     (∞-witnessing φ)
-  where
-  open import FOL.Bounded.Base using (Formula)
-  helper : (c : Constant) (φ : Formula (∞-language ℒ) 1) (i : ℕ) (φᵢ : Formula ([ i ]-language ℒ) 1) →
-    [ c witnessing φ ] ≡ map0 (suc i) (witnessStatement φᵢ)
-  helper c φ i φᵢ =
-    let ψ = formulaMorph languageMorph φᵢ
-        c∞ = const _ (funMorph (witnessOf φᵢ)) in
-    [ c witnessing φ ]
-      ≡⟨⟩
-    ∃' φ ⇒ subst _ {0} φ (const _ c)
-      ≡⟨ {!   !} ⟩
-    ∃' φ ⇒ subst _ {0} φ c∞
-      ≡⟨ {!   !} ⟩
-    (∃' (map1 (suc i) ψ)) ⇒ subst _ {0} (map1 (suc i) ψ) c∞
-      ≡⟨ {! map1 (suc i) ψ  !} ⟩
-    (∃' (map1 (suc i) ψ)) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))
-      ≡⟨⟩
-    map0 (suc i) (witnessStatement φᵢ) ∎
-    where open import FOL.Bounded.Base using (const)
-          open import FOL.Bounded.Substitution using (subst)
-          open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
+  where open import FOL.Bounded.Base using (const)
+        open import FOL.Bounded.Substitution using (subst)
