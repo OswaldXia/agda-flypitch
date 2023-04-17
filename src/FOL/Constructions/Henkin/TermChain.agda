@@ -67,7 +67,7 @@ module _ {ℒ n l} where
     _≡↑ʳ_ {i} {tᵢ} H j = flip compPath H $ eq/ _ _
       ∣ i + j , tᵢ ↑ʳ j , ≤₃-refl , m≤₃m+n
       , (sym $ (flip cong-app) tᵢ $ termMorphFunctorial
-             $ subst (λ x → langChainMorph m≤₃m+n ≡ x ∘ langChainMorph m≤₃m+n) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃m+n ≡ x ∘ langChainMorph m≤₃m+n) (sym zeroMorph≡id) refl)
       , refl
       ∣₁
 
@@ -76,7 +76,7 @@ module _ {ℒ n l} where
     _≡↑ˡ_ {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
       ∣ i + j , tⱼ ↑ˡ i , ≤₃-refl , m≤₃n+m
       , (sym $ (flip cong-app) tⱼ $ termMorphFunctorial
-             $ subst (λ x → langChainMorph m≤₃n+m ≡ x ∘ langChainMorph m≤₃n+m) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃n+m ≡ x ∘ langChainMorph m≤₃n+m) (sym zeroMorph≡id) refl)
       , refl
       ∣₁
 

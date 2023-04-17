@@ -54,10 +54,10 @@ open import Function using (_$_)
             open CoconeLanguage (coconeOfLanguageChain {ℒ}) using (Vertex; compat)
             open DirectedDiagramLanguage (languageChain ℒ) renaming (morph to langChainMorph)
             φᵢ₋ = formulaMorph languageMorph φᵢ
-            i~i⁺ = ≤⇒≤₃ (n≤1+n i)
+            i~i⁺ = ≤⇒≤₃ $ n≤1+n i
             eq0 = pathToEq $
               languageCanonicalMorph {ℒ} i                          ≡⟨ eqToPath $ compat i~i⁺ ⟩
-              languageCanonicalMorph (suc i) ∘ langChainMorph i~i⁺  ≡⟨ cong (_ ∘_) {!   !} ⟩
+              languageCanonicalMorph (suc i) ∘ langChainMorph i~i⁺  ≡⟨ cong (_ ∘_) $ eqToPath sucMorph≡languageMorph ⟩
               languageCanonicalMorph (suc i) ∘ languageMorph        ∎
             eq1 = φ                         ≡⟨ φ≡ ⟩
               formulaComparison φ∞          ≡⟨ cong formulaComparison φ∞≡ ⟩

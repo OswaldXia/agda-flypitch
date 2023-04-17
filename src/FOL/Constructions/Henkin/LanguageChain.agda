@@ -24,7 +24,7 @@ open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
 open import Function using (id; _∘_; _$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; cong)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; subst)
 
 languageStep : Language → Language
 languageStep ℒ = record
@@ -42,43 +42,47 @@ obj ℒ zero    = ℒ
 obj ℒ (suc n) = languageStep (obj ℒ n)
 
 abstract
-  morph : ∀ {x y} → .(x ≤₃ y) → obj ℒ x ⟶ obj ℒ y
-  morph {ℒ} {x} {y} x≤y with <-cmp x y
-  ... | tri< (s≤s x≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
+  morph : ∀ {i j} → .(i ≤₃ j) → obj ℒ i ⟶ obj ℒ j
+  morph {ℒ} {i} {j} i≤y with <-cmp i j
+  ... | tri< (s≤s i≤y-1) _ _ = languageMorph ◯ morph (≤⇒≤₃ i≤y-1)
   ... | tri≈ _ refl _ = idᴸ
 
-  endomorph≡id : ∀ {x} → morph {ℒ} {x} (≤⇒≤₃ $ ≤-refl) ≡ idᴸ
-  endomorph≡id {_} {zero} = refl
-  endomorph≡id {_} {suc x} with <-cmp (suc x) (suc x)
+  zeroMorph≡id : ∀ {i} → morph {ℒ} {i} (≤⇒≤₃ $ ≤-refl) ≡ idᴸ
+  zeroMorph≡id {_} {i} with <-cmp i i
   ... | tri< _ ¬p _ = ⊥-elim $ ¬p refl
   ... | tri> _ ¬p _ = ⊥-elim $ ¬p refl
   ... | tri≈ _ s≡s _ with ℕ-UIP s≡s
   ... | refl = refl
 
-  functorial : ∀ {x y z} .{f₁ : x ≤₃ y} .{f₂ : y ≤₃ z} .{f₃ : x ≤₃ z}
+  sucMorph≡languageMorph : ∀ {i} → morph {ℒ} {i} (≤⇒≤₃ $ n≤1+n i) ≡ languageMorph
+  sucMorph≡languageMorph {ℒ} {i} with <-cmp (i) (suc i)
+  ... | tri< (s≤s _) _ _ = subst (λ x → languageMorph ◯ x ≡ _) (sym zeroMorph≡id) refl
+  ... | tri> ¬p _ _ = ⊥-elim $ ¬p ≤-refl
+
+  functorial : ∀ {i j k} .{f₁ : i ≤₃ j} .{f₂ : j ≤₃ k} .{f₃ : i ≤₃ k}
     → morph {ℒ} f₃ ≡ (morph f₂ ◯ morph f₁)
-  functorial {ℒ} {x} {y} {z} {x≤y} {y≤z} {x≤z} with <-cmp x y | <-cmp y z | <-cmp x z
-  ... | tri< _ _ x≰y  | tri< x≤y _ _  | tri≈ _ refl _ = ⊥-elim $ x≰y x≤y
-  ... | tri< sx≤x _ _ | tri≈ _ refl _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
-  ... | tri≈ _ refl _ | tri< sx≤x _ _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n sx≤x
-  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri< sx≤x _ _ = ⊥-elim $ 1+n≰n sx≤x
+  functorial {ℒ} {i} {j} {k} {i≤j} {j≤k} {i≤k} with <-cmp i j | <-cmp j k | <-cmp i k
+  ... | tri< _ _ i≰j  | tri< i≤j _ _  | tri≈ _ refl _ = ⊥-elim $ i≰j i≤j
+  ... | tri< si≤i _ _ | tri≈ _ refl _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n si≤i
+  ... | tri≈ _ refl _ | tri< si≤i _ _ | tri≈ _ refl _ = ⊥-elim $ 1+n≰n si≤i
+  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri< si≤i _ _ = ⊥-elim $ 1+n≰n si≤i
   ... | tri< (s≤s _) _ _ | tri≈ _ refl _    | tri< (s≤s _) _ _ = refl
   ... | tri≈ _ refl _    | tri< (s≤s _) _ _ | tri< (s≤s _) _ _ = refl
-  ... | tri< (s≤s x≤y-1) x≢x y≮x | tri< (s≤s y≤z-1) _ _ | tri< (s≤s x≤z-1) _ _ =
+  ... | tri< (s≤s i≤j-1) i≢i j≮i | tri< (s≤s j≤k-1) _ _ | tri< (s≤s i≤k-1) _ _ =
     cong (languageMorph ◯_) $ trans
-      (functorial {f₁ = x≤₃y} {f₂ = ≤⇒≤₃ y≤z-1} {f₃ = ≤⇒≤₃ x≤z-1})
-      (cong (morph (≤⇒≤₃ y≤z-1) ◯_) eq) where
-        x≤₃y : x ≤₃ y
-        x≤₃y with <-cmp x y
+      (functorial {f₁ = i≤₃j} {f₂ = ≤⇒≤₃ j≤k-1} {f₃ = ≤⇒≤₃ i≤k-1})
+      (cong (morph (≤⇒≤₃ j≤k-1) ◯_) eq) where
+        i≤₃j : i ≤₃ j
+        i≤₃j with <-cmp i j
         ... | tri< _ _ _ = tt
         ... | tri≈ _ _ _ = tt
-        ... | tri> _ _ y<x = y≮x y<x
-        eq : morph {ℒ} x≤₃y ≡ languageMorph ◯ morph (≤⇒≤₃ x≤y-1)
-        eq with <-cmp x y
+        ... | tri> _ _ j<i = j≮i j<i
+        eq : morph {ℒ} i≤₃j ≡ languageMorph ◯ morph (≤⇒≤₃ i≤j-1)
+        eq with <-cmp i j
         ... | tri< (s≤s _) _ _ = refl
-        ... | tri≈ _ refl _ = ⊥-elim $ x≢x refl
-        ... | tri> _ _ y<x  = ⊥-elim $ y≮x y<x
-  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri≈ _ x≡x _ with ℕ-UIP x≡x
+        ... | tri≈ _ refl _ = ⊥-elim $ i≢i refl
+        ... | tri> _ _ j<i  = ⊥-elim $ j≮i j<i
+  ... | tri≈ _ refl _ | tri≈ _ refl _ | tri≈ _ i≡i _ with ℕ-UIP i≡i
   ... | refl = refl
 
 languageChain : Language → DirectedDiagramLanguage ℕᴰ
@@ -102,3 +106,4 @@ henkinization _ = languageCanonicalMorph 0
 
 coconeOfLanguageChain : CoconeLanguage $ languageChain ℒ
 coconeOfLanguageChain = coconeOfColimitLanguage _
+ 
