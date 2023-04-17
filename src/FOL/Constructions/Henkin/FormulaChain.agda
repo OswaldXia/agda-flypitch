@@ -4,7 +4,7 @@
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Constructions.Henkin.FormulaChain ⦃ _ : EM ⦄ u where
 open import FOL.Constructions.Henkin.LanguageChain u
-  renaming (obj to langObj ; morph to langMorph; functorial to langFunctorial)
+  renaming (obj to langChainObj ; morph to langChainMorph; functorial to langChainFunctorial)
 open import FOL.Constructions.Henkin.TermChain u as T
   using (termChain; termComparison; termComparisonFiber)
 open import FOL.Language using (Language)
@@ -37,8 +37,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans
 formulaChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 formulaChain ℒ n l = record
   { obj = λ k → Formulaₗ ([ k ]-language ℒ) n l
-  ; morph = λ i≤j → formulaMorph $ langMorph i≤j
-  ; functorial = formulaMorphFunctorial langFunctorial
+  ; morph = λ i≤j → formulaMorph $ langChainMorph i≤j
+  ; functorial = formulaMorphFunctorial langChainFunctorial
   }
 
 coconeOfFormulaChain : ∀ ℒ n l → Cocone (formulaChain ℒ n l)
@@ -70,7 +70,7 @@ module _ {ℒ n l} where
     _≡↑ʳ_ {i} {tᵢ} H j = (flip compPath) H $ eq/ _ _
       ∣ i + j , tᵢ ↑ʳ j , ≤₃-refl , m≤₃m+n
       , (sym $ (flip cong-app) tᵢ $ formulaMorphFunctorial
-             $ subst (λ x → langMorph m≤₃m+n ≡ x ∘ langMorph m≤₃m+n) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃m+n ≡ x ∘ langChainMorph m≤₃m+n) (sym endomorph≡id) refl)
       , refl
       ∣₁
 
@@ -79,7 +79,7 @@ module _ {ℒ n l} where
     _≡↑ˡ_ {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
       ∣ i + j , tⱼ ↑ˡ i , ≤₃-refl , m≤₃n+m
       , (sym $ (flip cong-app) tⱼ $ formulaMorphFunctorial
-             $ subst (λ x → langMorph m≤₃n+m ≡ x ∘ langMorph m≤₃n+m) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃n+m ≡ x ∘ langChainMorph m≤₃n+m) (sym endomorph≡id) refl)
       , refl
       ∣₁
 

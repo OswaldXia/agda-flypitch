@@ -19,24 +19,27 @@ open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
 open Language (∞-language ℒ) using (Constant)
 
 import FOL.Language.Homomorphism as LHom
+open LHom using (_∘_)
 open LHom.Bounded using (formulaMorph)
+open LHom.BoundedProperties using (formulaMorphFunctorial)
 
+open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeLanguage)
 open import Tools.DirectedDiagram using (Cocone)
-open Cocone (coconeOfTermChain ℒ 0 0) renaming (map to mapₜ)
-open Cocone (coconeOfFormulaChain ℒ 0 0) renaming (map to map0)
-open Cocone (coconeOfFormulaChain ℒ 1 0) renaming (map to map1)
+open Cocone (coconeOfFormulaChain ℒ 0 0) using () renaming (map to map0)
+open Cocone (coconeOfFormulaChain ℒ 1 0) using () renaming (map to map1)
 
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude renaming (subst to substPath)
 open import Cubical.Foundations.Id using (pathToId)
 open import Cubical.Functions.Logic using (inl; inr)
+open import Cubical.Data.Equality using (eqToPath; pathToEq)
 open import Cubical.Data.Unit using (tt*)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.SetQuotients using ([_])
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
 open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp)
 
-open import Data.Nat using (ℕ; suc; _+_)
+open import StdlibExt.Data.Nat using (ℕ; suc; _+_; n≤1+n; ≤⇒≤₃)
 open import Function using (_$_)
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
@@ -48,11 +51,19 @@ open import Function using (_$_)
         map0 (suc i) (witnessStatement φᵢ)
       , ∣ suc i , ∈-∞-theory i (witnessStatement φᵢ) (inr ∣ φᵢ , tt* , reflId ∣₁) ∣₁
       , let open LHom._⟶_ (languageCanonicalMorph {ℒ} (suc i)) using (funMorph)
-            ψ = formulaMorph languageMorph φᵢ
-            H : φ ≡ map1 (suc i) ψ
-            H = φ ≡⟨ φ≡ ⟩ formulaComparison φ∞ ≡⟨ cong formulaComparison φ∞≡ ⟩
-              formulaComparison [ i , φᵢ ] ≡⟨ {!   !} ⟩ map1 (suc i) ψ ∎
-              --(formulaMorph $ languageCanonicalMorph i) φ
+            open CoconeLanguage (coconeOfLanguageChain {ℒ}) using (Vertex; compat)
+            open DirectedDiagramLanguage (languageChain ℒ) renaming (morph to langChainMorph)
+            φᵢ₋ = formulaMorph languageMorph φᵢ
+            i~i⁺ = ≤⇒≤₃ (n≤1+n i)
+            eq0 = pathToEq $
+              languageCanonicalMorph {ℒ} i                          ≡⟨ eqToPath $ compat i~i⁺ ⟩
+              languageCanonicalMorph (suc i) ∘ langChainMorph i~i⁺  ≡⟨ cong (_ ∘_) {!   !} ⟩
+              languageCanonicalMorph (suc i) ∘ languageMorph        ∎
+            eq1 = φ                         ≡⟨ φ≡ ⟩
+              formulaComparison φ∞          ≡⟨ cong formulaComparison φ∞≡ ⟩
+              formulaComparison [ i , φᵢ ]  ≡⟨⟩
+              map1 i φᵢ                     ≡⟨ eqToPath (formulaMorphFunctorial eq0) ≡$ φᵢ ⟩
+              map1 (suc i) φᵢ₋              ∎
         in
         pathToId (cong unbound $
           [ c witnessing φ ]
@@ -60,10 +71,10 @@ open import Function using (_$_)
           [ funMorph (witnessOf φᵢ) witnessing φ ]
             ≡⟨⟩
           ∃' φ ⇒ subst _ {0} φ (const _ (funMorph (witnessOf φᵢ)))
-            ≡⟨ cong (λ φ → ∃' φ ⇒ subst _ {0} φ _) H ⟩
-          ∃' (map1 (suc i) ψ) ⇒ subst _ {0} (map1 (suc i) ψ) (const _ (funMorph (witnessOf φᵢ)))
-            ≡⟨ {!   !} ⟩
-          ∃' (map1 (suc i) ψ) ⇒ map0 (suc i) (subst _ {0} ψ (const _ (witnessOf φᵢ)))
+            ≡⟨ cong (λ φ → ∃' φ ⇒ subst _ {0} φ _) eq1 ⟩
+          ∃' (map1 (suc i) φᵢ₋) ⇒ subst _ {0} (map1 (suc i) φᵢ₋) (const _ (funMorph (witnessOf φᵢ)))
+            ≡⟨ cong ((∃' map1 (suc i) φᵢ₋) ⇒_) {!   !} ⟩
+          ∃' (map1 (suc i) φᵢ₋) ⇒ map0 (suc i) (subst _ {0} φᵢ₋ (const _ (witnessOf φᵢ)))
             ≡⟨⟩
           map0 (suc i) (witnessStatement φᵢ) ∎)
     })

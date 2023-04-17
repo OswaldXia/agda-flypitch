@@ -4,7 +4,7 @@
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Constructions.Henkin.TermChain ⦃ _ : EM ⦄ u where
 open import FOL.Constructions.Henkin.LanguageChain u
-  renaming (obj to langObj ; morph to langMorph; functorial to langFunctorial)
+  renaming (obj to langChainObj ; morph to langChainMorph; functorial to langChainFunctorial)
 open import FOL.Language using (Language)
 open import FOL.Bounded.Base using (Termₗ)
 open import FOL.Bounded.Sethood using (isSetTerm)
@@ -35,8 +35,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans
 termChain : ∀ ℒ n l → DirectedDiagram ℕᴰ
 termChain ℒ n l = record
   { obj = λ k → Termₗ ([ k ]-language ℒ) n l
-  ; morph = λ i≤j → termMorph $ langMorph i≤j
-  ; functorial = termMorphFunctorial langFunctorial
+  ; morph = λ i≤j → termMorph $ langChainMorph i≤j
+  ; functorial = termMorphFunctorial langChainFunctorial
   }
 
 coconeOfTermChain : ∀ ℒ n l → Cocone (termChain ℒ n l)
@@ -67,7 +67,7 @@ module _ {ℒ n l} where
     _≡↑ʳ_ {i} {tᵢ} H j = flip compPath H $ eq/ _ _
       ∣ i + j , tᵢ ↑ʳ j , ≤₃-refl , m≤₃m+n
       , (sym $ (flip cong-app) tᵢ $ termMorphFunctorial
-             $ subst (λ x → langMorph m≤₃m+n ≡ x ∘ langMorph m≤₃m+n) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃m+n ≡ x ∘ langChainMorph m≤₃m+n) (sym endomorph≡id) refl)
       , refl
       ∣₁
 
@@ -76,7 +76,7 @@ module _ {ℒ n l} where
     _≡↑ˡ_ {j} {tⱼ} H i = (flip compPath) H $ eq/ _ _
       ∣ i + j , tⱼ ↑ˡ i , ≤₃-refl , m≤₃n+m
       , (sym $ (flip cong-app) tⱼ $ termMorphFunctorial
-             $ subst (λ x → langMorph m≤₃n+m ≡ x ∘ langMorph m≤₃n+m) (sym endomorph≡id) refl)
+             $ subst (λ x → langChainMorph m≤₃n+m ≡ x ∘ langChainMorph m≤₃n+m) (sym endomorph≡id) refl)
       , refl
       ∣₁
 
