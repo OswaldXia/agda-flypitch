@@ -5,16 +5,14 @@ open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Constructions.Henkin.TheoryChain ⦃ _ : EM ⦄ u where
 open import FOL.Constructions.Henkin.Base
 open import FOL.Constructions.Henkin.LanguageChain u
-  using (obj; languageStep; languageMorph; [_]-language; ∞-language; languageCanonicalMorph)
 open import FOL.Constructions.Henkin.FormulaChain u using (coconeOfFormulaChain)
 open import FOL.Constructions.Henkin.Witness u using (witnessStatement)
+
+import FOL.Language.Homomorphism as LHom
 open import FOL.Bounded.Base using (Formula; Sentence)
 open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.Language hiding (u)
 open Language {u}
-
-import FOL.Language.Homomorphism as LHom
-open import Tools.DirectedDiagram using (Cocone)
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Id using (reflId)
@@ -29,7 +27,7 @@ open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp; _∪_; �
 
 theoryStep : Theory ℒ → Theory $ languageStep ℒ
 theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Formula ℒ 1 ｝
-  where open LHom.Bounded (languageMorph {ℒ})
+  where open LHom.OnBounded (languageMorph {ℒ})
 
 [_]-theory : ∀ n → Theory ℒ → Theory $ [ n ]-language ℒ
 [ zero ]-theory T = T
@@ -37,12 +35,13 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Form
 
 [_]→∞-theory : ℕ → Theory ℒ → Theory $ ∞-language ℒ
 [ n ]→∞-theory T = theoryMorph ([ n ]-theory T)
-  where open LHom.Bounded (languageCanonicalMorph n)
+  where open LHom.OnBounded (languageCanonicalMorph n)
 
 ∞-theory : Theory ℒ → Theory $ ∞-language ℒ
 ∞-theory T = ⋃ (λ n → [ n ]→∞-theory T)
 
 module _ {ℒ : Language} where
+  open import Tools.DirectedDiagram using (Cocone)
   open Cocone (coconeOfFormulaChain ℒ 0 0) using (map)
 
   ∈-∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : Sentence $ obj ℒ $ suc i) →

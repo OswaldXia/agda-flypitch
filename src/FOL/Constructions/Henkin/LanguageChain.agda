@@ -8,12 +8,10 @@ open import FOL.Bounded.Base using (Formula; Sentence)
 open import FOL.Language hiding (u)
 open Language {u}
 
+open import FOL.Language.Homomorphism using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
 open import Tools.DirectedDiagram using (ℕᴰ)
 open import FOL.Language.DirectedDiagram
 open DirectedDiagramLanguage using (ColimitLanguage; canonicalMorph)
-import FOL.Language.Homomorphism as LHom
-open LHom using (_⟶_; ⟪_,_⟫) renaming (id to idᴸ; _∘_ to _◯_)
-open LHom.Bounded using (termMorph)
 
 open import Cubical.Foundations.Prelude using (isSet)
 open import CubicalExt.Data.Nat using (ℕ-UIP)

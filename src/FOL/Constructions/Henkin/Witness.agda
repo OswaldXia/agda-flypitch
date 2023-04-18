@@ -12,8 +12,7 @@ open import FOL.Bounded.Base using (Formula; Sentence)
 open import FOL.Language hiding (u)
 open Language {u}
 
-import FOL.Language.Homomorphism as LHom
-open LHom using (_⟶_)
+open import FOL.Language.Homomorphism as LHom using (_⟶_)
 open LHom._⟶_ using (funMorph)
 
 open import Tools.DirectedDiagram using (DirectedDiagram; Cocone)
@@ -34,7 +33,7 @@ witnessOf = witness
 
 witnessStatement : Formula ℒ 1 → Sentence $ languageStep ℒ
 witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
-  where open LHom.Bounded (languageMorph {ℒ}) using (formulaMorph)
+  where open LHom.OnBounded (languageMorph {ℒ}) using (formulaMorph)
         open import FOL.Bounded.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
 
 ∞-witness : ∀ {i} → Formula (obj ℒ i) 1 → Constant (∞-language ℒ)

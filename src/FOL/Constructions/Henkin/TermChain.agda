@@ -10,11 +10,7 @@ open import FOL.Bounded.Base using (Termₗ)
 open import FOL.Bounded.Sethood using (isSetTerm)
 open Termₗ
 
-import FOL.Language.Homomorphism as LHom
-open LHom using (_∘_ )
-open LHom.Bounded using (termMorph)
-open LHom.BoundedProperties
-
+open import FOL.Language.Homomorphism using (_∘_; termMorph; termMorphFunctorial)
 open import Tools.DirectedDiagram using (ℕᴰ; DirectedDiagram; Cocone)
 open Cocone using (universalMap)
 open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeLanguage)

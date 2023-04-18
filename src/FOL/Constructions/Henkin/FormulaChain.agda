@@ -12,11 +12,7 @@ open import FOL.Bounded.Base using (Termₗ; Formulaₗ)
 open import FOL.Bounded.Sethood using (isSetFormula)
 open Formulaₗ
 
-import FOL.Language.Homomorphism as LHom
-open LHom using (_∘_)
-open LHom.Bounded using (termMorph; formulaMorph)
-open LHom.BoundedProperties
-
+open import FOL.Language.Homomorphism using (_∘_; termMorph; formulaMorph; formulaMorphFunctorial)
 open import Tools.DirectedDiagram using (ℕᴰ; DirectedDiagram; Cocone)
 open Cocone using (universalMap)
 open import FOL.Language.DirectedDiagram using (DirectedDiagramLanguage; CoconeLanguage)
