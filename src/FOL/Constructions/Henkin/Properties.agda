@@ -45,17 +45,9 @@ open DirectedDiagramLanguage (languageChain ℒ) renaming (morph to langChainMor
 open CoconeLanguage (coconeOfLanguageChain {ℒ}) using (compat)
 
 open import FOL.Language.Homomorphism as LHom
-  using (_∘_; formulaMorph; formulaMorphFunctorial)
+  using (_∘_; formulaMorph; formulaMorphFunctorial; formulaMorphSubst)
 module _ {i : ℕ} where
   open LHom._⟶_ (languageCanonicalMorph {ℒ} i) using (funMorph) public
-
-substCoconeMap : {i : ℕ}
-  (φᵢ₊ : Formulaₗ ([ suc i ]-language ℒ) 1 0)
-  (φᵢ  : Formulaₗ ([ i ]-language ℒ)     1 0) →
-  map1 (suc i) φᵢ₊ [ const $ funMorph $ witnessOf φᵢ / 0 ] ≡
-  map0 (suc i) (φᵢ₊ [ const $ witnessOf φᵢ / 0 ])
-substCoconeMap {zero}  φᵢ₊ φᵢ = {!   !}
-substCoconeMap {suc i} φᵢ₊ φᵢ = {!   !}
 
 ∞-theory-hasEnoughConstants : ∀ T → hasEnoughConstants $ ∞-theory T
 ∞-theory-hasEnoughConstants T φ =
@@ -85,7 +77,7 @@ substCoconeMap {suc i} φᵢ₊ φᵢ = {!   !}
           ∃' φ ⇒ φ [ const $ funMorph $ witnessOf φᵢ / 0 ]
             ≡⟨ cong (λ φ → ∃' φ ⇒ φ [ _ / 0 ]) eq1 ⟩
           ∃' (map1 (suc i) φᵢ₊) ⇒ map1 (suc i) φᵢ₊ [ const $ funMorph $ witnessOf φᵢ / 0 ]
-            ≡⟨ cong (∃' map1 (suc i) φᵢ₊ ⇒_) (substCoconeMap φᵢ₊ φᵢ) ⟩
+            ≡⟨ cong (∃' map1 (suc i) φᵢ₊ ⇒_) (sym $ eqToPath $ formulaMorphSubst _ _) ⟩
           ∃' (map1 (suc i) φᵢ₊) ⇒ map0 (suc i) (φᵢ₊ [ const $ witnessOf φᵢ / 0 ])
             ≡⟨⟩
           map0 (suc i) (witnessStatement φᵢ) ∎)
