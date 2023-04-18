@@ -37,4 +37,4 @@ Con→existsModel T⊭⊥ =
   , reductId {!   !} --(nonemptyDomain {!   !})
   , {!   !}
   where open import FOL.Structure.Reduction (henkinization ℒ)
-        open import FOL.Constructions.TermModel (∞-theory T)
+        open import FOL.Constructions.TermModel.Base (∞-theory T)

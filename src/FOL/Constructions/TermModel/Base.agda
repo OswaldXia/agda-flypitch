@@ -3,7 +3,7 @@
 
 open import FOL.Language
 open import FOL.Bounded.Syntactics using (Theory)
-module FOL.Constructions.TermModel {ℒ : Language {u}} (T : Theory ℒ) where
+module FOL.Constructions.TermModel.Base {ℒ : Language {u}} (T : Theory ℒ) where
 open import FOL.Structure.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.PropertiesOfTheory ℒ

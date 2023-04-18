@@ -14,9 +14,10 @@ open Structure using (Domain)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; ℓ-max; Σ-syntax)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.Data.Sum using () renaming (_⊎_ to infixr 3 _⊎_)
+open import CubicalExt.Foundations.Powerset* using (_∈_)
+
 open import Function using (_$_)
 open import Relation.Nullary using (¬_)
-open import Relation.Unary using (_∈_)
 
 -- 理论的一致性
 
@@ -28,8 +29,8 @@ Con T = ¬ T ⊢ ⊥
 
 -- 理论的完全性
 
---complete : Theory → Type (ℓ-suc u)
---complete T = Con T × ∀ φ → φ ∈ T ⊎ ¬ φ ∈ T
+complete : Theory → Type (ℓ-suc u)
+complete T = Con T × ∀ φ → φ ∈ T ⊎ ¬ φ ∈ T
 
 -- 有足够常元的理论
 
