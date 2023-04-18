@@ -24,7 +24,6 @@ open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp)
 open import StdlibExt.Data.Nat using (ℕ; zero; suc; _+_; n≤1+n; ≤⇒≤₃)
 open import Function using (_$_)
 
-import FOL.Base (∞-language ℒ) as Free
 open import FOL.Syntactics (∞-language ℒ) using (axiom)
 open import FOL.Bounded.Base (∞-language ℒ) using (_⇒_; ∃'_; unbound)
 open import FOL.Bounded.Syntactics (∞-language ℒ) using (_⊢_)
@@ -32,8 +31,10 @@ open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
   using (hasEnoughConstants; [_witnessing_])
 open Language (∞-language ℒ) using (Constant)
 
-open import FOL.Bounded.Base using (Formulaₗ; const)
-open import FOL.Bounded.Substitution using (subst)
+open import FOL.Bounded.Base using (Formulaₗ) public
+module _ {ℒ : Language {u}} where
+  open import FOL.Bounded.Base ℒ using (const) public
+  open import FOL.Bounded.Substitution ℒ using (subst) public
 
 open import Tools.DirectedDiagram using (Cocone)
 open Cocone (coconeOfFormulaChain ℒ 0 0) using () renaming (map to map0)
@@ -51,8 +52,8 @@ module _ {i : ℕ} where
 substCoconeMap : {i : ℕ}
   (φᵢ₊ : Formulaₗ ([ suc i ]-language ℒ) 1 0)
   (φᵢ  : Formulaₗ ([ i ]-language ℒ)     1 0) →
-  subst _ {0} (map1 (suc i) φᵢ₊) (const _ $ funMorph $ witnessOf φᵢ) ≡
-  map0 (suc i) (subst _ {0} φᵢ₊ (const _ $ witnessOf φᵢ))
+  map1 (suc i) φᵢ₊ [ const $ funMorph $ witnessOf φᵢ / 0 ] ≡
+  map0 (suc i) (φᵢ₊ [ const $ witnessOf φᵢ / 0 ])
 substCoconeMap {zero}  φᵢ₊ φᵢ = {!   !}
 substCoconeMap {suc i} φᵢ₊ φᵢ = {!   !}
 
@@ -81,11 +82,11 @@ substCoconeMap {suc i} φᵢ₊ φᵢ = {!   !}
             ≡⟨ cong [_witnessing φ ] c≡ ⟩
           [ funMorph (witnessOf φᵢ) witnessing φ ]
             ≡⟨⟩
-          ∃' φ ⇒ subst _ {0} φ (const _ $ funMorph $ witnessOf φᵢ)
-            ≡⟨ cong (λ φ → ∃' φ ⇒ subst _ {0} φ _) eq1 ⟩
-          ∃' (map1 (suc i) φᵢ₊) ⇒ subst _ {0} (map1 (suc i) φᵢ₊) (const _ $ funMorph $ witnessOf φᵢ)
+          ∃' φ ⇒ φ [ const $ funMorph $ witnessOf φᵢ / 0 ]
+            ≡⟨ cong (λ φ → ∃' φ ⇒ φ [ _ / 0 ]) eq1 ⟩
+          ∃' (map1 (suc i) φᵢ₊) ⇒ map1 (suc i) φᵢ₊ [ const $ funMorph $ witnessOf φᵢ / 0 ]
             ≡⟨ cong (∃' map1 (suc i) φᵢ₊ ⇒_) (substCoconeMap φᵢ₊ φᵢ) ⟩
-          ∃' (map1 (suc i) φᵢ₊) ⇒ map0 (suc i) (subst _ {0} φᵢ₊ (const _ $ witnessOf φᵢ))
+          ∃' (map1 (suc i) φᵢ₊) ⇒ map0 (suc i) (φᵢ₊ [ const $ witnessOf φᵢ / 0 ])
             ≡⟨⟩
           map0 (suc i) (witnessStatement φᵢ) ∎)
     })

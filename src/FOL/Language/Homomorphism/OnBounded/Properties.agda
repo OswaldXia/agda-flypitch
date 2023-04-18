@@ -38,25 +38,16 @@ abstract
     termMorph (G ∘ F) t ≡ termMorph G (termMorph F t)
   termMorphCompApp G F (var k) = refl
   termMorphCompApp G F (func f) = refl
-  termMorphCompApp G F (app t₁ t₂)
-    rewrite termMorphCompApp G F t₁
-          | termMorphCompApp G F t₂ = refl
+  termMorphCompApp G F (app t₁ t₂) = cong₂ app (termMorphCompApp G F t₁) (termMorphCompApp G F t₂)
 
   formulaMorphCompApp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) → (φ : Formulaₗ ℒ₁ n l) →
     formulaMorph (G ∘ F) φ ≡ (formulaMorph G ⟨∘⟩ formulaMorph F) φ
   formulaMorphCompApp G F ⊥ = refl
   formulaMorphCompApp G F (rel R) = refl
-  formulaMorphCompApp G F (appᵣ φ t)
-    rewrite formulaMorphCompApp G F φ
-          | termMorphCompApp G F t = refl
-  formulaMorphCompApp G F (t₁ ≈ t₂)
-    rewrite termMorphCompApp G F t₁
-          | termMorphCompApp G F t₂ = refl
-  formulaMorphCompApp G F (φ₁ ⇒ φ₂)
-    rewrite formulaMorphCompApp G F φ₁
-          | formulaMorphCompApp G F φ₂ = refl
-  formulaMorphCompApp G F (∀' φ)
-    rewrite formulaMorphCompApp G F φ = refl
+  formulaMorphCompApp G F (appᵣ φ t) = cong₂ appᵣ (formulaMorphCompApp G F φ) (termMorphCompApp G F t)
+  formulaMorphCompApp G F (t₁ ≈ t₂) = cong₂ _≈_ (termMorphCompApp G F t₁) (termMorphCompApp G F t₂)
+  formulaMorphCompApp G F (φ₁ ⇒ φ₂) = cong₂ _⇒_ (formulaMorphCompApp G F φ₁) (formulaMorphCompApp G F φ₂)
+  formulaMorphCompApp G F (∀' φ) = cong ∀'_ (formulaMorphCompApp G F φ)
 
   termMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
     termMorph (G ∘ F) {n} {l} ≡ termMorph G ⟨∘⟩ termMorph F

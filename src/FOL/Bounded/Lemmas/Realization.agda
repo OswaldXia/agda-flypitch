@@ -36,7 +36,8 @@ module Pre where
     → rₜ 𝓋 t xs ≡ 𝑟ₜ 𝑣 (unboundₜ t) xs
   realizeₜ-eq 𝓋 𝑣 eq (var k)     xs = eq k
   realizeₜ-eq 𝓋 𝑣 eq (func f)    xs = refl
-  realizeₜ-eq 𝓋 𝑣 eq (app t₁ t₂) xs rewrite realizeₜ-eq 𝓋 𝑣 eq t₂ [] = realizeₜ-eq 𝓋 𝑣 eq t₁ _
+  realizeₜ-eq 𝓋 𝑣 eq (app t₁ t₂) xs
+    rewrite realizeₜ-eq 𝓋 𝑣 eq t₂ [] = realizeₜ-eq 𝓋 𝑣 eq t₁ _
 
   realize-iff : ∀ (𝓋 : Vec Domain n) (𝑣 : ℕ → Domain)
     (eq : ∀ k → lookup 𝓋 k ≡ 𝑣 (toℕ k)) (φ : Formulaₗ n l) (xs : Vec Domain l)
