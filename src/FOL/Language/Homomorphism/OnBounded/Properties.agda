@@ -3,19 +3,22 @@
 module FOL.Language.Homomorphism.OnBounded.Properties {u} where
 open import FOL.Language hiding (u)
 open import FOL.Bounded.Base {u} hiding (l)
-open import FOL.Bounded.Substitution using (subst)
+open import FOL.Bounded.Substitution using (substₜ; subst)
 open import FOL.Language.Homomorphism.Base {u} using (_⟶_; id; _∘_)
 open import FOL.Language.Homomorphism.OnBounded.Base {u}
 open Definitions
 
 open import Cubical.Data.Equality using (funExt)
-open import Data.Nat using (ℕ; zero; suc; _+_)
+open import Data.Fin using (toℕ)
+open import Data.Nat using (ℕ; zero; suc; _+_; <-cmp)
 open import Function using ( _∘₂_) renaming (_∘_ to _⟨∘⟩_)
+open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; cong; cong₂)
 
 private variable
-  ℒ₁ ℒ₂ ℒ₃ ℒ₄ : Language
-  F F₁ : ℒ₁ ⟶ ℒ₂
+  ℒ₁ ℒ₂ ℒ₃ : Language
+  F  : ℒ ⟶ ℒ₁
+  F₁ : ℒ₁ ⟶ ℒ₂
   F₂ : ℒ₂ ⟶ ℒ₃
   F₃ : ℒ₁ ⟶ ℒ₃
   m n l : ℕ
@@ -34,13 +37,6 @@ abstract
     rewrite termMorphCompApp G F t₁
           | termMorphCompApp G F t₂ = refl
 
-  termMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
-    termMorph (G ∘ F) {n} {l} ≡ termMorph G ⟨∘⟩ termMorph F
-  termMorphComp = funExt ∘₂ termMorphCompApp
-
-  termMorphFunctorial : F₃ ≡ F₂ ∘ F₁ → termMorph F₃ {n} {l} ≡ termMorph F₂ ⟨∘⟩ termMorph F₁
-  termMorphFunctorial H = trans (cong (λ t → termMorph t) H) (termMorphComp _ _)
-
   formulaMorphCompApp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) → (φ : Formulaₗ ℒ₁ n l) →
     formulaMorph (G ∘ F) φ ≡ (formulaMorph G ⟨∘⟩ formulaMorph F) φ
   formulaMorphCompApp G F ⊥ = refl
@@ -57,9 +53,34 @@ abstract
   formulaMorphCompApp G F (∀' φ)
     rewrite formulaMorphCompApp G F φ = refl
 
+  termMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
+    termMorph (G ∘ F) {n} {l} ≡ termMorph G ⟨∘⟩ termMorph F
+  termMorphComp = funExt ∘₂ termMorphCompApp
+
   formulaMorphComp : (G : ℒ₂ ⟶ ℒ₃) (F : ℒ₁ ⟶ ℒ₂) →
     formulaMorph (G ∘ F) {n} {l} ≡ formulaMorph G ⟨∘⟩ formulaMorph F
   formulaMorphComp = funExt ∘₂ formulaMorphCompApp
 
+  termMorphFunctorial : F₃ ≡ F₂ ∘ F₁ → termMorph F₃ {n} {l} ≡ termMorph F₂ ⟨∘⟩ termMorph F₁
+  termMorphFunctorial H = trans (cong (λ t → termMorph t) H) (termMorphComp _ _)
+
   formulaMorphFunctorial : F₃ ≡ F₂ ∘ F₁ → formulaMorph F₃ {n} {l} ≡ formulaMorph F₂ ⟨∘⟩ formulaMorph F₁
   formulaMorphFunctorial H = trans (cong (λ t → formulaMorph t) H) (formulaMorphComp _ _)
+
+  termMorphSubst : (t : Termₗ ℒ (suc n + m) l) (s : Term ℒ m) →
+    termMorph F (substₜ _ {n} t s) ≡ substₜ _ {n} (termMorph F t) (termMorph F s)
+  termMorphSubst {_} {n} (var k) s with <-cmp (toℕ k) n
+  ... | tri< _ _ _ = refl
+  ... | tri≈ _ _ _ = {!   !}
+  ... | tri> _ _ _ = refl
+  termMorphSubst (func f) s = refl
+  termMorphSubst (app t₁ t₂) s = cong₂ app (termMorphSubst t₁ s) (termMorphSubst t₂ s)
+
+  formulaMorphSubst : (φ : Formulaₗ ℒ (suc n + m) l) (s : Term ℒ m) →
+    formulaMorph F (subst _ {n} φ s) ≡ subst _ {n} (formulaMorph F φ) (termMorph F s)
+  formulaMorphSubst ⊥ _ = refl
+  formulaMorphSubst (rel R) _ = refl
+  formulaMorphSubst (appᵣ r t) s = cong₂ appᵣ (formulaMorphSubst r s) (termMorphSubst t s)
+  formulaMorphSubst (t₁ ≈ t₂) s = cong₂ _≈_ (termMorphSubst t₁ s) (termMorphSubst t₂ s)
+  formulaMorphSubst (φ₁ ⇒ φ₂) s = cong₂ _⇒_ (formulaMorphSubst φ₁ s) (formulaMorphSubst φ₂ s)
+  formulaMorphSubst (∀' φ) s = cong ∀'_ (formulaMorphSubst φ s)

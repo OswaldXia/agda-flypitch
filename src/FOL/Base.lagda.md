@@ -27,8 +27,7 @@ open Language ℒ
 ```agda
 open import Agda.Builtin.Equality
 open import Cubical.Foundations.Prelude using (Type)
-open import Data.Nat as ℕ using (ℕ; suc; _∸_; _<?_)
-open import Data.Nat.Properties using (<-cmp)
+open import Data.Nat as ℕ using (ℕ; suc; _∸_; _<?_; <-cmp)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_$_)
 open import Relation.Nullary using (Dec; yes; no)
