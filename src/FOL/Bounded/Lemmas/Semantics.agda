@@ -2,13 +2,17 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Bounded.Lemmas.Semantics (ℒ : Language {u}) where
+module FOL.Bounded.Lemmas.Semantics (ℒ : Language {u}) v where
+
+module Free where
+  open import FOL.Semantics ℒ
+  open Implication v using (_⊨_) public
+  open Realizer using (isPropRealize) public
+open import FOL.Bounded.Semantics ℒ
+open Implication v using (_⊨_)
 
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.Lemmas.Realization
-import FOL.Semantics ℒ as Free
-open Free.Realizer using (isPropRealize)
 open Closed using (realize-iff)
 
 open import Cubical.Core.Id using (reflId)
@@ -23,5 +27,5 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence
 bound⊨ : ∀ {Γ φ} → unbound ⟦ Γ ⟧ Free.⊨ unbound φ → Γ ⊨ φ
 bound⊨ {Γ} {φ} ⊨ 𝒮 x vld = let 𝓋 = λ _ → x in
   from (realize-iff 𝒮 𝓋 φ) ⟨$⟩ ⊨ 𝒮 𝓋 λ φ' →
-    elim (λ _ → isPropRealize _ _ _) λ { (ψ , ψ∈Γ , reflId) →
+    elim (λ _ → Free.isPropRealize _ _ _) λ { (ψ , ψ∈Γ , reflId) →
       to (realize-iff 𝒮 𝓋 ψ) ⟨$⟩ (vld ψ ψ∈Γ) }

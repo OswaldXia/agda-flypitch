@@ -94,27 +94,30 @@ module ClosedRealizer (𝒮 : Structure {v}) where
 
 ```agda
 open ClosedRealizer
-infix 6 _⊨ˢ_ _⊨ᵀ_ _⊨_
+infix 6 _⊨ˢ_ _⊨ᵀ_
 
 _⊨ˢ_ : Structure {v} → Sentence → Type v
 𝒮 ⊨ˢ φ = realize 𝒮 φ
 
 _⊨ᵀ_ : Structure {v} → Theory → Type (ℓ-max u v)
-𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → realize 𝒮 φ
+𝒮 ⊨ᵀ Γ = ∀ φ → φ ∈ Γ → 𝒮 ⊨ˢ φ
 
-_⊨_ : Theory → Sentence → Type (ℓ-suc u)
-Γ ⊨ φ = ∀ 𝒮 → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
-```
-
-```agda
 isProp-⊨ˢ : (𝒮 : Structure {v}) (φ : Sentence) → isProp (𝒮 ⊨ˢ φ)
 isProp-⊨ˢ 𝒮 φ = isPropRealize _ _
 
 isProp-⊨ᵀ : (𝒮 : Structure {v}) (Γ : Theory) → isProp (𝒮 ⊨ᵀ Γ)
 isProp-⊨ᵀ 𝒮 Γ = isPropΠ2 $ λ φ _ → isPropRealize _ _
+```
 
-isProp-⊨ : (Γ : Theory) (φ : Sentence) → isProp (Γ ⊨ φ)
-isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isPropRealize _ _
+```agda
+module Implication (v : Level) where
+  infix 4 _⊨_
+
+  _⊨_ : Theory → Sentence → Type (ℓ-max u (ℓ-suc v))
+  Γ ⊨ φ = ∀ (𝒮 : Structure {v}) → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
+
+  isProp-⊨ : (Γ : Theory) (φ : Sentence) → isProp (Γ ⊨ φ)
+  isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isPropRealize _ _
 ```
 
 任何一个模型都不会语义蕴含假.

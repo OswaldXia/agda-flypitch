@@ -32,11 +32,12 @@ open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (_∘_; 
 ```
 
 ```agda
-module Free where
+module Free {v} where
   open import FOL.Base ℒ
   open import FOL.Syntactics ℒ
-  open import FOL.Lemmas.Realization
   open import FOL.Semantics ℒ
+  open import FOL.Lemmas.Realization
+  open Implication v using (_⊨_)
   open Realizer
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
@@ -61,10 +62,11 @@ module Free where
 ```
 
 ```agda
-module _ where
+module _ {v} where
   open import FOL.Bounded.Syntactics ℒ using (_⊢_)
-  open import FOL.Bounded.Semantics ℒ using (_⊨_)
-  open import FOL.Bounded.Lemmas.Semantics ℒ using (bound⊨)
+  open import FOL.Bounded.Semantics ℒ
+  open import FOL.Bounded.Lemmas.Semantics ℒ v using (bound⊨)
+  open Implication v using (_⊨_)
 
   soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
   soundness = bound⊨ ∘ Free.soundness

@@ -20,15 +20,19 @@ open import CubicalExt.Classical
 open import Function using (_$_)
 
 private variable
+  v : Level
   φ : Sentence
 
-¬Con→Soundness : ¬Con T → T ⊢ φ → T ⊨ φ
-¬Con→Soundness _ = soundness
+module InconsistencyConsequence {v} where
+  open Implication v
 
-¬Con→Completeness : ¬Con T → T ⊨ φ → T ⊢ φ
-¬Con→Completeness T⊢⊥ _ = exfalso T⊢⊥
+  ¬Con→Soundness : ¬Con T → T ⊢ φ → T ⊨ φ
+  ¬Con→Soundness _ = soundness
 
-existsModel→Con : existsModel T → Con T
+  ¬Con→Completeness : ¬Con T → T ⊨ φ → T ⊢ φ
+  ¬Con→Completeness T⊢⊥ _ = exfalso T⊢⊥
+
+existsModel→Con : existsModel {v} T → Con T
 existsModel→Con (ℳ , x , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ (soundness T⊢⊥ ℳ x ℳ⊨T)
 
 Con→existsModel : Con T → existsModel T

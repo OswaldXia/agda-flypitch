@@ -97,19 +97,22 @@ instance
 ## 语义蕴含
 
 ```agda
-infix 4 _⊨[_]_ _⊨_
+infix 4 _⊨[_]_
 
 _⊨[_]_ : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) → Theory → Type (ℓ-max u v)
 𝒮 ⊨[ 𝓋 ] Γ = ∀ φ → φ ∈ Γ → realize 𝒮 𝓋 φ
 
-_⊨_ : Theory → Formula → Type (ℓ-suc u)
-Γ ⊨ φ = ∀ 𝒮 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → realize 𝒮 𝓋 φ
+isProp-⊨[] : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) (Γ : Theory) → isProp (𝒮 ⊨[ 𝓋 ] Γ)
+isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → isPropRealize _ _ _
 ```
 
 ```agda
-isProp-⊨[] : (𝒮 : Structure {v}) (𝓋 : ℕ → Domain 𝒮) (Γ : Theory) → isProp (𝒮 ⊨[ 𝓋 ] Γ)
-isProp-⊨[] 𝒮 𝓋 _ = isPropΠ2 λ φ _ → isPropRealize _ _ _
+module Implication (v : Level) where
+  infix 4 _⊨_
 
-isProp-⊨ : (Γ : Theory) (φ : Formula) → isProp (Γ ⊨ φ)
-isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → isPropRealize _ _ _
+  _⊨_ : Theory → Formula → Type (ℓ-max u (ℓ-suc v))
+  Γ ⊨ φ = ∀ (𝒮 : Structure {v}) 𝓋 → 𝒮 ⊨[ 𝓋 ] Γ → realize 𝒮 𝓋 φ
+
+  isProp-⊨ : (Γ : Theory) (φ : Formula) → isProp (Γ ⊨ φ)
+  isProp-⊨ Γ φ = isPropΠ3 λ 𝒮 𝓋 _ → isPropRealize _ _ _
 ```
