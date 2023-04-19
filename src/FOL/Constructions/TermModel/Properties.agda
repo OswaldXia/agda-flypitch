@@ -41,4 +41,4 @@ termModelWellDefined φ φ∈T = termModelSound φ [] (s≤s ≤-refl) (axiom φ
 -- completeness for complete theories with enough constants
 open Implication (ℓ-suc u) using (_⊨_)
 completeness : (φ : Sentence) → T ⊨ φ → T ⊢ φ
-completeness φ T⊨φ = termModelComplete φ [] (s≤s ≤-refl) (T⊨φ (termModel T) {!   !} termModelWellDefined)
+completeness φ T⊨φ = termModelComplete φ [] (s≤s ≤-refl) {!   !} --(T⊨φ (termModel T) {!   !} termModelWellDefined)

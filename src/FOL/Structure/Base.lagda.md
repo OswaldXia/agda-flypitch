@@ -18,6 +18,7 @@ open Language ℒ
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
 open import Data.Vec using (Vec; []; _∷_)
 ```
 
@@ -33,4 +34,5 @@ record Structure : Type (ℓ-max u (ℓ-suc v)) where
     isSetDomain : isSet Domain
     funMap : ∀ {n} → 𝔉 n → Vec Domain n → Domain
     relMap : ∀ {n} → ℜ n → Vec Domain n → hProp v
+  nonempty = ∥ Domain ∥₁
 ```

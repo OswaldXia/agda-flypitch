@@ -114,7 +114,7 @@ module Implication (v : Level) where
   infix 4 _⊨_
 
   _⊨_ : Theory → Sentence → Type (ℓ-max u (ℓ-suc v))
-  Γ ⊨ φ = ∀ (𝒮 : Structure {v}) → Domain 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
+  Γ ⊨ φ = ∀ (𝒮 : Structure {v}) → nonempty 𝒮 → 𝒮 ⊨ᵀ Γ → 𝒮 ⊨ˢ φ
 
   isProp-⊨ : (Γ : Theory) (φ : Sentence) → isProp (Γ ⊨ φ)
   isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isPropRealize _ _

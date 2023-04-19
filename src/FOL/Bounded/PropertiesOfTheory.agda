@@ -9,7 +9,7 @@ open import FOL.Bounded.Substitution ℒ
 open import FOL.Bounded.Semantics ℒ using (_⊨ᵀ_)
 open import FOL.Structure.Base
 open Language ℒ using (Constant)
-open Structure using (Domain)
+open Structure using (nonempty)
 
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; ℓ-max; Σ-syntax)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
@@ -43,4 +43,4 @@ hasEnoughConstants T = ∀ (φ : Formula 1) → ∃[ c ∈ Constant ] T ⊢ [ c 
 -- 存在模型的理论
 
 existsModel : ∀ {v} → Theory → Type (ℓ-max u $ ℓ-suc v)
-existsModel {v} T = Σ[ ℳ ∈ Structure ℒ {v} ] Domain ℳ × ℳ ⊨ᵀ T
+existsModel {v} T = Σ[ ℳ ∈ Structure ℒ {v} ] nonempty ℳ × ℳ ⊨ᵀ T
