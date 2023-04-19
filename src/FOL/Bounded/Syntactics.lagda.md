@@ -22,7 +22,7 @@ private module Free where
   open import FOL.Base ℒ public
   open import FOL.Sethood ℒ public
   open import FOL.Syntactics ℒ public
-open Free._⊢_
+open Free._⊢_ hiding (axiom)
 
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; _,_; isSet)
@@ -69,11 +69,14 @@ weakening2 = weakening (⨭⊆⨭ ⊆⨭)
 ```
 
 ```agda
+axiom : ∀ {Γ : Theory} {φ} → φ ∈ Γ → Γ ⊢ φ
+axiom φ∈Γ = Free.axiom ∣ _ , φ∈Γ , reflId ∣₁
+
 axiom1 : ∀ {Γ : Theory} {φ} → Γ ⨭ φ ⊢ φ
-axiom1 = axiom ∣ _ , inr reflId , reflId ∣₁
+axiom1 = axiom $ inr reflId
 
 axiom2 : ∀ {Γ : Theory} {φ₁ φ₂} → Γ ⨭ φ₁ ⨭ φ₂ ⊢ φ₁
-axiom2 = axiom ∣ _ , inl (inr reflId) , reflId ∣₁
+axiom2 = axiom $ inl $ inr reflId
 ```
 
 ## 导出规则
