@@ -54,8 +54,8 @@ termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective {!   !} {! ≋-refl  !} _ _
-  (subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈)
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective {!   !} {! ≋-refl  !} _ _ $
+  subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 
