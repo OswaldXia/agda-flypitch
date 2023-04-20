@@ -4,9 +4,9 @@
 open import FOL.Language
 open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.Bounded.PropertiesOfTheory using (complete; hasEnoughConstants)
-module FOL.Constructions.TermModel.Properties {ℒ : Language {u}}
-  (T : Theory ℒ) (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
-open import FOL.Constructions.TermModel.Base using (termModel)
+module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory ℒ}
+  (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
+open import FOL.Constructions.TermModel.Base using (nonempty; termModel)
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
@@ -41,4 +41,5 @@ termModelWellDefined φ φ∈T = termModelSound φ [] (s≤s ≤-refl) (axiom φ
 -- completeness for complete theories with enough constants
 open Implication (ℓ-suc u) using (_⊨_)
 completeness : (φ : Sentence) → T ⊨ φ → T ⊢ φ
-completeness φ T⊨φ = termModelComplete φ [] (s≤s ≤-refl) {!   !} --(T⊨φ (termModel T) {!   !} termModelWellDefined)
+completeness φ T⊨φ = termModelComplete φ [] (s≤s ≤-refl) $
+  T⊨φ (termModel T) (nonempty T H₂) termModelWellDefined
