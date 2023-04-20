@@ -18,7 +18,7 @@ open import FOL.Bounded.Lemmas.Equivalence T
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Data.Vec using (quotientBeta)
-open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/)
+open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
@@ -33,7 +33,7 @@ module _ where
   realize≡[] (func f) = quotientBeta ≋-refl squash/ (preFunc T (func f)) (preFunc-pointwiseEq T (func f))
   realize≡[] (app t₁ t₂) xs =
     realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_] xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (realize≡[] t₂ []) ⟩
-    realizeₜ [] t₁ ([ apps t₂ [] ] ∷ map [_] xs)    ≡⟨⟩
+    realizeₜ [] t₁ ([ t₂ ] ∷ map [_] xs)            ≡⟨⟩
     realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ realize≡[] t₁ (t₂ ∷ xs) ⟩
     [ apps t₁ (t₂ ∷ xs)]                            ∎
 
@@ -43,7 +43,7 @@ termModelSound {_} {zero} _ _ ()
 termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
 termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
 termModelSound {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ = {!   !}
+termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ = subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ _ _ ⊢≈)
 termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
@@ -53,7 +53,8 @@ termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = {!   !}
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective {!   !} {! ≋-refl  !} _ _
+  (subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈)
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 
