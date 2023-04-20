@@ -43,10 +43,8 @@ Con→existsModel : Con T → existsModel T
 Con→existsModel T⊭⊥ =
     reduct termModel
   , elim {P = λ _ → Structure.nonempty (reduct termModel)} (λ _ → squash₁)
-      (λ x → ∣ reductId x ∣₁)
-      (nonempty (∞-theory-hasEnoughConstants λ x → {!   !} , {!   !}))
-  --elim (λ _ → squash₁) (λ x → ∣ {!   !} ∣₁)
-      --(nonempty (∞-theory-hasEnoughConstants {!   !})) --reductId {!   !} --(nonemptyDomain {!   !})
+      (λ x → ∣ (reductId {𝒮 = termModel} x) ∣₁)
+      (nonempty $ ∞-theory-hasEnoughConstants T)
   , {!   !}
   where open import FOL.Structure.Reduction (henkinization ℒ)
         open import FOL.Constructions.TermModel.Base (∞-theory T)
