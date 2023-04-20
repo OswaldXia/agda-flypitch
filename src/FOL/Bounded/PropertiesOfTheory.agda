@@ -15,9 +15,8 @@ open import Cubical.Foundations.Prelude using (Type; ℓ-suc; ℓ-max; Σ-syntax
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.Data.Sum using () renaming (_⊎_ to infixr 3 _⊎_)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
-
+open import Cubical.Relation.Nullary using (¬_)
 open import Function using (_$_)
-open import Relation.Nullary using (¬_)
 
 -- 理论的一致性
 

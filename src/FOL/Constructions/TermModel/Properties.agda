@@ -15,6 +15,8 @@ open import FOL.CountQuantifiers ℒ
 
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
+open import Cubical.Data.Empty using (elim)
+open import Cubical.HITs.SetQuotients using (eq/)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
@@ -24,16 +26,22 @@ open import Function using (_$_)
 termModelSound : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ (unbound φ) < n → T ⊢ appsᵣ φ xs → termModel T ⊨ˢ appsᵣ φ xs
 termModelSound {_} {zero} _ _ ()
-termModelSound {0} {suc n} ⊥           xs < = {!   !}
-termModelSound {l} {suc n} (rel R)     xs < = {!   !}
-termModelSound {l} {suc n} (appᵣ φ t)  xs < = {!   !}
-termModelSound {0} {suc n} (t₁ ≈ t₂)   xs < = {!   !}
-termModelSound {0} {suc n} (φ ⇒ φ₁)    xs < = {!   !}
-termModelSound {0} {suc n} (∀' φ)      xs < = {!   !}
+termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
+termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
+termModelSound {l} {suc n} (appᵣ φ t) xs < = {!   !}
+termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ = {!   !}
+termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
+termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
 termModelComplete : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ (unbound φ) < n → termModel T ⊨ˢ appsᵣ φ xs → T ⊢ appsᵣ φ xs
-termModelComplete φ xs < = {!   !}
+termModelComplete {_} {zero} _ _ ()
+termModelComplete {0} {suc n} ⊥ [] _ ()
+termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
+termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  xs < = {!   !}
+termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
+termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 
 termModelWellDefined : termModel T ⊨ᵀ T
 termModelWellDefined φ φ∈T = termModelSound φ [] (s≤s ≤-refl) (axiom φ∈T)

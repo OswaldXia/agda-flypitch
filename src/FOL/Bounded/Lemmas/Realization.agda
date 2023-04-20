@@ -12,9 +12,10 @@ open Structure 𝒮
 
 open import Cubical.Foundations.Prelude renaming (_≡_ to _≡ₚ_) hiding (refl; cong)
 open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
-open import Cubical.Data.Equality using (pathToEq)
+open import Cubical.Data.Equality using (eqToPath; pathToEq)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
 open import CubicalExt.StdlibBridge.Logic using (hPropExt)
+open import CubicalExt.StdlibBridge.Logic using (path↔path)
 
 open import Data.Nat
 open import Data.Fin using (Fin; zero; suc; toℕ)
@@ -46,7 +47,9 @@ module Pre where
   realize-iff 𝓋 𝑣 eq (rel R)    xs = id
   realize-iff 𝓋 𝑣 eq (appᵣ φ t) xs
     rewrite realizeₜ-eq 𝓋 𝑣 eq t [] = realize-iff 𝓋 𝑣 eq φ _
-  realize-iff 𝓋 𝑣 eq (t₁ ≈ t₂)  [] = ≡↔≡ (realizeₜ-eq 𝓋 𝑣 eq t₁ []) (realizeₜ-eq 𝓋 𝑣 eq t₂ [])
+  realize-iff 𝓋 𝑣 eq (t₁ ≈ t₂)  [] = path↔path
+    (eqToPath (realizeₜ-eq 𝓋 𝑣 eq t₁ []))
+    (eqToPath (realizeₜ-eq 𝓋 𝑣 eq t₂ []))
   realize-iff 𝓋 𝑣 eq (φ₁ ⇒ φ₂)  xs =
     →↔→ (realize-iff 𝓋 𝑣 eq φ₁ xs) (realize-iff 𝓋 𝑣 eq φ₂ xs)
   realize-iff 𝓋 𝑣 eq (∀' φ)     [] = Π↔Π $ λ x →

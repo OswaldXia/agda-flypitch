@@ -25,10 +25,8 @@ open import FOL.Bounded.Syntactics ℒ
 ### 标准库依赖
 
 ```agda
-open import Agda.Builtin.Equality
-open import Cubical.Foundations.Prelude hiding (_≡_)
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
-open import Cubical.Data.Equality using (PathPathEq)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 
@@ -65,7 +63,7 @@ module PreRealizer (𝒮 : Structure {v}) where
   isPropRealize 𝓋 ⊥          xs = isProp⊥*
   isPropRealize 𝓋 (rel R)    xs = relMap R xs .snd
   isPropRealize 𝓋 (appᵣ φ t) xs = isPropRealize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
-  isPropRealize 𝓋 (t₁ ≈ t₂)  xs = subst (λ x → isProp x) PathPathEq (isSetDomain (realizeₜ 𝓋 t₁ xs) (realizeₜ 𝓋 t₂ xs))
+  isPropRealize 𝓋 (t₁ ≈ t₂)  xs = isSetDomain _ _
   isPropRealize 𝓋 (φ₁ ⇒ φ₂)  xs = isPropΠ $ λ _ → isPropRealize 𝓋 φ₂ xs
   isPropRealize 𝓋 (∀' φ)     xs = isPropΠ λ x → isPropRealize (x ∷ 𝓋) φ xs
 ```
