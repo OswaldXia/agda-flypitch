@@ -43,7 +43,8 @@ termModelSound {_} {zero} _ _ ()
 termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
 termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
 termModelSound {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ = subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ _ _ ⊢≈)
+termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ =
+  subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ _ _ ⊢≈)
 termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
