@@ -70,9 +70,6 @@ module TermModel where
   rel r = quotientLift ≋-refl isSetHProp (λ xs → ∥ (preRel r xs) ∥ₚ) λ xs≈ys →
     propTruncExt $ preRel-pointwiseIff r xs≈ys
 
-open TermModel using (nonempty) public
-open import FOL.Bounded.Base ℒ using (func; rel)
-
 termModel : Structure
 termModel = record
   { Domain = TermModel.Domain
@@ -80,3 +77,4 @@ termModel = record
   ; funMap = TermModel.func ∘ func
   ; relMap = TermModel.rel ∘ rel
   }
+  where open import FOL.Bounded.Base ℒ using (func; rel)

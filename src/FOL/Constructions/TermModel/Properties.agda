@@ -6,22 +6,36 @@ open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.Bounded.PropertiesOfTheory using (complete; hasEnoughConstants)
 module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory ℒ}
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
-open import FOL.Constructions.TermModel.Base using (nonempty; termModel)
+open import FOL.Constructions.TermModel.Base
+open TermModel using (nonempty; preFunc; preFunc-pointwiseEq)
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.CountQuantifiers ℒ
+open import FOL.Bounded.Lemmas.Equivalence T
 
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
-open import Cubical.Data.Empty using (elim)
-open import Cubical.HITs.SetQuotients using (eq/)
+open import CubicalExt.Data.Vec using (quotientBeta)
+open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
-open import Data.Vec using (Vec; []; _∷_)
+open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_$_)
+
+module _ where
+  open PreRealizer (termModel T)
+
+  realize≡[] : (t : ClosedTermₗ l) (xs : Vec ClosedTerm l) →
+    realizeₜ [] t (map [_] xs) ≡ [ apps t xs ]
+  realize≡[] (func f) = quotientBeta ≋-refl squash/ (preFunc T (func f)) (preFunc-pointwiseEq T (func f))
+  realize≡[] (app t₁ t₂) xs =
+    realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_] xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (realize≡[] t₂ []) ⟩
+    realizeₜ [] t₁ ([ apps t₂ [] ] ∷ map [_] xs)    ≡⟨⟩
+    realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ realize≡[] t₁ (t₂ ∷ xs) ⟩
+    [ apps t₁ (t₂ ∷ xs)]                            ∎
 
 termModelSound : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ (unbound φ) < n → T ⊢ appsᵣ φ xs → termModel T ⊨ˢ appsᵣ φ xs
@@ -39,7 +53,7 @@ termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelComplete {0} {suc n} (t₁ ≈ t₂)  xs < = {!   !}
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = {!   !}
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 
