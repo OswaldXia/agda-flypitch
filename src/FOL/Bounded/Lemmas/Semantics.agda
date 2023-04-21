@@ -16,13 +16,12 @@ open import FOL.Bounded.Lemmas.Realization
 open Closed using (realize-iff)
 
 open import Cubical.Core.Id using (reflId)
+open import Cubical.Foundations.Prelude using (_,_)
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
 open import Cubical.HITs.PropositionalTruncation using (elim)
 
-open import Agda.Builtin.Sigma using (_,_)
 open import Function using (flip; _$_)
 open import Function.Equality using (_⟨$⟩_) public
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import StdlibExt.Relation.Binary.PropositionalEquivalence
 
 bound⊨ : ∀ {Γ φ} → unbound ⟦ Γ ⟧ Free.⊨ unbound φ → Γ ⊨ φ

@@ -13,7 +13,7 @@ open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.CountQuantifiers ℒ
-open import FOL.Bounded.Lemmas.Equivalence T
+open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
@@ -43,8 +43,8 @@ termModelSound {_} {zero} _ _ ()
 termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
 termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
 termModelSound {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ =
-  subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ _ _ ⊢≈)
+termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ = subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ {!   !} {!   !} {!   !})
+  --subst2 _≡_ (sym $ realize≡[] _ _) (sym $ realize≡[] _ _) (eq/ _ _ ⊢≈)
 termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
@@ -54,8 +54,9 @@ termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective {!   !} {! ≋-refl  !} _ _ $
-  subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = {!   !}
+  --effective {!   !} {! ≋-refl  !} _ _ $
+  --subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 

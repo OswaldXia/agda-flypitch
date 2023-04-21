@@ -12,7 +12,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim)
-open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; propTruncExt)
+open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; propTruncExt₁)
 open import CubicalExt.Data.Vec using (quotientLift)
 
 open import Data.Nat using (ℕ; zero; suc)
@@ -20,12 +20,10 @@ open import Data.Fin using (fromℕ)
 open import Data.Vec using (Vec; []; _∷_)
 open import Data.Vec.Relation.Binary.Pointwise.Inductive using (Pointwise; []; _∷_)
 open import Function using (_$_; _∘_; _∘₂_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u
-  renaming (_∘_ to _⟨∘⟩_) hiding (map)
 
 module TermModel where
   open import FOL.Bounded.Base ℒ hiding (func; rel)
-  open import FOL.Bounded.Lemmas.Equivalence T
+  open import FOL.Constructions.Equivalence.BoundedTruncated T
   private
     _≋ₚ_ = Pointwise _≋_
     𝐯₀ = var (fromℕ 0)
@@ -53,22 +51,21 @@ module TermModel where
   func : ClosedTermₗ l → Vec Domain l → Domain
   func f = quotientLift ≋-refl squash/ (preFunc f) (preFunc-pointwiseEq f)
 
-  preRel : (r : Sentenceₗ l) → (xs : Vec ClosedTerm l) → Type (ℓ-suc u)
-  preRel r xs = T ⊢ (appsᵣ r xs)
+  preRel : (r : Sentenceₗ l) → (xs : Vec ClosedTerm l) → hProp (ℓ-suc u)
+  preRel r xs = ∥ T ⊢ (appsᵣ r xs) ∥ₚ
 
   preRel-iff : {r₁ r₂ : Sentenceₗ (suc l)} {t₁ t₂ : ClosedTerm}
-    → r₁ ≋ʳ r₂ → t₁ ≋ t₂ → ∀ xs → preRel (appᵣ r₁ t₁) xs ↔ preRel (appᵣ r₂ t₂) xs
-  preRel-iff r₁≋r₂ t₁≋t₂ [] = ⟷-trans (⟷-cong t₁≋t₂) (⟷-relExt⁻ r₁≋r₂)
+    → r₁ ≋ʳ r₂ → t₁ ≋ t₂ → ∀ xs → preRel (appᵣ r₁ t₁) xs ≡ preRel (appᵣ r₂ t₂) xs
+  preRel-iff r₁≋r₂ t₁≋t₂ [] = propTruncExt₁ $ ⟷-trans (⟷-cong t₁≋t₂) (⟷-relExt⁻ r₁≋r₂)
   preRel-iff r₁≋r₂ t₁≋t₂ (x ∷ xs) = preRel-iff (≋ʳ-appᵣ r₁≋r₂ t₁≋t₂) ≋-refl xs
 
   preRel-pointwiseIff : (r : Sentenceₗ l) {xs ys : Vec ClosedTerm l} →
-    xs ≋ₚ ys → preRel r xs ↔ preRel r ys
-  preRel-pointwiseIff r [] = ⟷-refl
-  preRel-pointwiseIff r (x≋y ∷ xs≋ys) = preRel-iff ≋ʳ-refl x≋y _ ⟨∘⟩ preRel-pointwiseIff (appᵣ r _) xs≋ys
+    xs ≋ₚ ys → preRel r xs ≡ preRel r ys
+  preRel-pointwiseIff r [] = propTruncExt₁ ⟷-refl
+  preRel-pointwiseIff r (x≋y ∷ xs≋ys) = preRel-iff ≋ʳ-refl x≋y _ ∙ preRel-pointwiseIff (appᵣ r _) xs≋ys
 
   rel : Sentenceₗ l → Vec Domain l → hProp (ℓ-suc u)
-  rel r = quotientLift ≋-refl isSetHProp (λ xs → ∥ (preRel r xs) ∥ₚ) λ xs≈ys →
-    propTruncExt $ preRel-pointwiseIff r xs≈ys
+  rel r = quotientLift ≋-refl isSetHProp (λ xs → preRel r xs) (preRel-pointwiseIff r)
 
 termModel : Structure
 termModel = record

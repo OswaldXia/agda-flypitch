@@ -3,7 +3,7 @@
 
 open import FOL.Language
 open import FOL.Syntactics using (Theory)
-module FOL.Lemmas.Equivalence {ℒ : Language {u}} (T : Theory ℒ) where
+module FOL.Constructions.Equivalence.Base {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Base ℒ hiding (_⇒_)
 open import FOL.Syntactics ℒ
@@ -178,3 +178,4 @@ _≋ʳ_ {l} r₁ r₂ = ∀ xs → appsᵣ r₁ xs ⟺ appsᵣ r₂ xs
              | map-∘-id _[ t₂ / 0 ]ₜ (_↑ 1) (λ f → ↑1/ f t₂) xs
              | ↥1/ r₂ t₂ | ↑1/ t₁ t₂ | ↑0 t₂
              = refl
+ 
