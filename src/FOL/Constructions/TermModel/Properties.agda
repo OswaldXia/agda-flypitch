@@ -18,7 +18,7 @@ open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
@@ -54,7 +54,7 @@ termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
-termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective {!   !} {!   !} _ _ $
+termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective isPropValued≋ isEquivRel≋ _ _ $
   subst2 _≡_ (realize≡[] _ _) (realize≡[] _ _) ⊨≈
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}

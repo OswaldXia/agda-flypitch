@@ -5,8 +5,10 @@ open import FOL.Bounded.Syntactics using (Theory)
 module FOL.Constructions.Equivalence.BoundedTruncated {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; elim; map; map2)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim; map; map2)
 open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; propTruncExt)
+import Cubical.Relation.Binary as CubicalRel
+open CubicalRel.BinaryRelation using (isPropValued; isEquivRel)
 
 open import FOL.Bounded.Base ℒ hiding (_⇒_)
 open import FOL.Bounded.Syntactics ℒ
@@ -35,6 +37,16 @@ t₁ ≋ t₂ = ∥ unboundₜ t₁ Free.≋ unboundₜ t₂ ∥₁
 
 ≋-trans : Transitive _≋_
 ≋-trans = map2 Free.≋-trans
+
+isPropValued≋ : isPropValued _≋_
+isPropValued≋ _ _ = squash₁
+
+isEquivRel≋ : isEquivRel _≋_
+isEquivRel≋ = record
+  { reflexive = λ _ → ≋-refl
+  ; symmetric = λ _ _ → ≋-sym
+  ; transitive = λ _ _ _ → ≋-trans
+  }
 
 ≋-cong : t₁ ≋ t₂ → app f t₁ ≋ app f t₂
 ≋-cong = map Free.≋-cong
