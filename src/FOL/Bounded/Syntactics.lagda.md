@@ -27,7 +27,7 @@ open Free._⊢_ hiding (axiom)
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; _,_; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁)
 open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)
 
 open import Function using (_$_)
@@ -56,6 +56,16 @@ infix 4 _⊢_
 _⊢_ : Theory → Sentence → Type (ℓ-suc u)
 Γ ⊢ φ = unbound ⟦ Γ ⟧ Free.⊢ unbound φ
 ```
+
+我们用更短的 `⊦` 表示 `⊢` 的命题截断.
+
+```agda
+infix 4 _⊦_
+_⊦_ : Theory → Sentence → Type (ℓ-suc u)
+Γ ⊦ φ = ∥ Γ ⊢ φ ∥₁
+```
+
+虽然我们最终只关心 `⊦`, 例如一阶逻辑的完备性将使用 `⊦` 来表达, 但在此之前需要先证明一系列关于 `⊢` 的引理.
 
 ```agda
 weakening : ∀ {Γ Δ} {φ} → Γ ⊆ Δ → Γ ⊢ φ → Δ ⊢ φ
@@ -98,8 +108,8 @@ bound⊢ = Free.weakening ⟦⨭⟧⊆
 以下可以认为是 `⇒-elim` 的逆命题, 但要注意 `→` 的两边都要对理论做全称量化. 此外, 满足 `∀ Γ → Γ ⊢ φ` 的 `φ` 又称为**恒真式 (tautology)**. 所以以下命题又称为恒真式的引入规则.
 
 ```agda
---⇒-intro-tauto : ∀ {φ₁ φ₂} → (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
---⇒-intro-tauto {φ₁} ⊢ = ⇒-intro $ bound⊢ $ weakening inr $ ⊢ $ axiom $ ⊆⟦｛｝⟧ reflId
+⇒-intro-tauto : ∀ {φ₁ φ₂} → (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
+⇒-intro-tauto {φ₁} ⊢ = ⇒-intro $ bound⊢ $ weakening {Γ = ｛ φ₁ ｝} inr $ ⊢ $ axiom reflId
 ```
 
 以下规则我们直接列出名称而不再加以说明.
@@ -191,3 +201,4 @@ tauto-no-contra = Free.tauto-no-contra
 ⇔-trans : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⊢ φ₂ ⇔ φ₃ → Γ ⊢ φ₁ ⇔ φ₃
 ⇔-trans = Free.⇔-trans
 ```
+  

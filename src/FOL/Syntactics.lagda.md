@@ -149,7 +149,7 @@ axiom2 = axiom (inl (inr reflId))
 
 ```agda
 ⇒-intro-tauto : ∀ {φ₁ φ₂} → (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
-⇒-intro-tauto {φ₁} ⊢ = ⇒-intro (weakening {Γ = ｛ φ₁ ｝} inr (⊢ (axiom reflId)))
+⇒-intro-tauto {φ₁} ⊢ = ⇒-intro $ weakening {Γ = ｛ φ₁ ｝} inr $ ⊢ $ axiom reflId
 ```
 
 以下规则我们直接列出名称而不再加以说明.
