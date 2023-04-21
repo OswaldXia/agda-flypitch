@@ -27,7 +27,7 @@ open Language ℒ
 ```agda
 open import Agda.Builtin.Equality
 open import Cubical.Foundations.Prelude using (Type)
-open import Data.Nat as ℕ using (ℕ; suc; _∸_; _<?_; <-cmp)
+open import Data.Nat as ℕ using (ℕ; suc; _+_; _∸_; _<?_; <-cmp)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_$_)
 open import Relation.Nullary using (Dec; yes; no)
@@ -242,4 +242,16 @@ appᵣ φ t  [ s / n ] = appᵣ (φ [ s / n ]) (t [ s / n ]ₜ)
 (t₁ ≈ t₂) [ s / n ] = t₁ [ s / n ]ₜ ≈ t₂ [ s / n ]ₜ
 (φ₁ ⇒ φ₂) [ s / n ] = φ₁ [ s / n ] ⇒ φ₂ [ s / n ]
 ∀' φ      [ s / n ] = ∀' (φ [ s / suc n ])
+```
+
+## 全称量化计数
+
+```agda
+count∀ : Formulaₗ l → ℕ
+count∀ ⊥ = 0
+count∀ (rel R) = 0
+count∀ (appᵣ φ t) = 0
+count∀ (t₁ ≈ t₂) = 0
+count∀ (φ₁ ⇒ φ₂) = count∀ φ₁ + count∀ φ₂
+count∀ (∀' φ) = suc (count∀ φ)
 ```

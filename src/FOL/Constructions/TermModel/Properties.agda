@@ -12,7 +12,6 @@ open TermModel using (nonempty; preFunc; preFunc-pointwiseEq)
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
-open import FOL.CountQuantifiers ℒ
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude
@@ -38,7 +37,7 @@ module _ where
     [ apps t₁ (t₂ ∷ xs)]                            ∎
 
 termModelSound : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
-  count∀ (unbound φ) < n → T ⊢ appsᵣ φ xs → termModel T ⊨ˢ appsᵣ φ xs
+  count∀ φ < n → T ⊢ appsᵣ φ xs → termModel T ⊨ˢ appsᵣ φ xs
 termModelSound {_} {zero} _ _ ()
 termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
 termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
@@ -49,7 +48,7 @@ termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
 termModelComplete : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
-  count∀ (unbound φ) < n → termModel T ⊨ˢ appsᵣ φ xs → T ⊢ appsᵣ φ xs
+  count∀ φ < n → termModel T ⊨ˢ appsᵣ φ xs → T ⊢ appsᵣ φ xs
 termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}

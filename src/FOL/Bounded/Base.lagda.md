@@ -32,7 +32,7 @@ open import Data.Nat using (ℕ; suc)
 open import Data.Fin using (Fin; toℕ)
 open import Data.Fin.Properties using (toℕ-injective)
 open import Data.Vec using (Vec; []; _∷_)
-open import Function using (_$_)
+open import Function using (_∘_; _$_)
 open import Relation.Nullary using (¬_)
 ```
 
@@ -159,4 +159,11 @@ unbound (appᵣ φ t)  = appᵣ (unbound φ) (unboundₜ t)
 unbound (t₁ ≈ t₂)   = unboundₜ t₁ ≈ unboundₜ t₂
 unbound (φ₁ ⇒ φ₂)   = unbound φ₁ ⇒ unbound φ₂
 unbound (∀' φ)      = ∀' (unbound φ)
+```
+
+## 全称量化计数
+
+```agda
+count∀ : Formulaₗ n l → ℕ
+count∀ = Free.count∀ ∘ unbound
 ```

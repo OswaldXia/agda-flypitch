@@ -1,19 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.CountQuantifiers (ℒ : Language {u}) where
+module FOL.Lemmas.QuantifierCount (ℒ : Language {u}) where
 
 open import FOL.Base ℒ
 open import Data.Nat
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
-
-count∀ : Formulaₗ l → ℕ
-count∀ ⊥ = 0
-count∀ (rel R) = 0
-count∀ (appᵣ φ t) = 0
-count∀ (t₁ ≈ t₂) = 0
-count∀ (φ₁ ⇒ φ₂) = count∀ φ₁ + count∀ φ₂
-count∀ (∀' φ) = suc (count∀ φ)
 
 count∀OfRel : (r : Formulaₗ (suc l)) → count∀ r ≡ 0
 count∀OfRel (rel R) = refl
