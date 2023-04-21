@@ -27,13 +27,14 @@ open import FOL.Bounded.Syntactics ℒ
 ```agda
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΠ2; isPropΠ3)
-open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
+open import Cubical.Data.Empty using (⊥*; isProp⊥*)
+open import Cubical.Data.Sigma using () renaming (_×_ to infixr 3 _×_)
+open import Cubical.Relation.Nullary using (¬_)
 
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_; lookup)
 open import Function using (_$_)
-open import Relation.Nullary using (¬_)
 ```
 
 ## 实现
@@ -118,9 +119,16 @@ module Implication (v : Level) where
   isProp-⊨ Γ φ = isPropΠ3 $ λ 𝒮 _ _ → isPropRealize _ _
 ```
 
-任何一个模型都不会语义蕴含假.
+任何一个结构都不会语义蕴含假.
 
 ```agda
-[_]⊭⊥ : (𝒮 : Structure {v}) → ¬ (𝒮 ⊨ˢ ⊥)
+[_]⊭⊥ : (𝒮 : Structure {v}) → ¬ 𝒮 ⊨ˢ ⊥
 [ _ ]⊭⊥ ()
+```
+
+## 模型
+
+```agda
+Model : ∀ {v} → Theory → Type (ℓ-max u (ℓ-suc v))
+Model {v} T = Σ[ ℳ ∈ Structure {v} ] nonempty ℳ × ℳ ⊨ᵀ T
 ```
