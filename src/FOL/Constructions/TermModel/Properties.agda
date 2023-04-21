@@ -18,7 +18,7 @@ open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
@@ -49,7 +49,7 @@ termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
 termModelComplete : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
-  count∀ φ < n → termModel T ⊨ˢ appsᵣ φ xs → ∥ T ⊢ appsᵣ φ xs ∥₁
+  count∀ φ < n → termModel T ⊨ˢ appsᵣ φ xs → T ⊦ appsᵣ φ xs
 termModelComplete {_} {zero} _ _ ()
 termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < = {!   !}
@@ -64,6 +64,6 @@ termModelWellDefined φ φ∈T = termModelSound φ [] (s≤s ≤-refl) (axiom φ
 
 -- completeness for complete theories with enough constants
 open Implication (ℓ-suc u) using (_⊨_)
-completeness : (φ : Sentence) → T ⊨ φ → ∥ T ⊢ φ ∥₁
+completeness : (φ : Sentence) → T ⊨ φ → T ⊦ φ
 completeness φ T⊨φ = termModelComplete φ [] (s≤s ≤-refl) $
   T⊨φ (termModel T) (nonempty T H₂) termModelWellDefined
