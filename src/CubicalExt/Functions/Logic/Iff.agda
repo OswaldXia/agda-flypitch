@@ -74,8 +74,8 @@ step-↔ _ = flip ↔-trans
 
 syntax step-↔ A B p = A ↔⟨ p ⟩ B
 
-step-↔˘ : (A : Type ℓ) → A ↔ B → B ↔ C → A ↔ C
-step-↔˘ _ = ↔-trans
+step-↔˘ : (A : Type ℓ) → B ↔ C → B ↔ A → A ↔ C
+step-↔˘ _ = flip (↔-trans ∘ ↔-sym)
 
 syntax step-↔˘ A B p = A ↔˘⟨ p ⟩ B
 
@@ -129,6 +129,9 @@ propTrunc-distrib-iff = elim (λ _ → isPropIff) λ iff →
 
 hPropExt : ⟨ P ⟩ ↔ ⟨ Q ⟩ → P ≡ Q
 hPropExt iff = ⇒∶ to iff ⇐∶ from iff
+
+hPropExt⁻ : P ≡ Q → ⟨ P ⟩ ↔ ⟨ Q ⟩
+hPropExt⁻ {P = P} P≡Q = subst (λ X → ⟨ P ⟩ ↔ ⟨ X ⟩) P≡Q ↔-refl
 
 hPropTruncExt : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
 hPropTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
