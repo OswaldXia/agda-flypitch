@@ -56,12 +56,12 @@ module TermModel where
 
   preRel-iff : {r₁ r₂ : Sentenceₗ (suc l)} {t₁ t₂ : ClosedTerm}
     → r₁ ≋ʳ r₂ → t₁ ≋ t₂ → ∀ xs → preRel (appᵣ r₁ t₁) xs ↔ preRel (appᵣ r₂ t₂) xs
-  preRel-iff r₁≋r₂ t₁≋t₂ [] = propTrunc-distrib-iff $ ⟷-trans (⟷-cong t₁≋t₂) (⟷-relExt⁻ r₁≋r₂)
+  preRel-iff r₁≋r₂ t₁≋t₂ [] = ∥∥-↔ $ ⟷-trans (⟷-cong t₁≋t₂) (⟷-relExt⁻ r₁≋r₂)
   preRel-iff r₁≋r₂ t₁≋t₂ (x ∷ xs) = preRel-iff (≋ʳ-appᵣ r₁≋r₂ t₁≋t₂) ≋-refl xs
 
   preRel-pointwiseIff : (r : Sentenceₗ l) {xs ys : Vec ClosedTerm l} →
     xs ≋ₚ ys → preRel r xs ↔ preRel r ys
-  preRel-pointwiseIff r [] = propTrunc-distrib-iff ⟷-refl
+  preRel-pointwiseIff r [] = ∥∥-↔ ⟷-refl
   preRel-pointwiseIff r (x≋y ∷ xs≋ys) = ↔-trans (preRel-iff ≋ʳ-refl x≋y _) (preRel-pointwiseIff (appᵣ r _) xs≋ys)
 
   rel : Sentenceₗ l → Vec Domain l → hProp (ℓ-suc u)

@@ -119,8 +119,8 @@ isPropIff : isProp (∥ A ∥₁ ↔ ∥ B ∥₁)
 isPropIff = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
   isPropΣ (isPropΠ (λ _ → squash₁)) λ _ → isPropΠ (λ _ → squash₁)
 
-propTrunc-distrib-iff : ∥ A ↔ B ∥₁ → ∥ A ∥₁ ↔ ∥ B ∥₁
-propTrunc-distrib-iff = elim (λ _ → isPropIff) λ iff →
+∥∥-↔ : ∥ A ↔ B ∥₁ → ∥ A ∥₁ ↔ ∥ B ∥₁
+∥∥-↔ = elim (λ _ → isPropIff) λ iff →
   →: elim (λ _ → squash₁) (λ x → ∣ to   iff x ∣₁)
   ←: elim (λ _ → squash₁) (λ x → ∣ from iff x ∣₁)
 
