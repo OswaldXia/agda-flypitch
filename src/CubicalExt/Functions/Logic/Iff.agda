@@ -10,7 +10,7 @@ open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.Functions.Logic using (∥_∥ₚ; ⇒∶_⇐∶_)
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁; map)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim; map)
 open import Cubical.Reflection.RecordEquiv using (declareRecordIsoΣ)
 
 private variable
@@ -119,12 +119,17 @@ isPropIff : isProp (∥ A ∥₁ ↔ ∥ B ∥₁)
 isPropIff = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
   isPropΣ (isPropΠ (λ _ → squash₁)) λ _ → isPropΠ (λ _ → squash₁)
 
+propTrunc-distrib-iff : ∥ A ↔ B ∥₁ → ∥ A ∥₁ ↔ ∥ B ∥₁
+propTrunc-distrib-iff = elim (λ _ → isPropIff) λ iff →
+  →: elim (λ _ → squash₁) (λ x → ∣ to   iff x ∣₁)
+  ←: elim (λ _ → squash₁) (λ x → ∣ from iff x ∣₁)
+
 --------------------------------------------------------------------------------
 -- Propositional extensionality
 
-propTruncExt : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
-propTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
-  (map $ to iff) (map $ from iff) (λ x → squash₁ _ x) (λ x → squash₁ _ x)
-
 hPropExt : ⟨ P ⟩ ↔ ⟨ Q ⟩ → P ≡ Q
 hPropExt iff = ⇒∶ to iff ⇐∶ from iff
+
+hPropTruncExt : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
+hPropTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
+  (map $ to iff) (map $ from iff) (λ x → squash₁ _ x) (λ x → squash₁ _ x)

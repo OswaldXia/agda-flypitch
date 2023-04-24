@@ -22,6 +22,7 @@ open import FOL.Constructions.Equivalence.BoundedTruncated T
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
+open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
@@ -30,7 +31,6 @@ open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
 open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_$_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence (ℓ-suc u) hiding (sym; map)
 
 private variable
   n : ℕ
@@ -49,7 +49,7 @@ module Lemmas where
 
   realizeAppsᵣ↔ : (𝓋 : Vec Domain n) (r : Formulaₗ n l) (xs : Vec (Term n) l) →
     realize 𝓋 (appsᵣ r xs) [] ↔ realize 𝓋 r (map (λ t → realizeₜ 𝓋 t []) xs)
-  realizeAppsᵣ↔ 𝓋 r [] = id
+  realizeAppsᵣ↔ 𝓋 r [] = ↔-refl
   realizeAppsᵣ↔ 𝓋 r (x ∷ xs) = realizeAppsᵣ↔ 𝓋 (appᵣ r x) xs
 
   realizeRel↔ : (R : ℜ l) (xs : Vec ClosedTerm l) →

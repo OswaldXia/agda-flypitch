@@ -17,6 +17,7 @@ module FOL.Structure.Base (ℒ : Language {u}) where
 open Language ℒ
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
 open import Data.Vec using (Vec; []; _∷_)
 ```
@@ -30,11 +31,8 @@ variable
 record Structure : Type (ℓ-max u (ℓ-suc v)) where
   field
     Domain : Type v
-    funMap : ∀ {n} → 𝔉 n → Vec Domain n → Domain
-    relMap : ∀ {n} → ℜ n → Vec Domain n → Type v
-
     isSetDomain : isSet Domain
-    isPropValuedRelMap : ∀ {n} {R : ℜ n} {xs : Vec Domain n} → isProp (relMap R xs)
-
+    funMap : ∀ {n} → 𝔉 n → Vec Domain n → Domain
+    relMap : ∀ {n} → ℜ n → Vec Domain n → hProp v
   nonempty = ∥ Domain ∥₁
 ```
