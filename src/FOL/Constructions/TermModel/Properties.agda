@@ -20,6 +20,7 @@ open import FOL.Bounded.Semantics ℒ
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure using (⟨_⟩)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
@@ -51,10 +52,9 @@ module Lemmas where
   realizeAppsᵣ↔ 𝓋 r [] = id
   realizeAppsᵣ↔ 𝓋 r (x ∷ xs) = realizeAppsᵣ↔ 𝓋 (appᵣ r x) xs
 
-  --realizeRel↔ : (R : ℜ l) (xs : Vec ClosedTerm l) →
-    --termModel ⊨ˢ (appsᵣ (rel R) xs) ↔ relMap R ? --(map (λ t → realizeₜ [] t []) xs)
-  --realizeRel↔ = ?
-    --realize 𝓋 (rel R xs) [] ↔ realize 𝓋 (rel R []) (map (λ t → realizeₜ 𝓋 t []) xs)
+  realizeRel↔ : (R : ℜ l) (xs : Vec ClosedTerm l) →
+    termModel ⊨ˢ (appsᵣ (rel R) xs) ↔ ⟨ relMap R (map (λ t → realizeₜ [] t []) xs) ⟩
+  realizeRel↔ = {!   !}
 
 open Lemmas
 

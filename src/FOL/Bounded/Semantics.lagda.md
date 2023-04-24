@@ -54,7 +54,7 @@ module PreRealizer (𝒮 : Structure {v}) where
 
   realize : (𝓋 : Vec Domain n) (φ : Formulaₗ n l) (xs : Vec Domain l) → Type v
   realize 𝓋 ⊥          xs = ⊥*
-  realize 𝓋 (rel R)    xs = relMap R xs .fst
+  realize 𝓋 (rel R)    xs = relMap R xs
   realize 𝓋 (appᵣ φ t) xs = realize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
   realize 𝓋 (t₁ ≈ t₂)  xs = realizeₜ 𝓋 t₁ xs ≡ realizeₜ 𝓋 t₂ xs
   realize 𝓋 (φ₁ ⇒ φ₂)  xs = realize 𝓋 φ₁ xs → realize 𝓋 φ₂ xs
@@ -62,7 +62,7 @@ module PreRealizer (𝒮 : Structure {v}) where
 
   isPropRealize : (𝓋 : Vec Domain n) (φ : Formulaₗ n l) (xs : Vec Domain l) → isProp (realize 𝓋 φ xs)
   isPropRealize 𝓋 ⊥          xs = isProp⊥*
-  isPropRealize 𝓋 (rel R)    xs = relMap R xs .snd
+  isPropRealize 𝓋 (rel R)    xs = isPropValuedRelMap
   isPropRealize 𝓋 (appᵣ φ t) xs = isPropRealize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
   isPropRealize 𝓋 (t₁ ≈ t₂)  xs = isSetDomain _ _
   isPropRealize 𝓋 (φ₁ ⇒ φ₂)  xs = isPropΠ $ λ _ → isPropRealize 𝓋 φ₂ xs

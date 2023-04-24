@@ -23,12 +23,11 @@ open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (_∈_)
+open import CubicalExt.Functions.Logic.Iff
 open import Cubical.Data.Sum using (inl; inr)
 open import Cubical.Data.Equality using (pathToEq)
 open import Cubical.HITs.PropositionalTruncation using (elim)
-
 open import Function using (_∘_; _$_)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u hiding (_∘_; sym)
 ```
 
 ```agda
@@ -57,14 +56,14 @@ module Untruncated where
     soundness (⇒-elim ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = (soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ) (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
     soundness (∀-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ x =
       soundness ⊢₀ 𝒮 _ λ φ → elim (λ _ → isPropRealize _ _ _)
-        λ { (ψ , ψ∈Γ , reflId) → from (realize-subst-lift 𝒮 𝓋 0 ψ x) ⟨$⟩ 𝒮⊨Γ ψ ψ∈Γ }
+        λ { (ψ , ψ∈Γ , reflId) → from (realize-subst-lift 𝒮 𝓋 0 ψ x) $ 𝒮⊨Γ ψ ψ∈Γ }
     soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ =
-      to (realize-subst0 𝒮 𝓋 φ t) ⟨$⟩ soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _
+      to (realize-subst0 𝒮 𝓋 φ t) $ soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _
     soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ =
-      to (realize-subst0 𝒮 𝓋 φ t) ⟨$⟩ H where
+      to (realize-subst0 𝒮 𝓋 φ t) $ H where
         H : realize 𝒮 (𝓋 [ realizeₜ 𝒮 𝓋 t / 0 ]ᵥ) φ
         H rewrite pathToEq $ sym $ soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ =
-          from (realize-subst0 𝒮 𝓋 φ s) ⟨$⟩ (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
+          from (realize-subst0 𝒮 𝓋 φ s) $ (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
 ```
 
 ```agda

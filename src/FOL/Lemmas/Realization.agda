@@ -10,20 +10,22 @@ open import FOL.Lemmas.Substitution ℒ
 open import FOL.Semantics ℒ
 open Structure 𝒮
 
+open import CubicalExt.Functions.Logic.Iff
+open import Cubical.Data.Equality using (eqToPath)
+
 open import Data.Empty using (⊥-elim)
 open import Function using (_$_)
 open import Relation.Nullary using (Dec; yes; no)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality as Eq
   using (_≡_; refl; sym; cong; subst)
+open Eq.≡-Reasoning
 
 open import StdlibExt.Data.Nat
 open import StdlibExt.Data.Vec using (Vec; []; _∷_; []-refl)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence v as Iff hiding (sym; map)
 
 module Preₜ where
   open PreRealizer 𝒮 renaming (realizeₜ to rₜ; realize to r) public
-  open Eq.≡-Reasoning
 
   realizeₜ-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n)
     (t : Termₗ l) (xs : Vec Domain l)
@@ -71,18 +73,17 @@ module Preₜ where
 
 module Pre where
   open Preₜ public
-  open Iff.↔-Reasoning
 
   realize-cong : (𝓋 𝓊 : ℕ → Domain) (ext : ∀ n → 𝓋 n ≡ 𝓊 n)
     (φ : Formulaₗ l) (xs : Vec Domain l)
     → r 𝓋 φ xs ↔ r 𝓊 φ xs
-  realize-cong 𝓋 𝓊 ext ⊥           xs = id
-  realize-cong 𝓋 𝓊 ext (rel R)     xs = id
+  realize-cong 𝓋 𝓊 ext ⊥           xs = ↔-refl
+  realize-cong 𝓋 𝓊 ext (rel R)     xs = ↔-refl
   realize-cong 𝓋 𝓊 ext (appᵣ φ t)  xs
     rewrite realizeₜ-cong 𝓋 𝓊 ext t [] = realize-cong 𝓋 𝓊 ext φ _
   realize-cong 𝓋 𝓊 ext (t₁ ≈ t₂) xs
     rewrite realizeₜ-cong 𝓋 𝓊 ext t₁ xs
-          | realizeₜ-cong 𝓋 𝓊 ext t₂ xs = id
+          | realizeₜ-cong 𝓋 𝓊 ext t₂ xs = ↔-refl
   realize-cong 𝓋 𝓊 ext (φ₁ ⇒ φ₂) xs =
     →↔→ (realize-cong 𝓋 𝓊 ext φ₁ xs) (realize-cong 𝓋 𝓊 ext φ₂ xs)
   realize-cong 𝓋 𝓊 ext (∀' φ) xs = Π↔Π $ λ x
@@ -91,13 +92,13 @@ module Pre where
   realize-subst : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formulaₗ l)
     (s : Term) (xs : Vec Domain l)
     → r (𝓋 [ rₜ 𝓋 (s ↑ n) [] / n ]ᵥ) φ xs ↔ r 𝓋 (φ [ s / n ]) xs
-  realize-subst 𝓋 n ⊥          s xs = id
-  realize-subst 𝓋 n (rel R₁)   s xs = id
+  realize-subst 𝓋 n ⊥          s xs = ↔-refl
+  realize-subst 𝓋 n (rel R₁)   s xs = ↔-refl
   realize-subst 𝓋 n (appᵣ φ t) s xs
     rewrite realizeₜ-subst 𝓋 n t s [] = realize-subst 𝓋 n φ s _
   realize-subst 𝓋 n (t₁ ≈ t₂) s xs
     rewrite realizeₜ-subst 𝓋 n t₁ s xs
-          | realizeₜ-subst 𝓋 n t₂ s xs = id
+          | realizeₜ-subst 𝓋 n t₂ s xs = ↔-refl
   realize-subst 𝓋 n (φ₁ ⇒ φ₂) s xs =
     →↔→ (realize-subst 𝓋 n φ₁ s xs) (realize-subst 𝓋 n φ₂ s xs)
   realize-subst 𝓋 n (∀' φ) s xs = Π↔Π $ λ x →
@@ -112,29 +113,29 @@ module Pre where
         𝓋₃ = 𝓋 [ rₜ 𝓋 (s ↑ n) [] / n ]ᵥ [ x / 0 ]ᵥ
         𝓋≡₂ : ∀ m → 𝓋₃ m ≡ 𝓋₂ m
         𝓋≡₂ m = sym $ cong (λ t → (𝓋 [ t / n ]ᵥ [ x / 0 ]ᵥ) m) (realizeₜ-subst-lift 𝓋 0 (s ↑ n) x [])
-    in begin
-    r 𝓋₃ φ xs                             ≈⟨ realize-cong _ _ 𝓋≡₂ φ xs ⟩
-    r 𝓋₂ φ xs                             ≈⟨ realize-cong _ _ 𝓋≡₁ φ xs ⟩
-    r 𝓋₁ φ xs                             ≈⟨ realize-cong _ _ (//ᵥ 𝓋 x t₁ 0 n) φ xs ⟩
-    r (𝓋 [ x / 0 ]ᵥ [ t₁ / suc n ]ᵥ) φ xs ≈⟨ realize-subst (𝓋 [ x / 0 ]ᵥ) (suc n) φ s xs ⟩
-    r (𝓋 [ x / 0 ]ᵥ) (φ [ s / suc n ]) xs ∎
+    in
+    r 𝓋₃ φ xs                             ↔⟨ realize-cong _ _ 𝓋≡₂ φ xs ⟩
+    r 𝓋₂ φ xs                             ↔⟨ realize-cong _ _ 𝓋≡₁ φ xs ⟩
+    r 𝓋₁ φ xs                             ↔⟨ realize-cong _ _ (//ᵥ 𝓋 x t₁ 0 n) φ xs ⟩
+    r (𝓋 [ x / 0 ]ᵥ [ t₁ / suc n ]ᵥ) φ xs ↔⟨ realize-subst (𝓋 [ x / 0 ]ᵥ) (suc n) φ s xs ⟩
+    r (𝓋 [ x / 0 ]ᵥ) (φ [ s / suc n ]) xs ↔∎
 
   realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ)
     (φ : Formulaₗ l) (x : Domain) (xs : Vec Domain l)
     → r (𝓋 [ x / n ]ᵥ) (φ ↥[ n ] 1) xs ↔ r 𝓋 φ xs
-  realize-subst-lift 𝓋 n ⊥ x xs        = id
-  realize-subst-lift 𝓋 n (rel R₁) x xs = id
+  realize-subst-lift 𝓋 n ⊥ x xs        = ↔-refl
+  realize-subst-lift 𝓋 n (rel R₁) x xs = ↔-refl
   realize-subst-lift 𝓋 n (appᵣ φ t) x xs
     rewrite realizeₜ-subst-lift 𝓋 n t x [] = realize-subst-lift 𝓋 n φ x _
   realize-subst-lift 𝓋 n (t₁ ≈ t₂) x xs
     rewrite realizeₜ-subst-lift 𝓋 n t₁ x xs
-          | realizeₜ-subst-lift 𝓋 n t₂ x xs = id
+          | realizeₜ-subst-lift 𝓋 n t₂ x xs = ↔-refl
   realize-subst-lift 𝓋 n (φ₁ ⇒ φ₂) x xs =
     →↔→ (realize-subst-lift 𝓋 n φ₁ x xs) (realize-subst-lift 𝓋 n φ₂ x xs)
-  realize-subst-lift 𝓋 n (∀' φ) x xs = Π↔Π $ λ y →   begin
-    r (𝓋 [ x / n ]ᵥ [ y / 0 ]ᵥ)     (φ ↥[ suc n ] 1) xs ≈⟨ realize-cong _ _ (//ᵥ 𝓋 y x 0 n) (φ ↥[ suc n ] 1) xs ⟩
-    r (𝓋 [ y / 0 ]ᵥ [ x / suc n ]ᵥ) (φ ↥[ suc n ] 1) xs ≈⟨ realize-subst-lift (𝓋 [ y / 0 ]ᵥ) (suc n) φ x xs ⟩
-    r (𝓋 [ y / 0 ]ᵥ) φ xs                               ∎
+  realize-subst-lift 𝓋 n (∀' φ) x xs = Π↔Π $ λ y →
+    r (𝓋 [ x / n ]ᵥ [ y / 0 ]ᵥ)     (φ ↥[ suc n ] 1) xs ↔⟨ realize-cong _ _ (//ᵥ 𝓋 y x 0 n) (φ ↥[ suc n ] 1) xs ⟩
+    r (𝓋 [ y / 0 ]ᵥ [ x / suc n ]ᵥ) (φ ↥[ suc n ] 1) xs ↔⟨ realize-subst-lift (𝓋 [ y / 0 ]ᵥ) (suc n) φ x xs ⟩
+    r (𝓋 [ y / 0 ]ᵥ) φ xs                               ↔∎
 
 open Realizer 𝒮
 
@@ -162,11 +163,9 @@ realize-subst-lift : (𝓋 : ℕ → Domain) (n : ℕ) (φ : Formula) (x : Domai
   → realize (𝓋 [ x / n ]ᵥ) (φ ↥[ n ] 1) ↔ realize 𝓋 φ
 realize-subst-lift 𝓋 n φ x = Pre.realize-subst-lift 𝓋 n φ x []
 
-open Iff.↔-Reasoning
-
 realize-subst0 : (𝓋 : ℕ → Domain) (φ : Formula) (s : Term)
   → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ ↔ realize 𝓋 (φ [ s / 0 ])
-realize-subst0 𝓋 φ s =                      begin
-  realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) φ ≡˘⟨ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ) (↑0 s) ⟩
-  realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) φ ≈⟨ realize-subst 𝓋 0 φ s ⟩
-  realize 𝓋 (φ [ s / 0 ])                   ∎
+realize-subst0 𝓋 φ s =
+  realize (𝓋 [ realizeₜ 𝓋 s       / 0 ]ᵥ) φ ↔≡˘⟨ eqToPath $ cong (λ s → realize (𝓋 [ realizeₜ 𝓋 s / 0 ]ᵥ) φ) (↑0 s) ⟩
+  realize (𝓋 [ realizeₜ 𝓋 (s ↑ 0) / 0 ]ᵥ) φ ↔⟨ realize-subst 𝓋 0 φ s ⟩
+  realize 𝓋 (φ [ s / 0 ])                   ↔∎

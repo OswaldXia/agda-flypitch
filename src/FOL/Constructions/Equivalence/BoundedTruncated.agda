@@ -5,8 +5,7 @@ open import FOL.Bounded.Syntactics using (Theory)
 module FOL.Constructions.Equivalence.BoundedTruncated {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim; map; map2)
-open import CubicalExt.StdlibBridge.Logic using (∥_∥ₚ; propTruncExt)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; map; map2)
 import Cubical.Relation.Binary as CubicalRel
 open CubicalRel.BinaryRelation using (isPropValued; isEquivRel)
 

@@ -16,8 +16,7 @@ open import StdlibExt.Data.Vec using (Vec; []; _∷_; map; map-∘-id)
 open import Function using (_$_; _∘_; _∘₂_; flip)
 open import Relation.Binary using (_⇒_ ;Rel; Reflexive; Symmetric; Transitive)
 open import Relation.Binary.PropositionalEquality using (_≡_; cong₂; subst₂; refl; sym; trans)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence u
-  hiding (map) renaming (sym to ↔-sym; _∘_ to _∙_)
+open import CubicalExt.Functions.Logic.Iff
 
 private
   variable
@@ -100,13 +99,13 @@ _⟷_ : Rel Formula (lsuc u)
 φ₁ ⟷ φ₂ = T ⊢ φ₁ ↔ T ⊢ φ₂
 
 ⟷-refl : Reflexive _⟷_
-⟷-refl = id
+⟷-refl = ↔-refl
 
 ⟷-sym : Symmetric _⟷_
 ⟷-sym = ↔-sym
 
 ⟷-trans : Transitive _⟷_
-⟷-trans = flip _∙_
+⟷-trans = ↔-trans
 
 _⟺_ : Rel Formula (lsuc u)
 φ₁ ⟺ φ₂ = T ⊢ φ₁ ⇔ φ₂
@@ -121,7 +120,7 @@ _⟺_ : Rel Formula (lsuc u)
 ⟺-trans = ⇔-trans
 
 ⟺⇒⟷ : _⟺_ ⇒ _⟷_
-⟺⇒⟷ x⟺y = mk↔ (⇒-elim $ ⇒-intro $ ⇔-elimₗ x⟺y) (⇒-elim $ ⇒-intro $ ⇔-elimᵣ x⟺y)
+⟺⇒⟷ x⟺y = →: (⇒-elim $ ⇒-intro $ ⇔-elimₗ x⟺y) ←: (⇒-elim $ ⇒-intro $ ⇔-elimᵣ x⟺y)
 
 ⟺-cong/ : (φ : Formula) → t₁ ≋ t₂ → φ [ t₁ / 0 ] ⟺ φ [ t₂ / 0 ]
 ⟺-cong/ φ t₁≋t₂ = ⇔-intro (subst (weakening1 t₁≋t₂) axiom1) (subst (weakening1 $ ≋-sym t₁≋t₂) axiom1)

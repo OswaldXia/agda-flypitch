@@ -10,19 +10,14 @@ open import FOL.Bounded.Semantics ℒ
 import FOL.Semantics ℒ as Free
 open Structure 𝒮
 
-open import Cubical.Foundations.Prelude renaming (_≡_ to _≡ₚ_) hiding (refl; cong)
-open import Cubical.Foundations.HLevels using (isSet→isGroupoid; isSetHProp)
-open import Cubical.Data.Equality using (eqToPath; pathToEq)
-open import Cubical.HITs.SetTruncation using (∥_∥₂; elim; map)
-open import CubicalExt.StdlibBridge.Logic using (hPropExt)
-open import CubicalExt.StdlibBridge.Logic using (path↔path)
+open import Cubical.Data.Equality using (eqToPath)
+open import CubicalExt.Functions.Logic.Iff
 
 open import Data.Nat
 open import Data.Fin using (Fin; zero; suc; toℕ)
 open import Data.Vec using (Vec; []; _∷_; lookup)
 open import Function using (_$_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
-open import StdlibExt.Relation.Binary.PropositionalEquivalence v as Iff hiding (map)
 
 private variable
   n : ℕ
@@ -30,7 +25,6 @@ private variable
 module Pre where
   open PreRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
   open Free.PreRealizer 𝒮 using () renaming (realizeₜ to 𝑟ₜ; realize to 𝑟) public
-  open Iff.↔-Reasoning
 
   realizeₜ-eq : ∀ (𝓋 : Vec Domain n) (𝑣 : ℕ → Domain)
     (eq : ∀ k → lookup 𝓋 k ≡ 𝑣 (toℕ k)) (t : Termₗ n l) (xs : Vec Domain l)
@@ -43,13 +37,13 @@ module Pre where
   realize-iff : ∀ (𝓋 : Vec Domain n) (𝑣 : ℕ → Domain)
     (eq : ∀ k → lookup 𝓋 k ≡ 𝑣 (toℕ k)) (φ : Formulaₗ n l) (xs : Vec Domain l)
     → r 𝓋 φ xs ↔ 𝑟 𝑣 (unbound φ) xs
-  realize-iff 𝓋 𝑣 eq ⊥          xs = id
-  realize-iff 𝓋 𝑣 eq (rel R)    xs = id
+  realize-iff 𝓋 𝑣 eq ⊥          xs = ↔-refl
+  realize-iff 𝓋 𝑣 eq (rel R)    xs = ↔-refl
   realize-iff 𝓋 𝑣 eq (appᵣ φ t) xs
     rewrite realizeₜ-eq 𝓋 𝑣 eq t [] = realize-iff 𝓋 𝑣 eq φ _
-  realize-iff 𝓋 𝑣 eq (t₁ ≈ t₂)  [] = path↔path
-    (eqToPath (realizeₜ-eq 𝓋 𝑣 eq t₁ []))
-    (eqToPath (realizeₜ-eq 𝓋 𝑣 eq t₂ []))
+  realize-iff 𝓋 𝑣 eq (t₁ ≈ t₂)  [] = ≡↔≡
+    (eqToPath $ realizeₜ-eq 𝓋 𝑣 eq t₁ [])
+    (eqToPath $ realizeₜ-eq 𝓋 𝑣 eq t₂ [])
   realize-iff 𝓋 𝑣 eq (φ₁ ⇒ φ₂)  xs =
     →↔→ (realize-iff 𝓋 𝑣 eq φ₁ xs) (realize-iff 𝓋 𝑣 eq φ₂ xs)
   realize-iff 𝓋 𝑣 eq (∀' φ)     [] = Π↔Π $ λ x →
@@ -57,6 +51,7 @@ module Pre where
     eq' : ∀ x k → lookup (x ∷ 𝓋) k ≡ (𝑣 [ x / 0 ]ᵥ) (toℕ k)
     eq' x zero    = refl
     eq' x (suc k) = eq k
+
 
 module Opened where
   open OpenedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
