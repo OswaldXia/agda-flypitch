@@ -35,16 +35,16 @@ open import Function using (_$_)
 private variable
   n : ℕ
 
-module Lemmas where
+module _ where
   open PreRealizer termModel
 
-  realizeₜ≡ : (f : ClosedTermₗ l) (xs : Vec ClosedTerm l) →
+  realizeFunc≡ : (f : ClosedTermₗ l) (xs : Vec ClosedTerm l) →
     realizeₜ [] f (map [_] xs) ≡ preFunc f xs
-  realizeₜ≡ (func f) = quotientBeta ≋-refl squash/ (preFunc (func f)) (preFunc-pointwiseEq (func f))
-  realizeₜ≡ (app t₁ t₂) xs =
-    realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_] xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (realizeₜ≡ t₂ []) ⟩
+  realizeFunc≡ (func f) = quotientBeta ≋-refl squash/ (preFunc (func f)) (preFunc-pointwiseEq (func f))
+  realizeFunc≡ (app t₁ t₂) xs =
+    realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_] xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (realizeFunc≡ t₂ []) ⟩
     realizeₜ [] t₁ ([ t₂ ] ∷ map [_] xs)            ≡⟨⟩
-    realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ realizeₜ≡ t₁ (t₂ ∷ xs) ⟩
+    realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ realizeFunc≡ t₁ (t₂ ∷ xs) ⟩
     [ apps t₁ (t₂ ∷ xs)]                            ∎
 
   realizeAppsᵣ↔ : (𝓋 : Vec Domain n) (r : Formulaₗ n l) (xs : Vec (Term n) l) →
@@ -52,20 +52,24 @@ module Lemmas where
   realizeAppsᵣ↔ 𝓋 r [] = ↔-refl
   realizeAppsᵣ↔ 𝓋 r (x ∷ xs) = realizeAppsᵣ↔ 𝓋 (appᵣ r x) xs
 
-  realizeRel↔ : (R : ℜ l) (xs : Vec ClosedTerm l) →
-    termModel ⊨ˢ (appsᵣ (rel R) xs) ↔ ⟨ relMap R (map (λ t → realizeₜ [] t []) xs) ⟩
-  realizeRel↔ = {!   !}
+module _ where
+  open ClosedRealizer termModel
 
-open Lemmas
+  realizeTerm≡ : (t : ClosedTerm) → realizeₜ t ≡ [ t ]
+  realizeTerm≡ t = realizeFunc≡ t []
+
+  realizeRel↔ : (R : ℜ l) (xs : Vec ClosedTerm l) →
+    realize (appsᵣ (rel R) xs) ↔ ⟨ relMap R (map realizeₜ xs) ⟩
+  realizeRel↔ R = realizeAppsᵣ↔ [] (rel R)
 
 termModelSound : {n : ℕ} (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊢ appsᵣ φ xs → termModel ⊨ˢ appsᵣ φ xs
 termModelSound {_} {zero} _ _ ()
 termModelSound {0} {suc n} ⊥          [] _ ⊢⊥ = lift $ H₁ .fst ⊢⊥
-termModelSound {l} {suc n} (rel R)    xs < ⊢R = {!   !}
+termModelSound {l} {suc n} (rel R)    xs < ⊢R = from (realizeRel↔ R xs) {!   !}
 termModelSound {l} {suc n} (appᵣ φ t) xs < = {!   !}
 termModelSound {0} {suc n} (t₁ ≈ t₂)  [] < ⊢≈ =
-  subst2 _≡_ (sym $ realizeₜ≡ _ _) (sym $ realizeₜ≡ _ _) (eq/ _ _ ∣ ⊢≈ ∣₁)
+  subst2 _≡_ (sym $ realizeTerm≡ _) (sym $ realizeTerm≡ _) (eq/ _ _ ∣ ⊢≈ ∣₁)
 termModelSound {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelSound {0} {suc n} (∀' φ)     xs < = {!   !}
 
@@ -76,7 +80,7 @@ termModelComplete {0} {suc n} ⊥ [] _ ()
 termModelComplete {l} {suc n} (rel R)    xs < H = {!   !}
 termModelComplete {l} {suc n} (appᵣ φ t) xs < = {!   !}
 termModelComplete {0} {suc n} (t₁ ≈ t₂)  [] < ⊨≈ = effective isPropValued≋ isEquivRel≋ _ _ $
-  subst2 _≡_ (realizeₜ≡ _ _) (realizeₜ≡ _ _) ⊨≈
+  subst2 _≡_ (realizeTerm≡ _) (realizeTerm≡ _) ⊨≈
 termModelComplete {0} {suc n} (φ ⇒ φ₁)   xs < = {!   !}
 termModelComplete {0} {suc n} (∀' φ)     xs < = {!   !}
 
