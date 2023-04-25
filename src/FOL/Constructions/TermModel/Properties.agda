@@ -8,16 +8,19 @@ module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory �
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
 open Language ℒ
 
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Syntactics ℒ
+open import FOL.Bounded.Semantics ℒ
+open import FOL.Constructions.Equivalence.BoundedTruncated T
+
+import FOL.Base ℒ as Free
+open Free.Formulaₗ
+
 open import FOL.Constructions.TermModel.Base T
 open TermModel using (nonempty; preFunc; preRel; preFunc-pointwiseEq; preRel-pointwiseIff)
 
 open import FOL.Structure.Base using (Structure)
 open Structure termModel using (Domain; relMap)
-
-open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Syntactics ℒ
-open import FOL.Bounded.Semantics ℒ
-open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
 open import Cubical.Foundations.HLevels using (isSetHProp)
@@ -33,6 +36,8 @@ open import Data.Nat
 open import Data.Nat.Properties using (≤-refl)
 open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_∘_; _∘₂_; _$_)
+open import Relation.Binary.PropositionalEquality
+  using () renaming (subst to substEq; sym to symEq)
 
 private variable
   n : ℕ
@@ -82,7 +87,9 @@ hPropEqual {l} {suc n} (rel R) xs H = sym $
   relMap R (map [_] xs)             ≡⟨ ≡preRel _ _ ⟩
   preRel (rel R) xs , squash₁       ≡⟨⟩
   ∥ T ⊢ appsᵣ (rel R) xs ∥ₚ         ∎
-hPropEqual {l} {suc n} (appᵣ φ t) xs H = {!   !}
+hPropEqual {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
+... | rel _    = hPropEqual φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
+... | appᵣ _ _ = hPropEqual φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
 hPropEqual {0} {suc n} (t₁ ≈ t₂) [] H = hPropExt $
   T ⊦ t₁ ≈ t₂               ↔⟨ →: eq/ _ _ ←: effective isPropValued≋ isEquivRel≋ _ _ ⟩
   [ t₁ ] ≡ [ t₂ ]           ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[] t₁) (≡[] t₂) refl ⟩
