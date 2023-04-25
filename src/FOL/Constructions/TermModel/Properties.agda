@@ -33,7 +33,7 @@ open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
 
 open import Data.Nat
-open import Data.Nat.Properties using (≤-refl)
+open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m)
 open import Data.Vec using (Vec; []; _∷_; map)
 open import Function using (_∘_; _∘₂_; _$_)
 open import Relation.Binary.PropositionalEquality
@@ -95,8 +95,19 @@ hPropEqual {0} {suc n} (t₁ ≈ t₂) [] H = hPropExt $
   [ t₁ ] ≡ [ t₂ ]           ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[] t₁) (≡[] t₂) refl ⟩
   realizeₜ t₁ ≡ realizeₜ t₂ ↔⟨⟩
   termModel ⊨ˢ t₁ ≈ t₂      ↔∎
-hPropEqual {0} {suc n} (φ ⇒ φ₁) xs H = {!   !}
-hPropEqual {0} {suc n} (∀' φ) xs H = {!   !}
+hPropEqual {0} {suc n} (φ₁ ⇒ φ₂) [] H =
+  let lt₁ : count∀ φ₁ < suc n
+      lt₁ = ≤-trans (s≤s (m≤m+n _ _)) H
+      lt₂ : count∀ φ₂ < suc n
+      lt₂ = ≤-trans (s≤s (m≤n+m _ _)) H
+      IH₁ : T ⊦ appsᵣ φ₁ [] ↔ termModel ⊨ˢ appsᵣ φ₁ []
+      IH₁ = hPropExt⁻ $ hPropEqual φ₁ [] lt₁
+      IH₂ : ∥ T ⊢ appsᵣ φ₂ [] ∥ₚ ≡ termModel ⊨ˢ appsᵣ φ₂ [] , isProp-⊨ˢ _ _
+      IH₂ = hPropEqual φ₂ [] lt₂
+  in hPropExt $
+    →: (λ ⊢r r₁ → {!   !})
+    ←: {!   !}
+hPropEqual {0} {suc n} (∀' φ) [] H = {!   !}
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
