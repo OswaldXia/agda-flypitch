@@ -2,7 +2,7 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
-module FOL.Bounded.PropertiesOfTheory (ℒ : Language {u}) where
+module FOL.PropertiesOfTheory.Base (ℒ : Language {u}) where
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
@@ -12,7 +12,7 @@ open import FOL.Structure.Base
 open Language ℒ using (Constant)
 open Structure using (nonempty)
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (~_)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΣ)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
@@ -38,7 +38,7 @@ isProp¬Con = squash₁
 -- 理论的完全性
 
 complete : Theory → Type (ℓ-suc u)
-complete T = Con T × ∀ φ → φ ∈ T ∨ ¬ φ ∈ T
+complete T = Con T × ∀ φ → φ ∈ T ∨ ~ φ ∈ T
 
 isPropComplete : ∀ {T} → isProp (complete T)
 isPropComplete = isPropΣ isPropCon λ _ → isPropΠ λ _ → squash₁

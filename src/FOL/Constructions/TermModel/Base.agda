@@ -6,7 +6,7 @@ open import FOL.Bounded.Syntactics using (Theory)
 module FOL.Constructions.TermModel.Base {ℒ : Language {u}} (T : Theory ℒ) where
 open import FOL.Structure.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
-open import FOL.Bounded.PropertiesOfTheory ℒ
+open import FOL.PropertiesOfTheory ℒ
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hProp; isSetHProp)

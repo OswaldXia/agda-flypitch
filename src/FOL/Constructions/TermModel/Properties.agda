@@ -3,7 +3,7 @@
 
 open import FOL.Language
 open import FOL.Bounded.Syntactics using (Theory)
-open import FOL.Bounded.PropertiesOfTheory using (complete; hasEnoughConstants)
+open import FOL.PropertiesOfTheory using (complete; hasEnoughConstants)
 module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory ℒ}
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
 open Language ℒ
@@ -11,10 +11,12 @@ open Language ℒ
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
+open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 import FOL.Base ℒ as Free
 open Free.Formulaₗ
+open import FOL.Syntactics ℒ using (⇒-elim)
 
 open import FOL.Constructions.TermModel.Base T
 open TermModel using (nonempty; preFunc; preRel; preFunc-pointwiseEq; preRel-pointwiseIff)
@@ -30,7 +32,7 @@ open import Cubical.Functions.Logic using (∥_∥ₚ)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m)
@@ -101,8 +103,8 @@ termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =
       IH₂ : T ⊦ appsᵣ φ₂ [] ↔ termModel ⊨ˢ appsᵣ φ₂ []
       IH₂ = termModelCompleteGuarded φ₂ [] $ ≤-trans (s≤s (m≤n+m _ _)) H
   in
-    →: (λ ⊢r r₁ → {!   !})
-    ←: {!   !}
+    →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
+    ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {0} {suc n} (∀' φ) [] H = {!   !}
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →

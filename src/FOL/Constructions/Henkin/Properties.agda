@@ -27,7 +27,7 @@ open import Function using (_$_)
 open import FOL.Syntactics (∞-language ℒ) using (axiom)
 open import FOL.Bounded.Base (∞-language ℒ) using (_⇒_; ∃'_; unbound)
 open import FOL.Bounded.Syntactics (∞-language ℒ) using (_⊢_)
-open import FOL.Bounded.PropertiesOfTheory (∞-language ℒ)
+open import FOL.PropertiesOfTheory (∞-language ℒ)
   using (hasEnoughConstants; [_witnessing_])
 open Language (∞-language ℒ) using (Constant)
 

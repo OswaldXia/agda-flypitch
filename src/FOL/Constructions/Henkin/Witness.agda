@@ -34,7 +34,7 @@ witnessOf = witness
 witnessStatement : Formula ℒ 1 → Sentence $ languageStep ℒ
 witnessStatement {ℒ} φ = [ witnessOf φ witnessing formulaMorph φ ]
   where open LHom.OnBounded (languageMorph {ℒ}) using (formulaMorph)
-        open import FOL.Bounded.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
+        open import FOL.PropertiesOfTheory (languageStep ℒ) using ([_witnessing_])
 
 ∞-witness : ∀ {i} → Formula (obj ℒ i) 1 → Constant (∞-language ℒ)
 ∞-witness {_} {i} φ = languageCanonicalMorph (suc i) .funMorph (witnessOf φ)

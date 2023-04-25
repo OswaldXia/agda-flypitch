@@ -8,7 +8,7 @@ module FOL.Properties.Completeness ⦃ _ : EM ⦄ (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
-open import FOL.Bounded.PropertiesOfTheory ℒ
+open import FOL.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ
 open import FOL.Constructions.Henkin.LanguageChain u
 open import FOL.Constructions.Henkin.TheoryChain u
