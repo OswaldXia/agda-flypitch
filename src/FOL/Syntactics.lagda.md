@@ -16,7 +16,7 @@ zhihu-tags: Agda, 数理逻辑
 open import FOL.Language
 module FOL.Syntactics (ℒ : Language {u}) where
 open import FOL.Base ℒ
-open import FOL.Sethood ℒ
+open import FOL.Lemmas.Sethood ℒ
 ```
 
 ### 标准库依赖

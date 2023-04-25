@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.Sethood (ℒ : Language {u}) where
+module FOL.Bounded.Lemmas.Sethood (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ
 open Language ℒ
 

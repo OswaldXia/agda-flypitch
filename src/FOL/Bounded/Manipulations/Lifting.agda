@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.Lifting (ℒ : Language {u}) where
+module FOL.Bounded.Manipulations.Lifting (ℒ : Language {u}) where
 import FOL.Base ℒ as Free
 open import FOL.Bounded.Base ℒ
 

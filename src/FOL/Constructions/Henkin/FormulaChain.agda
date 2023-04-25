@@ -9,7 +9,7 @@ open import FOL.Constructions.Henkin.TermChain u as T
   using (termChain; termComparison; termComparisonFiber)
 open import FOL.Language using (Language)
 open import FOL.Bounded.Base using (Termₗ; Formulaₗ)
-open import FOL.Bounded.Sethood using (isSetFormula)
+open import FOL.Bounded.Lemmas.Sethood using (isSetFormula)
 open Formulaₗ
 
 open import FOL.Language.Homomorphism using (_∘_; termMorph; formulaMorph; formulaMorphFunctorial)

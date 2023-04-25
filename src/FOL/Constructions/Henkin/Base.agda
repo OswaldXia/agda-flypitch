@@ -3,7 +3,7 @@
 open import FOL.Language
 module FOL.Constructions.Henkin.Base (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ using (Formula)
-open import FOL.Bounded.Sethood ℒ using (discreteFormula)
+open import FOL.Bounded.Lemmas.Sethood ℒ using (discreteFormula)
 open Language ℒ
 
 open import Agda.Builtin.Equality using (_≡_; refl)

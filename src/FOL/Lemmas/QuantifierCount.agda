@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Lemmas.QuantifierCount (ℒ : Language {u}) where
+module FOL.Lemmas.QuantifierCounting (ℒ : Language {u}) where
 
 open import FOL.Base ℒ
 open import Data.Nat

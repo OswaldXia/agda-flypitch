@@ -7,7 +7,7 @@ open import FOL.Constructions.Henkin.LanguageChain u
   renaming (obj to langChainObj ; morph to langChainMorph; functorial to langChainFunctorial)
 open import FOL.Language using (Language)
 open import FOL.Bounded.Base using (Termₗ)
-open import FOL.Bounded.Sethood using (isSetTerm)
+open import FOL.Bounded.Lemmas.Sethood using (isSetTerm)
 open Termₗ
 
 open import FOL.Language.Homomorphism using (_∘_; termMorph; termMorphFunctorial)

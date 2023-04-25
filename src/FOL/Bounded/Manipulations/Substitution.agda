@@ -1,11 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
-module FOL.Bounded.Substitution (ℒ : Language {u}) where
+module FOL.Bounded.Manipulations.Substitution (ℒ : Language {u}) where
 import FOL.Base ℒ as Free
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Casting ℒ
-open import FOL.Bounded.Lifting ℒ
+open import FOL.Bounded.Manipulations.Casting ℒ
+open import FOL.Bounded.Manipulations.Lifting ℒ
 
 open import StdlibExt.Data.Fin
   using (Fin; toℕ; fromℕ<; reduce≥; toℕ-fromℕ<; toℕ-reduce≥)

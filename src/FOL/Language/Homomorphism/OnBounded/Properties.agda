@@ -8,9 +8,9 @@ open import FOL.Language.Homomorphism.OnBounded.Base {u}
 open Definitions
 
 module _ {ℒ : Language {u}} where
-  open import FOL.Bounded.Casting ℒ using (castₜ) public
-  open import FOL.Bounded.Lifting ℒ using (_↑_) public
-  open import FOL.Bounded.Substitution ℒ using (substₜ; subst) public
+  open import FOL.Bounded.Manipulations.Casting ℒ using (castₜ) public
+  open import FOL.Bounded.Manipulations.Lifting ℒ using (_↑_) public
+  open import FOL.Bounded.Manipulations.Substitution ℒ using (substₜ; subst) public
 
 open import Cubical.Data.Equality using (funExt)
 open import Data.Fin using (toℕ)

@@ -16,11 +16,11 @@ zhihu-tags: Agda, 数理逻辑
 open import FOL.Language
 module FOL.Bounded.Syntactics (ℒ : Language {u}) where
 open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Sethood ℒ
+open import FOL.Bounded.Lemmas.Sethood ℒ
 
 private module Free where
   open import FOL.Base ℒ public
-  open import FOL.Sethood ℒ public
+  open import FOL.Lemmas.Sethood ℒ public
   open import FOL.Syntactics ℒ public
 open Free._⊢_ hiding (axiom)
 
