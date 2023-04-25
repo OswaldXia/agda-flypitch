@@ -76,42 +76,38 @@ module _ where
 
 open ClosedRealizer termModel
 
-hPropEqual : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
-  count∀ φ < n → ∥ T ⊢ appsᵣ φ xs ∥ₚ ≡ termModel ⊨ˢ appsᵣ φ xs , isProp-⊨ˢ _ _
-hPropEqual {0} {suc n} ⊥ [] _ = hPropExt $
+termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
+  count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
+termModelCompleteGuarded {0} {suc n} ⊥ [] _ =
   →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
-hPropEqual {l} {suc n} (rel R) xs H = sym $
-  termModel ⊨ˢ appsᵣ (rel R) xs , _ ≡⟨ hPropExt $ realizeAppsᵣ↔ [] (rel R) _ ⟩
-  relMap R (map realizeₜ xs)        ≡⟨ cong (relMap R) (≡map[] _) ⟩
-  relMap R (map [_] xs)             ≡⟨ ≡preRel _ _ ⟩
-  preRel (rel R) xs , squash₁       ≡⟨⟩
-  ∥ T ⊢ appsᵣ (rel R) xs ∥ₚ         ∎
-hPropEqual {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
-... | rel _    = hPropEqual φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
-... | appᵣ _ _ = hPropEqual φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
-hPropEqual {0} {suc n} (t₁ ≈ t₂) [] H = hPropExt $
+termModelCompleteGuarded {l} {suc n} (rel R) xs H = hPropExt⁻ $ sym $
+  termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realizeAppsᵣ↔ [] (rel R) _ ⟩
+  relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[] _) ⟩
+  relMap R (map [_] xs)                         ≡⟨ ≡preRel _ _ ⟩
+  preRel (rel R) xs , squash₁                   ≡⟨⟩
+  ∥ T ⊢ appsᵣ (rel R) xs ∥ₚ                     ∎
+termModelCompleteGuarded {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
+... | rel _    = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
+... | appᵣ _ _ = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
+termModelCompleteGuarded {0} {suc n} (t₁ ≈ t₂) [] H =
   T ⊦ t₁ ≈ t₂               ↔⟨ →: eq/ _ _ ←: effective isPropValued≋ isEquivRel≋ _ _ ⟩
   [ t₁ ] ≡ [ t₂ ]           ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[] t₁) (≡[] t₂) refl ⟩
   realizeₜ t₁ ≡ realizeₜ t₂ ↔⟨⟩
   termModel ⊨ˢ t₁ ≈ t₂      ↔∎
-hPropEqual {0} {suc n} (φ₁ ⇒ φ₂) [] H =
-  let lt₁ : count∀ φ₁ < suc n
-      lt₁ = ≤-trans (s≤s (m≤m+n _ _)) H
-      lt₂ : count∀ φ₂ < suc n
-      lt₂ = ≤-trans (s≤s (m≤n+m _ _)) H
-      IH₁ : T ⊦ appsᵣ φ₁ [] ↔ termModel ⊨ˢ appsᵣ φ₁ []
-      IH₁ = hPropExt⁻ $ hPropEqual φ₁ [] lt₁
-      IH₂ : ∥ T ⊢ appsᵣ φ₂ [] ∥ₚ ≡ termModel ⊨ˢ appsᵣ φ₂ [] , isProp-⊨ˢ _ _
-      IH₂ = hPropEqual φ₂ [] lt₂
-  in hPropExt $
+termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =
+  let IH₁ : T ⊦ appsᵣ φ₁ [] ↔ termModel ⊨ˢ appsᵣ φ₁ []
+      IH₁ = termModelCompleteGuarded φ₁ [] $ ≤-trans (s≤s (m≤m+n _ _)) H
+      IH₂ : T ⊦ appsᵣ φ₂ [] ↔ termModel ⊨ˢ appsᵣ φ₂ []
+      IH₂ = termModelCompleteGuarded φ₂ [] $ ≤-trans (s≤s (m≤n+m _ _)) H
+  in
     →: (λ ⊢r r₁ → {!   !})
     ←: {!   !}
-hPropEqual {0} {suc n} (∀' φ) [] H = {!   !}
+termModelCompleteGuarded {0} {suc n} (∀' φ) [] H = {!   !}
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
-termModelComplete φ xs = hPropExt⁻ $ hPropEqual φ xs (s≤s ≤-refl)
+termModelComplete φ xs = termModelCompleteGuarded φ xs (s≤s ≤-refl)
 
 termModelWellDefined : termModel ⊨ᵀ T
 termModelWellDefined φ φ∈T = to (termModelComplete φ []) ∣ axiom φ∈T ∣₁
