@@ -15,7 +15,7 @@ open import CubicalExt.Functions.Logic.Iff
 
 open import Data.Nat
 open import Data.Fin using (Fin; zero; suc; toℕ)
-open import Data.Vec using (Vec; []; _∷_; lookup)
+open import Data.Vec using (Vec; []; _∷_; lookup; map)
 open import Function using (_$_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
@@ -52,6 +52,12 @@ module Pre where
     eq' x zero    = refl
     eq' x (suc k) = eq k
 
+  realize-appsᵣ-iff : (𝓋 : Vec Domain n) (φ : Formulaₗ n l) (xs : Vec (Term n) l) →
+    r 𝓋 (appsᵣ φ xs) [] ↔ r 𝓋 φ (map (λ t → rₜ 𝓋 t []) xs)
+  realize-appsᵣ-iff 𝓋 φ [] = ↔-refl
+  realize-appsᵣ-iff 𝓋 φ (x ∷ xs) = realize-appsᵣ-iff 𝓋 (appᵣ φ x) xs
+
+open Pre using (realize-appsᵣ-iff) public
 
 module Opened where
   open OpenedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public

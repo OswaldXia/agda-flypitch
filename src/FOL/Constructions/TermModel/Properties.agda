@@ -8,21 +8,22 @@ module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory �
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
 open Language ℒ
 
+open import FOL.Constructions.TermModel.Base T
+open TermModel hiding (Domain; func; rel)
+
+open import FOL.Structure.Base using (Structure)
+open Structure termModel using (Domain; relMap)
+
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
+open import FOL.Bounded.Lemmas.Realization termModel
 open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 import FOL.Base ℒ as Free
 open Free.Formulaₗ
 open import FOL.Syntactics ℒ using (⇒-elim)
-
-open import FOL.Constructions.TermModel.Base T
-open TermModel using (nonempty; preFunc; preRel; preFunc-pointwiseEq; preRel-pointwiseIff)
-
-open import FOL.Structure.Base using (Structure)
-open Structure termModel using (Domain; relMap)
 
 open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
 open import Cubical.Foundations.HLevels using (isSetHProp)
@@ -56,11 +57,6 @@ module _ where
     realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ ≡preFunc t₁ (t₂ ∷ xs) ⟩
     [ apps t₁ (t₂ ∷ xs)]                            ∎
 
-  realizeAppsᵣ↔ : (𝓋 : Vec Domain n) (r : Formulaₗ n l) (xs : Vec (Term n) l) →
-    realize 𝓋 (appsᵣ r xs) [] ↔ realize 𝓋 r (map (λ t → realizeₜ 𝓋 t []) xs)
-  realizeAppsᵣ↔ 𝓋 r [] = ↔-refl
-  realizeAppsᵣ↔ 𝓋 r (x ∷ xs) = realizeAppsᵣ↔ 𝓋 (appᵣ r x) xs
-
 module _ where
   open ClosedRealizer termModel
 
@@ -84,7 +80,7 @@ termModelCompleteGuarded {0} {suc n} ⊥ [] _ =
   →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
 termModelCompleteGuarded {l} {suc n} (rel R) xs H = hPropExt⁻ $ sym $
-  termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realizeAppsᵣ↔ [] (rel R) _ ⟩
+  termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realize-appsᵣ-iff [] (rel R) _ ⟩
   relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[] _) ⟩
   relMap R (map [_] xs)                         ≡⟨ ≡preRel _ _ ⟩
   preRel (rel R) xs , squash₁                   ≡⟨⟩
@@ -105,7 +101,9 @@ termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =
   in
     →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
     ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
-termModelCompleteGuarded {0} {suc n} (∀' φ) [] H = {!   !}
+termModelCompleteGuarded {0} {suc n} (∀' φ) [] H =
+  →: (λ ⊦ t → {!   !})
+  ←: {!   !}
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
