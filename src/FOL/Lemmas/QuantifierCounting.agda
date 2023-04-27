@@ -11,7 +11,7 @@ count∀OfRel : (r : Formulaₗ (suc l)) → count∀ r ≡ 0
 count∀OfRel (rel R) = refl
 count∀OfRel (appᵣ r t) = refl
 
-count∀OfSubst : (φ : Formulaₗ l) (s : Term) (n : ℕ) → count∀ (φ [ s / n ]) ≡ count∀ φ
+count∀OfSubst : (φ : Formulaₗ l) (s : Term) (n : ℕ) → count∀ (φ [ n ≔ s ]) ≡ count∀ φ
 count∀OfSubst ⊥ s n = refl
 count∀OfSubst (rel R) s n = refl
 count∀OfSubst (appᵣ φ t) s n = refl

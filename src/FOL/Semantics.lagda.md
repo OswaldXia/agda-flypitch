@@ -55,7 +55,7 @@ module PreRealizer (𝒮 : Structure {v}) where
   realize 𝓋 (appᵣ φ t) xs = realize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
   realize 𝓋 (t₁ ≈ t₂)  xs = realizeₜ 𝓋 t₁ xs ≡ realizeₜ 𝓋 t₂ xs
   realize 𝓋 (φ₁ ⇒ φ₂)  xs = realize 𝓋 φ₁ xs → realize 𝓋 φ₂ xs
-  realize 𝓋 (∀' φ)     xs = ∀ x → realize (𝓋 [ x / 0 ]ᵥ) φ xs
+  realize 𝓋 (∀' φ)     xs = ∀ x → realize (𝓋 [ 0 ≔ x ]ᵥ) φ xs
 
   isPropRealize : (𝓋 : ℕ → Domain) (φ : Formulaₗ l) (xs : Vec Domain l) → isProp (realize 𝓋 φ xs)
   isPropRealize 𝓋 ⊥           xs = isProp⊥*
@@ -63,7 +63,7 @@ module PreRealizer (𝒮 : Structure {v}) where
   isPropRealize 𝓋 (appᵣ φ t)  xs = isPropRealize 𝓋 φ (realizeₜ 𝓋 t [] ∷ xs)
   isPropRealize 𝓋 (t₁ ≈ t₂)   xs = isSetDomain _ _
   isPropRealize 𝓋 (φ₁ ⇒ φ₂)   xs = isPropΠ $ λ _ → isPropRealize 𝓋 φ₂ xs
-  isPropRealize 𝓋 (∀' φ)      xs = isPropΠ $ λ x → isPropRealize (𝓋 [ x / 0 ]ᵥ) φ xs
+  isPropRealize 𝓋 (∀' φ)      xs = isPropΠ $ λ x → isPropRealize (𝓋 [ 0 ≔ x ]ᵥ) φ xs
 ```
 
 ```agda

@@ -41,7 +41,7 @@ syntax subst φ s = φ [≔ s ]
 
 -- currently not used
 unbound-substₜ : (t : Termₗ (suc n) l) (s : ClosedTerm) →
-  unboundₜ (t [≔ s ]ₜ) ≡ unboundₜ t Free.[ unboundₜ s / n ]ₜ
+  unboundₜ (t [≔ s ]ₜ) ≡ unboundₜ t Free.[ n ≔ unboundₜ s ]ₜ
 unbound-substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
 ... | tri< k<n _ _  = cong Free.var $ toℕ-fromℕ< _
 ... | tri≈ _ k≡n _  = unbound↑ s n
@@ -51,7 +51,7 @@ unbound-substₜ (app t₁ t₂) s = cong₂ Free.app (unbound-substₜ t₁ s) 
 
 -- currently not used
 unbound-subst : (φ : Formulaₗ (suc n) l) (s : ClosedTerm) →
-  unbound (φ [≔ s ]) ≡ unbound φ Free.[ unboundₜ s / n ]
+  unbound (φ [≔ s ]) ≡ unbound φ Free.[ n ≔ unboundₜ s ]
 unbound-subst ⊥ s           = refl
 unbound-subst (rel R) s     = refl
 unbound-subst (appᵣ r t) s  = cong₂ Free.appᵣ (unbound-subst r s) (unbound-substₜ t s)

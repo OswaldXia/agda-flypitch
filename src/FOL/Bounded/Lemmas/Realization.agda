@@ -4,7 +4,7 @@ open import FOL.Language
 open import FOL.Structure.Base using (Structure)
 module FOL.Bounded.Lemmas.Realization {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
 
-open import FOL.Base ℒ using (_[_/_]ᵥ)
+open import FOL.Base ℒ using (_[_≔_]ᵥ)
 import FOL.Semantics ℒ as Free
 open Structure 𝒮
 
@@ -49,8 +49,8 @@ module Pre where
   realize-iff 𝓋 𝑣 eq (φ₁ ⇒ φ₂)  xs =
     →↔→ (realize-iff 𝓋 𝑣 eq φ₁ xs) (realize-iff 𝓋 𝑣 eq φ₂ xs)
   realize-iff 𝓋 𝑣 eq (∀' φ)     [] = Π↔Π $ λ x →
-    realize-iff (x ∷ 𝓋) (𝑣 [ x / 0 ]ᵥ) (eq' x) φ [] where
-    eq' : ∀ x k → lookup (x ∷ 𝓋) k ≡ (𝑣 [ x / 0 ]ᵥ) (toℕ k)
+    realize-iff (x ∷ 𝓋) (𝑣 [ 0 ≔ x ]ᵥ) (eq' x) φ [] where
+    eq' : ∀ x k → lookup (x ∷ 𝓋) k ≡ (𝑣 [ 0 ≔ x ]ᵥ) (toℕ k)
     eq' x zero    = refl
     eq' x (suc k) = eq k
 

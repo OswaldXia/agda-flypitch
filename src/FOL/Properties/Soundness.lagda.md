@@ -61,7 +61,7 @@ module Untruncated where
       to (realize-subst0 𝒮 𝓋 φ t) $ soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _
     soundness (subst {_} {s} {t} {φ} ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ =
       to (realize-subst0 𝒮 𝓋 φ t) $ H where
-        H : realize 𝒮 (𝓋 [ realizeₜ 𝒮 𝓋 t / 0 ]ᵥ) φ
+        H : realize 𝒮 (𝓋 [ 0 ≔ realizeₜ 𝒮 𝓋 t ]ᵥ) φ
         H rewrite pathToEq $ sym $ soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ =
           from (realize-subst0 𝒮 𝓋 φ s) $ (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
 ```
