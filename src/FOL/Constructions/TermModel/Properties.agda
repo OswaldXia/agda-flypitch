@@ -18,6 +18,7 @@ open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.Lemmas.Realization termModel
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
@@ -32,12 +33,12 @@ open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Functions.Logic using (∥_∥ₚ)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
-open import Cubical.HITs.SetQuotients using ([_]; eq/; squash/; effective)
+open import Cubical.HITs.SetQuotients using (eq/; squash/; effective) renaming ([_] to [_]/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m)
-open import Data.Vec using (Vec; []; _∷_; map)
+open import Data.Vec using (Vec; []; [_]; _∷_; map)
 open import Function using (_∘_; _∘₂_; _$_)
 open import Relation.Binary.PropositionalEquality
   using () renaming (subst to substEq; sym to symEq)
@@ -49,28 +50,35 @@ module _ where
   open PreRealizer termModel
 
   ≡preFunc : (f : ClosedTermₗ l) (xs : Vec ClosedTerm l) →
-    realizeₜ [] f (map [_] xs) ≡ preFunc f xs
+    realizeₜ [] f (map [_]/ xs) ≡ preFunc f xs
   ≡preFunc (func f) = quotientBeta ≋-refl squash/ (preFunc (func f)) (preFunc-pointwiseEq (func f))
   ≡preFunc (app t₁ t₂) xs =
-    realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_] xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (≡preFunc t₂ []) ⟩
-    realizeₜ [] t₁ ([ t₂ ] ∷ map [_] xs)            ≡⟨⟩
-    realizeₜ [] t₁ (map [_] (t₂ ∷ xs))              ≡⟨ ≡preFunc t₁ (t₂ ∷ xs) ⟩
-    [ apps t₁ (t₂ ∷ xs)]                            ∎
+    realizeₜ [] t₁ (realizeₜ [] t₂ [] ∷ map [_]/ xs) ≡⟨ cong (λ x → realizeₜ [] t₁ (x ∷ _)) (≡preFunc t₂ []) ⟩
+    realizeₜ [] t₁ ([ t₂ ]/ ∷ map [_]/ xs)           ≡⟨⟩
+    realizeₜ [] t₁ (map [_]/ (t₂ ∷ xs))              ≡⟨ ≡preFunc t₁ (t₂ ∷ xs) ⟩
+    [ apps t₁ (t₂ ∷ xs)]/                            ∎
+
+module _ where
+  open OpenedRealizer termModel
+
+  ⊨[≔]↔ : (φ : Formula 1) (t : ClosedTerm) →
+    termModel ⊨ˢ φ [≔ t ] ↔ realize [ realizeₜ [] t ] φ
+  ⊨[≔]↔ φ t = {!   !}
 
 module _ where
   open ClosedRealizer termModel
 
   ≡preRel : (R : ℜ l) (xs : Vec ClosedTerm l) →
-    relMap R (map [_] xs) ≡ preRel (rel R) xs , squash₁
+    relMap R (map [_]/ xs) ≡ preRel (rel R) xs , squash₁
   ≡preRel R = quotientBeta ≋-refl isSetHProp _
     λ x → hPropExt $ preRel-pointwiseIff (rel R) x
 
-  ≡[] : (t : ClosedTerm) → realizeₜ t ≡ [ t ]
-  ≡[] t = ≡preFunc t []
+  ≡[]/ : (t : ClosedTerm) → realizeₜ t ≡ [ t ]/
+  ≡[]/ t = ≡preFunc t []
 
-  ≡map[] : (xs : Vec ClosedTerm l) → map realizeₜ xs ≡ map [_] xs
-  ≡map[] [] = refl
-  ≡map[] (x ∷ xs) = cong₂ _∷_ (≡[] x) (≡map[] xs)
+  ≡map[]/ : (xs : Vec ClosedTerm l) → map realizeₜ xs ≡ map [_]/ xs
+  ≡map[]/ [] = refl
+  ≡map[]/ (x ∷ xs) = cong₂ _∷_ (≡[]/ x) (≡map[]/ xs)
 
 open ClosedRealizer termModel
 
@@ -81,8 +89,8 @@ termModelCompleteGuarded {0} {suc n} ⊥ [] _ =
   ←: λ ()
 termModelCompleteGuarded {l} {suc n} (rel R) xs H = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realize-appsᵣ-iff [] (rel R) _ ⟩
-  relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[] _) ⟩
-  relMap R (map [_] xs)                         ≡⟨ ≡preRel _ _ ⟩
+  relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[]/ _) ⟩
+  relMap R (map [_]/ xs)                        ≡⟨ ≡preRel _ _ ⟩
   preRel (rel R) xs , squash₁                   ≡⟨⟩
   ∥ T ⊢ appsᵣ (rel R) xs ∥ₚ                     ∎
 termModelCompleteGuarded {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
@@ -90,7 +98,7 @@ termModelCompleteGuarded {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
 ... | appᵣ _ _ = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
 termModelCompleteGuarded {0} {suc n} (t₁ ≈ t₂) [] H =
   T ⊦ t₁ ≈ t₂               ↔⟨ →: eq/ _ _ ←: effective isPropValued≋ isEquivRel≋ _ _ ⟩
-  [ t₁ ] ≡ [ t₂ ]           ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[] t₁) (≡[] t₂) refl ⟩
+  [ t₁ ]/ ≡ [ t₂ ]/         ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[]/ t₁) (≡[]/ t₂) refl ⟩
   realizeₜ t₁ ≡ realizeₜ t₂ ↔⟨⟩
   termModel ⊨ˢ t₁ ≈ t₂      ↔∎
 termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =

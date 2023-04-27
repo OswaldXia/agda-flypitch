@@ -62,17 +62,6 @@ module Pre where
   realize-appsᵣ-iff 𝓋 φ [] = ↔-refl
   realize-appsᵣ-iff 𝓋 φ (x ∷ xs) = realize-appsᵣ-iff 𝓋 (appᵣ φ x) xs
 
-  realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
-    rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (rₜ [] s [] ∷ 𝓋) t xs
-  realizeₜ-substₜ-eq {n} 𝓋 (var k) s xs with <-cmp (toℕ k) n
-  ... | tri< a ¬b ¬c = {!   !}
-  ... | tri≈ ¬a b ¬c = {!   !}
-  ... | tri> ¬a ¬b c = {!   !}
-  realizeₜ-substₜ-eq 𝓋 (func f)    s xs = refl
-  realizeₜ-substₜ-eq 𝓋 (app t₁ t₂) s xs
-    rewrite realizeₜ-substₜ-eq 𝓋 t₂ s []
-          | realizeₜ-substₜ-eq 𝓋 t₁ s (rₜ (rₜ [] s [] ∷ 𝓋) t₂ [] ∷ xs) = refl
-
 open Pre using (realize-appsᵣ-iff) public
 
 module Opened where

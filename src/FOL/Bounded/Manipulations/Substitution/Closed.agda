@@ -40,6 +40,7 @@ subst (∀' φ) s = ∀' subst φ s
 
 syntax subst φ s = φ [≔ s ]
 
+-- currently not used
 var[≔]< : (k : Fin (suc n)) (s : ClosedTerm) (H : toℕ k < n) →
   var k [≔ s ]ₜ ≡ var (fromℕ< H)
 var[≔]< {n} k s H with <-cmp (toℕ k) n
