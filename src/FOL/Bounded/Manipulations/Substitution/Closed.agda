@@ -7,10 +7,11 @@ open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Manipulations.Casting ℒ
 open import FOL.Bounded.Manipulations.Lifting ℒ
 
+open import Data.Empty using (⊥-elim)
 open import StdlibExt.Data.Fin
-  using (Fin; toℕ; fromℕ<; reduce≥; toℕ-fromℕ<; toℕ-reduce≥)
+  using (Fin; toℕ; fromℕ<; reduce≥; toℕ-fromℕ<; toℕ-reduce≥; fromℕ<-cong)
 open import StdlibExt.Data.Nat
-  using (ℕ; suc; _+_; _≤_; s≤s; z≤n; ≤-trans; <-cmp)
+  using (ℕ; suc; _+_; _≤_; _<_; s≤s; z≤n; ≤-trans; <-cmp)
 open import Function using (_$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality
@@ -38,6 +39,13 @@ subst (φ₁ ⇒ φ₂) s = subst φ₁ s ⇒ subst φ₂ s
 subst (∀' φ) s = ∀' subst φ s
 
 syntax subst φ s = φ [≔ s ]
+
+var[≔]< : (k : Fin (suc n)) (s : ClosedTerm) (H : toℕ k < n) →
+  var k [≔ s ]ₜ ≡ var (fromℕ< H)
+var[≔]< {n} k s H with <-cmp (toℕ k) n
+... | tri< k<n _ _ = cong var $ fromℕ<-cong _ _ refl k<n H
+... | tri≈ k≮n _ _ = ⊥-elim $ k≮n H
+... | tri> k≮n _ _ = ⊥-elim $ k≮n H
 
 -- currently not used
 unbound-substₜ : (t : Termₗ (suc n) l) (s : ClosedTerm) →
