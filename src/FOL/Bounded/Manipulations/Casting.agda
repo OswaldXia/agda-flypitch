@@ -1,24 +1,27 @@
 {-# OPTIONS --cubical --safe #-}
+{- currently not used -}
 
 open import FOL.Language
 module FOL.Bounded.Manipulations.Casting (ℒ : Language {u}) where
 import FOL.Base ℒ as Free
 open import FOL.Bounded.Base ℒ
 
-open import Data.Fin using (Fin; inject≤)
-open import Data.Fin.Properties using (toℕ-inject≤)
-open import Data.Nat using (ℕ; _≤_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
+open import Agda.Builtin.Equality using (_≡_; refl)
+open import CubicalExt.Data.Nat using (ℕ; ℕ-UIP)
 
 private variable
   m n : ℕ
 
-castₜ : m ≤ n → Termₗ m l → Termₗ n l
-castₜ m≤n (var k)     = var (inject≤ k m≤n)
-castₜ m≤n (func f)    = func f
-castₜ m≤n (app t₁ t₂) = app (castₜ m≤n t₁) (castₜ m≤n t₂)
+castₜ : m ≡ n → Termₗ m l → Termₗ n l
+castₜ refl t = t
 
-unbound-castₜ : (m≤n : m ≤ n) (t : Termₗ m l) → unboundₜ (castₜ m≤n t) ≡ unboundₜ t
-unbound-castₜ m≤n (var k)     = cong Free.var (toℕ-inject≤ k m≤n)
-unbound-castₜ m≤n (func f)    = refl
-unbound-castₜ m≤n (app t₁ t₂) = cong₂ Free.app (unbound-castₜ m≤n t₁) (unbound-castₜ m≤n t₂)
+castₜ-eq : {t : Termₗ m l} (eq : m ≡ m) → castₜ eq t ≡ t
+castₜ-eq eq with ℕ-UIP eq
+... | refl = refl
+
+cast : m ≡ n → Formulaₗ m l → Formulaₗ n l
+cast refl φ = φ
+
+cast-eq : {φ : Formulaₗ m l} (eq : m ≡ m) → cast eq φ ≡ φ
+cast-eq eq with ℕ-UIP eq
+... | refl = refl

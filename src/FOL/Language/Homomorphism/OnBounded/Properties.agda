@@ -8,9 +8,9 @@ open import FOL.Language.Homomorphism.OnBounded.Base {u}
 open Definitions
 
 module _ {ℒ : Language {u}} where
-  open import FOL.Bounded.Manipulations.Casting ℒ using (castₜ) public
+  open import FOL.Bounded.Manipulations.Injecting ℒ using (injectₜ) public
   open import FOL.Bounded.Manipulations.Lifting ℒ using (_↑_) public
-  open import FOL.Bounded.Manipulations.Substitution ℒ using (substₜ; subst) public
+  open import FOL.Bounded.Manipulations.Substitution.Closed ℒ using (substₜ; subst) public
 
 open import Cubical.Data.Equality using (funExt)
 open import Data.Fin using (toℕ)
@@ -64,28 +64,34 @@ abstract
   formulaMorphFunctorial H = trans (cong (λ t → formulaMorph t) H) (formulaMorphComp _ _)
 
   -- currently not used
-  termMorphCast : {m≤n : m ≤ n} (t : Termₗ ℒ m l) →
-    termMorph F (castₜ m≤n t) ≡ castₜ m≤n (termMorph F t)
-  termMorphCast (var k) = refl
-  termMorphCast (func f) = refl
-  termMorphCast (app t₁ t₂) = cong₂ app (termMorphCast t₁) (termMorphCast t₂)
+  termMorphInject : {m≤n : m ≤ n} (t : Termₗ ℒ m l) →
+    termMorph F (injectₜ m≤n t) ≡ injectₜ m≤n (termMorph F t)
+  termMorphInject (var k) = refl
+  termMorphInject (func f) = refl
+  termMorphInject (app t₁ t₂) = cong₂ app (termMorphInject t₁) (termMorphInject t₂)
 
-  termMorphCastLift : (t : Termₗ ℒ m l) →
-    termMorph F (castₜ (m+n≤n+m m n) (t ↑ n)) ≡ castₜ (m+n≤n+m m n) (termMorph F t ↑ n)
-  termMorphCastLift (var k) = refl
-  termMorphCastLift (func f) = refl
-  termMorphCastLift (app t₁ t₂) = cong₂ app (termMorphCastLift t₁) (termMorphCastLift t₂)
+  -- currently not used
+  termMorphInjectLift : (t : Termₗ ℒ m l) →
+    termMorph F (injectₜ (m+n≤n+m m n) (t ↑ n)) ≡ injectₜ (m+n≤n+m m n) (termMorph F t ↑ n)
+  termMorphInjectLift (var k) = refl
+  termMorphInjectLift (func f) = refl
+  termMorphInjectLift (app t₁ t₂) = cong₂ app (termMorphInjectLift t₁) (termMorphInjectLift t₂)
 
-  termMorphSubst : (t : Termₗ ℒ (suc n + m) l) (s : Term ℒ m) →
+  ternMorphLift : (s : Termₗ ℒ m l) → termMorph F (s ↑ n) ≡ termMorph F s ↑ n
+  ternMorphLift (var k) = refl
+  ternMorphLift (func f) = refl
+  ternMorphLift (app t₁ t₂) = cong₂ app (ternMorphLift t₁) (ternMorphLift t₂)
+
+  termMorphSubst : (t : Termₗ ℒ (suc n) l) (s : ClosedTerm ℒ) →
     termMorph F (t [ s / n ]ₜ) ≡ termMorph F t [ termMorph F s / n ]ₜ
   termMorphSubst {_} {n} (var k) s with <-cmp (toℕ k) n
   ... | tri< _ _ _ = refl
-  ... | tri≈ _ _ _ = termMorphCastLift s
+  ... | tri≈ _ _ _ = ternMorphLift s
   ... | tri> _ _ _ = refl
   termMorphSubst (func f) s = refl
   termMorphSubst (app t₁ t₂) s = cong₂ app (termMorphSubst t₁ s) (termMorphSubst t₂ s)
 
-  formulaMorphSubst : (φ : Formulaₗ ℒ (suc n + m) l) (s : Term ℒ m) →
+  formulaMorphSubst : (φ : Formulaₗ ℒ (suc n) l) (s : ClosedTerm ℒ) →
     formulaMorph F (φ [ s / n ]) ≡ formulaMorph F φ [ termMorph F s / n ]
   formulaMorphSubst ⊥ _ = refl
   formulaMorphSubst (rel R) _ = refl

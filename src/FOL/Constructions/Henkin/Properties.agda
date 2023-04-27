@@ -34,7 +34,7 @@ open Language (∞-language ℒ) using (Constant)
 open import FOL.Bounded.Base using (Formulaₗ) public
 module _ {ℒ : Language {u}} where
   open import FOL.Bounded.Base ℒ using (const) public
-  open import FOL.Bounded.Manipulations.Substitution ℒ using (subst) public
+  open import FOL.Bounded.Manipulations.Substitution.Closed ℒ using (subst) public
 
 open import Tools.DirectedDiagram using (Cocone)
 open Cocone (coconeOfFormulaChain ℒ 0 0) using () renaming (map to map0)

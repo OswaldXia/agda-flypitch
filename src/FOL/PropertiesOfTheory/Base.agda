@@ -6,7 +6,7 @@ module FOL.PropertiesOfTheory.Base (ℒ : Language {u}) where
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
-open import FOL.Bounded.Manipulations.Substitution ℒ
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 open import FOL.Bounded.Semantics ℒ using (Model)
 open import FOL.Structure.Base
 open Language ℒ using (Constant)
