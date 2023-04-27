@@ -83,7 +83,7 @@ abstract
   ternMorphLift (app t₁ t₂) = cong₂ app (ternMorphLift t₁) (ternMorphLift t₂)
 
   termMorphSubst : (t : Termₗ ℒ (suc n) l) (s : ClosedTerm ℒ) →
-    termMorph F (t [ s / n ]ₜ) ≡ termMorph F t [ termMorph F s / n ]ₜ
+    termMorph F (t [≔ s ]ₜ) ≡ termMorph F t [≔ termMorph F s ]ₜ
   termMorphSubst {_} {n} (var k) s with <-cmp (toℕ k) n
   ... | tri< _ _ _ = refl
   ... | tri≈ _ _ _ = ternMorphLift s
@@ -92,7 +92,7 @@ abstract
   termMorphSubst (app t₁ t₂) s = cong₂ app (termMorphSubst t₁ s) (termMorphSubst t₂ s)
 
   formulaMorphSubst : (φ : Formulaₗ ℒ (suc n) l) (s : ClosedTerm ℒ) →
-    formulaMorph F (φ [ s / n ]) ≡ formulaMorph F φ [ termMorph F s / n ]
+    formulaMorph F (φ [≔ s ]) ≡ formulaMorph F φ [≔ termMorph F s ]
   formulaMorphSubst ⊥ _ = refl
   formulaMorphSubst (rel R) _ = refl
   formulaMorphSubst (appᵣ r t) s = cong₂ appᵣ (formulaMorphSubst r s) (termMorphSubst t s)

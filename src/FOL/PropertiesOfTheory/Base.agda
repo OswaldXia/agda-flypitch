@@ -46,7 +46,7 @@ isPropComplete = isPropΣ isPropCon λ _ → isPropΠ λ _ → squash₁
 -- 有足够常元的理论
 
 [_witnessing_] : Constant → Formula 1 → Sentence
-[_witnessing_] c φ = (∃' φ) ⇒ φ [ const c / 0 ]
+[_witnessing_] c φ = (∃' φ) ⇒ φ [≔ const c ]
 
 hasEnoughConstants : Theory → Type (ℓ-suc u)
 hasEnoughConstants T = ∀ (φ : Formula 1) → ∃[ c ∈ Constant ] T ⊢ [ c witnessing φ ]

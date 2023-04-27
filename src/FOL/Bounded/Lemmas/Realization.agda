@@ -5,10 +5,12 @@ open import FOL.Structure.Base using (Structure)
 module FOL.Bounded.Lemmas.Realization {ℒ : Language {u}} {v} (𝒮 : Structure ℒ {v}) where
 
 open import FOL.Base ℒ using (_[_/_]ᵥ)
-open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Semantics ℒ
 import FOL.Semantics ℒ as Free
 open Structure 𝒮
+
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Semantics ℒ
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 
 open import Cubical.Data.Equality using (eqToPath)
 open import CubicalExt.Functions.Logic.Iff
@@ -56,6 +58,10 @@ module Pre where
     r 𝓋 (appsᵣ φ xs) [] ↔ r 𝓋 φ (map (λ t → rₜ 𝓋 t []) xs)
   realize-appsᵣ-iff 𝓋 φ [] = ↔-refl
   realize-appsᵣ-iff 𝓋 φ (x ∷ xs) = realize-appsᵣ-iff 𝓋 (appᵣ φ x) xs
+
+  --realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
+  --  rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (rₜ [] s [] ∷ 𝓋) t xs
+  --realizeₜ-substₜ-eq = {!   !}
 
 open Pre using (realize-appsᵣ-iff) public
 

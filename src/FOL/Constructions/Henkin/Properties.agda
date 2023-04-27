@@ -74,11 +74,11 @@ module _ {i : ℕ} where
             ≡⟨ cong [_witnessing φ ] c≡ ⟩
           [ funMorph (witnessOf φᵢ) witnessing φ ]
             ≡⟨⟩
-          ∃' φ ⇒ φ [ const $ funMorph $ witnessOf φᵢ / 0 ]
-            ≡⟨ cong (λ φ → ∃' φ ⇒ φ [ _ / 0 ]) eq1 ⟩
-          ∃' (map1 (suc i) φᵢ₊) ⇒ map1 (suc i) φᵢ₊ [ const $ funMorph $ witnessOf φᵢ / 0 ]
+          ∃' φ ⇒ φ [≔ const $ funMorph $ witnessOf φᵢ ]
+            ≡⟨ cong (λ φ → ∃' φ ⇒ φ [≔ _ ]) eq1 ⟩
+          ∃' (map1 (suc i) φᵢ₊) ⇒ map1 (suc i) φᵢ₊ [≔ const $ funMorph $ witnessOf φᵢ ]
             ≡⟨ cong (∃' map1 (suc i) φᵢ₊ ⇒_) (sym $ eqToPath $ formulaMorphSubst _ _) ⟩
-          ∃' (map1 (suc i) φᵢ₊) ⇒ map0 (suc i) (φᵢ₊ [ const $ witnessOf φᵢ / 0 ])
+          ∃' (map1 (suc i) φᵢ₊) ⇒ map0 (suc i) (φᵢ₊ [≔ const $ witnessOf φᵢ ])
             ≡⟨⟩
           map0 (suc i) (witnessStatement φᵢ) ∎)
     })
