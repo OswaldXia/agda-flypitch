@@ -48,7 +48,6 @@ var[≔]< {n} k s H with <-cmp (toℕ k) n
 ... | tri≈ k≮n _ _ = ⊥-elim $ k≮n H
 ... | tri> k≮n _ _ = ⊥-elim $ k≮n H
 
--- currently not used
 unbound-substₜ : (t : Termₗ (suc n) l) (s : ClosedTerm) →
   unboundₜ (t [≔ s ]ₜ) ≡ unboundₜ t Free.[ n ≔ unboundₜ s ]ₜ
 unbound-substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
@@ -58,7 +57,6 @@ unbound-substₜ {n} {m} (var k) s with <-cmp (toℕ k) n
 unbound-substₜ (func f) s    = refl
 unbound-substₜ (app t₁ t₂) s = cong₂ Free.app (unbound-substₜ t₁ s) (unbound-substₜ t₂ s)
 
--- currently not used
 unbound-subst : (φ : Formulaₗ (suc n) l) (s : ClosedTerm) →
   unbound (φ [≔ s ]) ≡ unbound φ Free.[ n ≔ unboundₜ s ]
 unbound-subst ⊥ s           = refl

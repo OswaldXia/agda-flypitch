@@ -18,13 +18,16 @@ open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.Lemmas.Realization termModel
-open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ renaming (subst to subst-syntax)
 open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
-import FOL.Base ℒ as Free
-open Free.Formulaₗ
-open import FOL.Syntactics ℒ using (⇒-elim)
+module Free where
+  open import FOL.Base ℒ public
+  open import FOL.Syntactics ℒ public
+open Free.Formulaₗ public
+open Free using (⇒-elim; ∀-elim)
+open import FOL.Lemmas.QuantifierCounting ℒ
 
 open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
 open import Cubical.Foundations.HLevels using (isSetHProp)
@@ -33,7 +36,8 @@ open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Functions.Logic using (∥_∥ₚ)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
-open import Cubical.HITs.SetQuotients using (eq/; squash/; effective) renaming ([_] to [_]/)
+open import Cubical.HITs.SetQuotients using (eq/; squash/; effective)
+  renaming ([_] to [_]/; elim to elim/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
 
 open import Data.Nat
@@ -62,7 +66,7 @@ module _ where
   open OpenedRealizer termModel
 
   ⊨[≔]↔ : (φ : Formula 1) (t : ClosedTerm) →
-    termModel ⊨ˢ φ [≔ t ] ↔ realize [ realizeₜ [] t ] φ
+    termModel ⊨ˢ φ [≔ t ] ↔ realize [ [ t ]/ ] φ
   ⊨[≔]↔ φ t = {!   !}
 
 module _ where
@@ -80,28 +84,28 @@ module _ where
   ≡map[]/ [] = refl
   ≡map[]/ (x ∷ xs) = cong₂ _∷_ (≡[]/ x) (≡map[]/ xs)
 
-open ClosedRealizer termModel
-
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
-termModelCompleteGuarded {0} {suc n} ⊥ [] _ =
+termModelCompleteGuarded ⊥ [] _ =
   →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
-termModelCompleteGuarded {l} {suc n} (rel R) xs H = hPropExt⁻ $ sym $
+termModelCompleteGuarded (rel R) xs H = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realize-appsᵣ-iff [] (rel R) _ ⟩
   relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[]/ _) ⟩
   relMap R (map [_]/ xs)                        ≡⟨ ≡preRel _ _ ⟩
   preRel (rel R) xs , squash₁                   ≡⟨⟩
   ∥ T ⊢ appsᵣ (rel R) xs ∥ₚ                     ∎
-termModelCompleteGuarded {l} {suc n} (appᵣ φ t) xs H with (unbound φ) in eq
-... | rel _    = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
-... | appᵣ _ _ = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < suc n) (symEq eq) H
-termModelCompleteGuarded {0} {suc n} (t₁ ≈ t₂) [] H =
+  where open ClosedRealizer termModel using (realizeₜ)
+termModelCompleteGuarded {_} {n} (appᵣ φ t) xs H with (unbound φ) in eq
+... | rel _    = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < n) (symEq eq) H
+... | appᵣ _ _ = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < n) (symEq eq) H
+termModelCompleteGuarded (t₁ ≈ t₂) [] H =
   T ⊦ t₁ ≈ t₂               ↔⟨ →: eq/ _ _ ←: effective isPropValued≋ isEquivRel≋ _ _ ⟩
   [ t₁ ]/ ≡ [ t₂ ]/         ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[]/ t₁) (≡[]/ t₂) refl ⟩
   realizeₜ t₁ ≡ realizeₜ t₂ ↔⟨⟩
   termModel ⊨ˢ t₁ ≈ t₂      ↔∎
-termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =
+  where open ClosedRealizer termModel using (realizeₜ)
+termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
   let IH₁ : T ⊦ appsᵣ φ₁ [] ↔ termModel ⊨ˢ appsᵣ φ₁ []
       IH₁ = termModelCompleteGuarded φ₁ [] $ ≤-trans (s≤s (m≤m+n _ _)) H
       IH₂ : T ⊦ appsᵣ φ₂ [] ↔ termModel ⊨ˢ appsᵣ φ₂ []
@@ -110,8 +114,14 @@ termModelCompleteGuarded {0} {suc n} (φ₁ ⇒ φ₂) [] H =
     →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
     ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {0} {suc n} (∀' φ) [] H =
-  →: (λ ⊦ t → {!   !})
+  →: (λ ⊦ → elim/ (λ _ → isProp→isSet (isPropRealize _ _))
+    (λ t → to (⊨[≔]↔ φ t) $ to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !}) {!   !})
+    --to (termModelCompleteGuarded {n = suc n} (φ [≔ t ]) [] {!   !})
+    --(substEq (_< n) (symEq {!   !}) {!   !})
+    -- ∣ substEq (_ Free.⊢_) (symEq (unbound-subst φ t)) (∀-elim {!   !}) ∣₁
+    {!   !})
   ←: {!   !}
+  where open OpenedRealizer termModel using (isPropRealize)
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
