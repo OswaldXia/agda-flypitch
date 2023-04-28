@@ -25,8 +25,8 @@ open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.Bounded.Lemmas.Realization termModel
 open import FOL.Bounded.Lemmas.QuantifierCounting ℒ
-open import FOL.Bounded.Manipulations.Substitution.Closed ℒ renaming (subst to subst-syntax)
-open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
+open import FOL.PropertiesOfTheory ℒ
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
@@ -112,7 +112,7 @@ termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
       IH₂ : T ⊦ appsᵣ φ₂ [] ↔ termModel ⊨ˢ appsᵣ φ₂ []
       IH₂ = termModelCompleteGuarded φ₂ [] $ ≤-trans (s≤s (m≤n+m _ _)) H
   in  →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
-      ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
+      ←: (λ ⊨ → Complete.⇒-intro H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
   →: (λ ⊦ → elimProp (λ _ → isPropRealize _ _) λ t → to (⊨[≔]↔ φ t)
     $ to (termModelCompleteGuarded (φ [≔ t ]) []

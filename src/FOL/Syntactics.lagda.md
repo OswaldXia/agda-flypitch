@@ -103,7 +103,13 @@ _⊦_ : Theory → Formula → Type (ℓ-suc u)
 Γ ⊦ φ = ∥ Γ ⊢ φ ∥₁
 ```
 
-虽然我们最终只关心 `⊦`, 例如一阶逻辑的完备性将使用 `⊦` 来表达, 但在此之前需要先证明一系列关于 `⊢` 的引理.
+虽然我们最终只关心 `⊦`, 例如一阶逻辑的完备性将使用 `⊦` 来表达, 但在此之前需要先证明一系列关于 `⊢` 的引理. 我们将使用以下隐式参数.
+
+```agda
+private variable
+  Γ Δ : Theory
+  φ φ₁ φ₂ φ₃ : Formula
+```
 
 ## 理论的弱化
 
@@ -114,7 +120,7 @@ _⊦_ : Theory → Formula → Type (ℓ-suc u)
 证明: 简单的集合论事实配合归纳法即可. ∎
 
 ```agda
-weakening : ∀ {Γ Δ φ} → Γ ⊆ Δ → Γ ⊢ φ → Δ ⊢ φ
+weakening : Γ ⊆ Δ → Γ ⊢ φ → Δ ⊢ φ
 weakening Γ⊆Δ (axiom φ∈Γ)     = axiom   (Γ⊆Δ φ∈Γ)
 weakening Γ⊆Δ (⊥-elim ⊢)      = ⊥-elim  (weakening (⨭⊆⨭ Γ⊆Δ) ⊢)
 weakening Γ⊆Δ ≈-refl          = ≈-refl
@@ -128,20 +134,20 @@ weakening Γ⊆Δ (subst ⊢₁ ⊢₂)   = subst   (weakening Γ⊆Δ ⊢₁) (
 以下是两个简单的变化形式, 它们会经常用到.
 
 ```agda
-weakening1 : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+weakening1 : Γ ⊢ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
 weakening1 = weakening ⊆⨭
 
-weakening2 : ∀ {Γ : Theory} {φ₁ φ₂ φ₃} → Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₃ ⨭ φ₁ ⊢ φ₂
+weakening2 : Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₃ ⨭ φ₁ ⊢ φ₂
 weakening2 = weakening (⨭⊆⨭ ⊆⨭)
 ```
 
 与之类似地是 `axiom` 规则的两个变化形式.
 
 ```agda
-axiom1 : ∀ {Γ : Theory} {φ} → Γ ⨭ φ ⊢ φ
+axiom1 : Γ ⨭ φ ⊢ φ
 axiom1 = axiom (inr reflId)
 
-axiom2 : ∀ {Γ : Theory} {φ₁ φ₂} → Γ ⨭ φ₁ ⨭ φ₂ ⊢ φ₁
+axiom2 : Γ ⨭ φ₁ ⨭ φ₂ ⊢ φ₁
 axiom2 = axiom (inl (inr reflId))
 ```
 
@@ -152,14 +158,14 @@ axiom2 = axiom (inl (inr reflId))
 `⇒-intro` 在有些书中称为[**演绎定理 (deduction theorem)**](https://zh.wikipedia.org/wiki/%E4%B8%80%E9%98%B6%E9%80%BB%E8%BE%91#%E6%BC%94%E7%B9%B9%E5%85%83%E5%AE%9A%E7%90%86). 我们这里直接指定为规则. 以下是它的逆命题. 两者结合表明了 `Γ ⨭ φ₁ ⊢ φ₂` 与 `Γ ⊢ φ₁ ⇒ φ₂` 的等价性.
 
 ```agda
-⇒-elim-to-axiom : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇒ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+⇒-elim-to-axiom : Γ ⊢ φ₁ ⇒ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
 ⇒-elim-to-axiom Γ⊢⇒ = ⇒-elim (weakening1 Γ⊢⇒) axiom1
 ```
 
 以下可以认为是 `⇒-elim` 的逆命题, 但要注意 `→` 的两边都要对理论做全称量化. 此外, 满足 `∀ Γ → Γ ⊢ φ` 的 `φ` 又称为**恒真式 (tautology)**. 所以以下命题又称为恒真式的引入规则.
 
 ```agda
-⇒-intro-tauto : ∀ {φ₁ φ₂} → (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
+⇒-intro-tauto : (∀ {Γ} → Γ ⊢ φ₁ → Γ ⊢ φ₂) → ∀ {Δ} → Δ ⊢ φ₁ ⇒ φ₂
 ⇒-intro-tauto {φ₁} ⊢ = ⇒-intro $ weakening {Γ = ｛ φ₁ ｝} inr $ ⊢ $ axiom reflId
 ```
 
@@ -168,90 +174,90 @@ axiom2 = axiom (inl (inr reflId))
 ### 爆炸律
 
 ```agda
-exfalso : ∀ {Γ φ} → Γ ⊢ ⊥ → Γ ⊢ φ
+exfalso : Γ ⊢ ⊥ → Γ ⊢ φ
 exfalso Γ⊢⊥ = ⊥-elim (weakening1 Γ⊢⊥)
 
-tauto-exfalso : ∀ {Γ φ} → Γ ⊢ ⊥ ⇒ φ
+tauto-exfalso : Γ ⊢ ⊥ ⇒ φ
 tauto-exfalso = ⇒-intro-tauto exfalso
 ```
 
 ### `∧` 的引入与消去规则
 
 ```agda
-∧-intro : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ → Γ ⊢ φ₂ → Γ ⊢ φ₁ ∧ φ₂
+∧-intro : Γ ⊢ φ₁ → Γ ⊢ φ₂ → Γ ⊢ φ₁ ∧ φ₂
 ∧-intro Γ⊢φ₁ Γ⊢φ₂ = ⇒-intro $ ⇒-elim (⇒-elim axiom1 (weakening1 Γ⊢φ₁)) (weakening1 Γ⊢φ₂)
 
-∧-elimₗ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ∧ φ₂ → Γ ⊢ φ₁
+∧-elimₗ : Γ ⊢ φ₁ ∧ φ₂ → Γ ⊢ φ₁
 ∧-elimₗ ⊢∧ = ⊥-elim $ ⇒-elim (weakening1 ⊢∧) (⇒-intro $ exfalso $ ⇒-elim axiom2 axiom1)
 
-∧-elimᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ∧ φ₂ → Γ ⊢ φ₂
+∧-elimᵣ : Γ ⊢ φ₁ ∧ φ₂ → Γ ⊢ φ₂
 ∧-elimᵣ ⊢∧ = ⊥-elim $ ⇒-elim (weakening1 ⊢∧) (⇒-intro axiom2)
 ```
 
 ### `∨` 的引入与消去规则
 
 ```agda
-∨-introₗ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ → Γ ⊢ φ₁ ∨ φ₂
+∨-introₗ : Γ ⊢ φ₁ → Γ ⊢ φ₁ ∨ φ₂
 ∨-introₗ Γ⊢φ₁ = ⇒-intro $ exfalso $ ⇒-elim axiom1 (weakening1 Γ⊢φ₁)
 
-∨-introᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₂ → Γ ⊢ φ₁ ∨ φ₂
+∨-introᵣ : Γ ⊢ φ₂ → Γ ⊢ φ₁ ∨ φ₂
 ∨-introᵣ Γ⊢φ₂ = ⇒-intro $ weakening1 Γ⊢φ₂
 
-∨-elim : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ∨ φ₂ → Γ ⨭ φ₁ ⊢ φ₃ → Γ ⨭ φ₂ ⊢ φ₃ → Γ ⊢ φ₃
-∨-elim Γ⊢∨ ⊢₁ ⊢₂ = ⊥-elim $ ⇒-elim axiom1 Γ,φ₃⇒⊥⊢φ₃ where
-  Γ,φ₃⇒⊥⊢φ₃ = ⇒-elim (⇒-intro $ weakening2 ⊢₂) Γ,φ₃⇒⊥⊢φ₂ where
-    Γ,φ₃⇒⊥⊢φ₂ = ⇒-elim (weakening1 Γ⊢∨) (⇒-intro $ ⇒-elim axiom2 (weakening2 ⊢₁))
+∨-elim : Γ ⊢ φ₁ ∨ φ₂ → Γ ⨭ φ₁ ⊢ φ₃ → Γ ⨭ φ₂ ⊢ φ₃ → Γ ⊢ φ₃
+∨-elim Γ⊢∨ ⊢₁ ⊢₂ = ⊥-elim $ ⇒-elim axiom1 Γ⨭φ₃⇒⊥⊢φ₃ where
+  Γ⨭φ₃⇒⊥⊢φ₃ = ⇒-elim (⇒-intro $ weakening2 ⊢₂) Γ⨭φ₃⇒⊥⊢φ₂ where
+    Γ⨭φ₃⇒⊥⊢φ₂ = ⇒-elim (weakening1 Γ⊢∨) (⇒-intro $ ⇒-elim axiom2 (weakening2 ⊢₁))
 
-∨-comm : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ∨ φ₂ → Γ ⊢ φ₂ ∨ φ₁
+∨-comm : Γ ⊢ φ₁ ∨ φ₂ → Γ ⊢ φ₂ ∨ φ₁
 ∨-comm ⊢∨ = ∨-elim ⊢∨ (∨-introᵣ axiom1) (∨-introₗ axiom1)
 ```
 
 ### 排中律
 
 ```agda
-LEM : ∀ {Γ φ} → Γ ⊢ φ ∨ ~ φ
+LEM : Γ ⊢ φ ∨ ~ φ
 LEM = ⇒-intro axiom1
 
-DNE : ∀ {Γ φ} → Γ ⊢ ~ ~ φ ⇒ φ
+DNE : Γ ⊢ ~ ~ φ ⇒ φ
 DNE = ∨-comm LEM
 ```
 
 ### 矛盾律
 
 ```agda
-no-contra : ∀ {Γ φ} → Γ ⊢ φ ∧ ~ φ → Γ ⊢ ⊥
+no-contra : Γ ⊢ φ ∧ ~ φ → Γ ⊢ ⊥
 no-contra ⊢ = ⇒-elim (∧-elimᵣ ⊢) (∧-elimₗ ⊢)
 
-tauto-no-contra : ∀ {Γ φ} → Γ ⊢ ~ (φ ∧ ~ φ)
+tauto-no-contra : Γ ⊢ ~ (φ ∧ ~ φ)
 tauto-no-contra = ⇒-intro-tauto no-contra
 ```
 
 ### `⇔` 的引入与消去规则
 
 ```agda
-⇔-intro : ∀ {Γ φ₁ φ₂} → Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₂ ⊢ φ₁ → Γ ⊢ φ₁ ⇔ φ₂
+⇔-intro : Γ ⨭ φ₁ ⊢ φ₂ → Γ ⨭ φ₂ ⊢ φ₁ → Γ ⊢ φ₁ ⇔ φ₂
 ⇔-intro ⊢₁ ⊢₂ = ∧-intro (⇒-intro ⊢₁) (⇒-intro ⊢₂)
 
-⇔-elimₗ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
+⇔-elimₗ : Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₁ ⊢ φ₂
 ⇔-elimₗ ⊢⇔ = ⇒-elim-to-axiom (∧-elimₗ ⊢⇔)
 
-⇔-elimᵣ : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₂ ⊢ φ₁
+⇔-elimᵣ : Γ ⊢ φ₁ ⇔ φ₂ → Γ ⨭ φ₂ ⊢ φ₁
 ⇔-elimᵣ ⊢⇔ = ⇒-elim-to-axiom (∧-elimᵣ ⊢⇔)
 ```
 
 ### `⇔` 的自反性、对称性和传递性
 
 ```agda
-⇔-refl : ∀ {Γ φ} → Γ ⊢ φ ⇔ φ
+⇔-refl : Γ ⊢ φ ⇔ φ
 ⇔-refl = ⇔-intro axiom1 axiom1
 
-⇔-sym : ∀ {Γ φ₁ φ₂} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⊢ φ₂ ⇔ φ₁
+⇔-sym : Γ ⊢ φ₁ ⇔ φ₂ → Γ ⊢ φ₂ ⇔ φ₁
 ⇔-sym ⊢ = ⇔-intro (⇔-elimᵣ ⊢) (⇔-elimₗ ⊢)
 
-⇒-trans : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ⇒ φ₂ → Γ ⊢ φ₂ ⇒ φ₃ → Γ ⊢ φ₁ ⇒ φ₃
+⇒-trans : Γ ⊢ φ₁ ⇒ φ₂ → Γ ⊢ φ₂ ⇒ φ₃ → Γ ⊢ φ₁ ⇒ φ₃
 ⇒-trans ⊢₁ ⊢₂ = ⇒-intro $ ⇒-elim (weakening1 ⊢₂) (⇒-elim (weakening1 ⊢₁) axiom1)
 
-⇔-trans : ∀ {Γ φ₁ φ₂ φ₃} → Γ ⊢ φ₁ ⇔ φ₂ → Γ ⊢ φ₂ ⇔ φ₃ → Γ ⊢ φ₁ ⇔ φ₃
+⇔-trans : Γ ⊢ φ₁ ⇔ φ₂ → Γ ⊢ φ₂ ⇔ φ₃ → Γ ⊢ φ₁ ⇔ φ₃
 ⇔-trans ⊢₁ ⊢₂ = ∧-intro
   (⇒-trans (∧-elimₗ ⊢₁) (∧-elimₗ ⊢₂))
   (⇒-trans (∧-elimᵣ ⊢₂) (∧-elimᵣ ⊢₁))
@@ -260,16 +266,20 @@ tauto-no-contra = ⇒-intro-tauto no-contra
 ### `∃` 的引入与消去规则
 
 ```agda
-∃-intro : ∀ {Γ φ} (t : Term) → Γ ⊢ φ [ 0 ≔ t ] → Γ ⊢ ∃' φ
+∃-intro : (t : Term) → Γ ⊢ φ [ 0 ≔ t ] → Γ ⊢ ∃' φ
 ∃-intro t ⊢ = ⇒-intro $ ⇒-elim (∀-elim axiom1) (weakening1 ⊢)
 
-∃-elim : ∀ {Γ φ₁ φ₂} → Γ ⊢ ∃' φ₁ → Γ ⇑ 1 ⨭ φ₁ ⊢ φ₂ ↥ 1 → Γ ⊢ φ₂
+∃-elim : Γ ⊢ ∃' φ₁ → Γ ⇑ 1 ⨭ φ₁ ⊢ φ₂ ↥ 1 → Γ ⊢ φ₂
 ∃-elim {Γ} {φ₁} {φ₂} ⊢∃ ⊢ = ⊥-elim $ ⇒-elim (weakening1 ⊢∃)
-  -- Goal : Γ , ~ φ₂ ⊢ ∀' ~ φ₁
+  -- Goal : Γ ⨭ ~ φ₂ ⊢ ∀' ~ φ₁
   (∀-intro $ ⇒-intro $ ⇒-elim
-    -- Goal : (Γ , ~ φ₂) ⇑ 1 , φ₁ ⊢ ~ φ₂ ↥ 1
+    -- Goal : (Γ ⨭ ~ φ₂) ⇑ 1 ⨭ φ₁ ⊢ ~ φ₂ ↥ 1
     (weakening1 $ weakening (⊆⟦⨭⟧ {f = _↥ 1} {A = Γ} {x = ~ φ₂}) axiom1)
-    -- Goal : (Γ , ~ φ₂) ⇑ 1 , φ₁ ⊢ φ₂ ↥ 1
+    -- Goal : (Γ ⨭ ~ φ₂) ⇑ 1 ⨭ φ₁ ⊢ φ₂ ↥ 1
     (weakening (⨭⊆⨭ $ ⟦⟧⊆⟦⟧ $ ⊆⨭ {A = Γ}) ⊢)
   )
+```
+
+```agda
+
 ```
