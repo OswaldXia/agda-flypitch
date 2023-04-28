@@ -14,20 +14,20 @@ open TermModel hiding (Domain; func; rel)
 open import FOL.Structure.Base using (Structure)
 open Structure termModel using (Domain; relMap)
 
-open import FOL.Bounded.Base ℒ
-open import FOL.Bounded.Syntactics ℒ
-open import FOL.Bounded.Semantics ℒ
-open import FOL.Bounded.Lemmas.Realization termModel
-open import FOL.Bounded.Manipulations.Substitution.Closed ℒ renaming (subst to subst-syntax)
-open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
-open import FOL.Constructions.Equivalence.BoundedTruncated T
-
 module Free where
   open import FOL.Base ℒ public
   open import FOL.Syntactics ℒ public
 open Free.Formulaₗ public
 open Free using (⇒-elim; ∀-elim)
-open import FOL.Lemmas.QuantifierCounting ℒ
+
+open import FOL.Bounded.Base ℒ
+open import FOL.Bounded.Syntactics ℒ
+open import FOL.Bounded.Semantics ℒ
+open import FOL.Bounded.Lemmas.Realization termModel
+open import FOL.Bounded.Lemmas.QuantifierCounting ℒ
+open import FOL.Bounded.Manipulations.Substitution.Closed ℒ renaming (subst to subst-syntax)
+open import FOL.PropertiesOfTheory ℒ using (⇒-intro-of-complete)
+open import FOL.Constructions.Equivalence.BoundedTruncated T
 
 open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
 open import Cubical.Foundations.HLevels using (isSetHProp)
@@ -36,13 +36,13 @@ open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Functions.Logic using (∥_∥ₚ)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
-open import Cubical.HITs.SetQuotients using (eq/; squash/; effective)
-  renaming ([_] to [_]/; elim to elim/)
+open import Cubical.HITs.SetQuotients using (eq/; squash/; elimProp; effective)
+  renaming ([_] to [_]/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
   renaming (map to map₁)
 
 open import Data.Nat
-open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m)
+open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m; <-pred)
 open import Data.Vec using (Vec; []; [_]; _∷_; map)
 open import Function using (_∘_; _∘₂_; _$_)
 open import Relation.Binary.PropositionalEquality
@@ -111,17 +111,14 @@ termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
       IH₁ = termModelCompleteGuarded φ₁ [] $ ≤-trans (s≤s (m≤m+n _ _)) H
       IH₂ : T ⊦ appsᵣ φ₂ [] ↔ termModel ⊨ˢ appsᵣ φ₂ []
       IH₂ = termModelCompleteGuarded φ₂ [] $ ≤-trans (s≤s (m≤n+m _ _)) H
-  in
-    →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
-    ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
+  in  →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
+      ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
-  →: (λ ⊦ → elim/ (λ _ → isProp→isSet (isPropRealize _ _))
-    (λ t → to (⊨[≔]↔ φ t)
-      $ to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !})
-      $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
-      $ map₁ ∀-elim ⊦)
-    --(substEq (_< n) (symEq {!   !}) {!   !})
-    {!   !})
+  →: (λ ⊦ → elimProp (λ _ → isPropRealize _ _) λ t → to (⊨[≔]↔ φ t)
+    $ to (termModelCompleteGuarded (φ [≔ t ]) []
+      (substEq (_< n) (symEq (count∀OfSubst _ _)) (<-pred H)))
+    $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
+    $ map₁ ∀-elim ⊦)
   ←: {!   !}
   where open OpenedRealizer termModel using (isPropRealize)
 
