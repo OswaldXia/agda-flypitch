@@ -27,6 +27,7 @@ open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
 open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
 
 open import Data.Nat as ℕ using (ℕ)
 open import Function using (_$_)
@@ -93,6 +94,16 @@ data _⊢_ : Theory → Formula → Type (ℓ-suc u) where
   → Γ ⊢ t₁ ≈ t₂ → Γ ⊢ φ₁ [ 0 ≔ t₁ ] → φ₁ [ 0 ≔ t₂ ] ≡ φ₂ → Γ ⊢ φ₂
 ≈-≡-subst φ₁ H₁ H₂ refl = subst H₁ H₂
 ```
+
+我们用更短的 `⊦` 表示 `⊢` 的命题截断.
+
+```agda
+infix 4 _⊦_
+_⊦_ : Theory → Formula → Type (ℓ-suc u)
+Γ ⊦ φ = ∥ Γ ⊢ φ ∥₁
+```
+
+虽然我们最终只关心 `⊦`, 例如一阶逻辑的完备性将使用 `⊦` 来表达, 但在此之前需要先证明一系列关于 `⊢` 的引理.
 
 ## 理论的弱化
 

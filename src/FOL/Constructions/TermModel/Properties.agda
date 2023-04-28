@@ -90,7 +90,7 @@ termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
 termModelCompleteGuarded ⊥ [] _ =
   →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
-termModelCompleteGuarded (rel R) xs H = hPropExt⁻ $ sym $
+termModelCompleteGuarded (rel R) xs _ = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realize-appsᵣ-iff [] (rel R) _ ⟩
   relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[]/ _) ⟩
   relMap R (map [_]/ xs)                        ≡⟨ ≡preRel _ _ ⟩
@@ -100,7 +100,7 @@ termModelCompleteGuarded (rel R) xs H = hPropExt⁻ $ sym $
 termModelCompleteGuarded {_} {n} (appᵣ φ t) xs H with (unbound φ) in eq
 ... | rel _    = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < n) (symEq eq) H
 ... | appᵣ _ _ = termModelCompleteGuarded φ (t ∷ xs) $ substEq (λ φ → Free.count∀ φ < n) (symEq eq) H
-termModelCompleteGuarded (t₁ ≈ t₂) [] H =
+termModelCompleteGuarded (t₁ ≈ t₂) [] _ =
   T ⊦ t₁ ≈ t₂               ↔⟨ →: eq/ _ _ ←: effective isPropValued≋ isEquivRel≋ _ _ ⟩
   [ t₁ ]/ ≡ [ t₂ ]/         ↔≡⟨ subst2 (λ x y → (x ≡ y) ≡ (realizeₜ t₁ ≡ realizeₜ t₂)) (≡[]/ t₁) (≡[]/ t₂) refl ⟩
   realizeₜ t₁ ≡ realizeₜ t₂ ↔⟨⟩
@@ -114,11 +114,12 @@ termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
   in
     →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
     ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
-termModelCompleteGuarded {0} {suc n} (∀' φ) [] H =
+termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
   →: (λ ⊦ → elim/ (λ _ → isProp→isSet (isPropRealize _ _))
-    (λ t → to (⊨[≔]↔ φ t) $
-      to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !}) $
-      map₁ (substEq (_ Free.⊢_) (symEq (unbound-subst φ t)) ∘ ∀-elim) ⊦)
+    (λ t → to (⊨[≔]↔ φ t)
+      $ to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !})
+      $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
+      $ map₁ ∀-elim ⊦)
     --(substEq (_< n) (symEq {!   !}) {!   !})
     {!   !})
   ←: {!   !}
