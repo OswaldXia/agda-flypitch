@@ -17,12 +17,12 @@ open import FOL.Language
 module FOL.Syntactics (ℒ : Language {u}) where
 open import FOL.Base ℒ
 open import FOL.Lemmas.Sethood ℒ
+open import FOL.Lemmas.Lifting ℒ
 ```
 
 ### 标准库依赖
 
 ```agda
-open import Agda.Builtin.Equality
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
@@ -31,6 +31,8 @@ open import Cubical.HITs.PropositionalTruncation using (∥_∥₁)
 
 open import Data.Nat as ℕ using (ℕ)
 open import Function using (_$_)
+open import Relation.Binary.PropositionalEquality
+  using (_≡_; refl; sym) renaming (subst to substEq)
 ```
 
 ## 理论
@@ -281,5 +283,8 @@ tauto-no-contra = ⇒-intro-tauto no-contra
 ```
 
 ```agda
-
+~∀→∃~ : Γ ⊢ ~ (∀' φ) → Γ ⊢ ∃' (~ φ)
+~∀→∃~ {Γ} {φ} ⊢~ = ⊥-elim $ ⇒-elim (weakening1 ⊢~) $ ∀-intro $ ⊥-elim $ ⇒-elim
+  (weakening1 $ weakening (⊆⟦⨭⟧ {f = _↥ 1} {A = Γ} {x = ~ (∃' ~ φ)}) axiom1)
+  (∃-intro (var 0) $ substEq (λ x → (_↥ 1) ⟦ Γ ⨭ _ ⟧ ⨭ ~ φ ⊢ ~ x) (sym (↥[≔]-cancel φ 0)) axiom1)
 ```

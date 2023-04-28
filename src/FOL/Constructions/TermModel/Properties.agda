@@ -2,10 +2,12 @@
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
+open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.PropertiesOfTheory using (complete; hasEnoughConstants)
-module FOL.Constructions.TermModel.Properties {ℒ : Language {u}} {T : Theory ℒ}
+module FOL.Constructions.TermModel.Properties ⦃ em : EM ⦄ {ℒ : Language {u}} {T : Theory ℒ}
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
+open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
 open Language ℒ
 
 open import FOL.Constructions.TermModel.Base T

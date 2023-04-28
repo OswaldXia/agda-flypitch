@@ -17,7 +17,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; cong; cong₂; s
 ... | yes p = refl
 ... | no ¬p = cong var (+-identityʳ k)
 ↑[]0 (func f) = refl
-↑[]0 (app t₁ t₂) {n} rewrite ↑[]0 t₁ {n} | ↑[]0 t₂ {n} = refl
+↑[]0 (app t₁ t₂) = cong₂ app (↑[]0 t₁) (↑[]0 t₂)
 
 ↑0 : (t : Termₗ l) → t ↑ 0 ≡ t
 ↑0 t = ↑[]0 t
@@ -32,9 +32,9 @@ open import Relation.Binary.PropositionalEquality using (_≡_; cong; cong₂; s
 ... | yes q = ⊥-elim $ ¬p $ +-cancelʳ-≤ n₁ (suc k) m₁ (≤-trans q ≤₂)
 ... | no  _ = cong var $ +-assoc k _ _
 ↑[]↑[] (func f)    n₁ m₁ n₂ m₂ ≤₁ ≤₂ = refl
-↑[]↑[] (app t₁ t₂) n₁ m₁ n₂ m₂ ≤₁ ≤₂
-  rewrite ↑[]↑[] t₁ n₁ m₁ n₂ m₂ ≤₁ ≤₂
-        | ↑[]↑[] t₂ n₁ m₁ n₂ m₂ ≤₁ ≤₂ = refl
+↑[]↑[] (app t₁ t₂) n₁ m₁ n₂ m₂ ≤₁ ≤₂ = cong₂ app
+  (↑[]↑[] t₁ n₁ m₁ n₂ m₂ ≤₁ ≤₂)
+  (↑[]↑[] t₂ n₁ m₁ n₂ m₂ ≤₁ ≤₂)
 
 ↑↑[] : (t : Termₗ l) (n₁ n₂ m₂ : ℕ) → m₂ ≤ n₁
   → (t ↑ n₁) ↑[ m₂ ] n₂ ≡ t ↑ (n₁ + n₂)
@@ -71,31 +71,24 @@ open import Relation.Binary.PropositionalEquality using (_≡_; cong; cong₂; s
 ↑1[≔] t s = ↑[]1[≔] t s 0
 
 ↥[]0 : (φ : Formulaₗ l) {n : ℕ} → (φ ↥[ n ] 0) ≡ φ
-↥[]0 ⊥        = refl
-↥[]0 (rel R)  = refl
-↥[]0 (appᵣ φ t) {n} rewrite ↥[]0 φ  {n} | ↑[]0 t  {n} = refl
-↥[]0 (t₁ ≈ t₂)  {n} rewrite ↑[]0 t₁ {n} | ↑[]0 t₂ {n} = refl
-↥[]0 (φ₁ ⇒ φ₂)  {n} rewrite ↥[]0 φ₁ {n} | ↥[]0 φ₂ {n} = refl
-↥[]0 (∀' φ)     {n} rewrite ↥[]0 φ {suc n}            = refl
+↥[]0 ⊥          = refl
+↥[]0 (rel R)    = refl
+↥[]0 (appᵣ φ t) = cong₂ appᵣ (↥[]0 φ) (↑[]0 t)
+↥[]0 (t₁ ≈ t₂)  = cong₂ _≈_ (↑[]0 t₁) (↑[]0 t₂)
+↥[]0 (φ₁ ⇒ φ₂)  = cong₂ _⇒_ (↥[]0 φ₁) (↥[]0 φ₂)
+↥[]0 (∀' φ)     = cong ∀'_ (↥[]0 φ)
 
 ↥0 : (φ : Formulaₗ l) → (φ ↥ 0) ≡ φ
 ↥0 φ = ↥[]0 φ
 
 ↥[][≔] : (φ : Formulaₗ l) (s : Term) (n₁ n₂ m : ℕ) → m ≤ n₂ → n₂ ≤ m + n₁
   → (φ ↥[ m ] suc n₁) [ n₂ ≔ s ] ≡ φ ↥[ m ] n₁
-↥[][≔] ⊥            s n₁ n₂ m ≤₁ ≤₂ = refl
-↥[][≔] (rel R)      s n₁ n₂ m ≤₁ ≤₂ = refl
-↥[][≔] (appᵣ φ t)   s n₁ n₂ m ≤₁ ≤₂
-  rewrite ↥[][≔] φ  s n₁ n₂ m ≤₁ ≤₂
-        | ↑[][≔] t  s n₁ n₂ m ≤₁ ≤₂ = refl
-↥[][≔] (t₁ ≈ t₂)    s n₁ n₂ m ≤₁ ≤₂
-  rewrite ↑[][≔] t₁ s n₁ n₂ m ≤₁ ≤₂
-        | ↑[][≔] t₂ s n₁ n₂ m ≤₁ ≤₂ = refl
-↥[][≔] (φ₁ ⇒ φ₂)    s n₁ n₂ m ≤₁ ≤₂
-  rewrite ↥[][≔] φ₁ s n₁ n₂ m ≤₁ ≤₂
-        | ↥[][≔] φ₂ s n₁ n₂ m ≤₁ ≤₂ = refl
-↥[][≔] (∀' φ)       s n₁ n₂ m ≤₁ ≤₂
-  rewrite ↥[][≔] φ s n₁ (suc n₂) (suc m) (s≤s ≤₁) (s≤s ≤₂) = refl
+↥[][≔] ⊥          s n₁ n₂ m ≤₁ ≤₂ = refl
+↥[][≔] (rel R)    s n₁ n₂ m ≤₁ ≤₂ = refl
+↥[][≔] (appᵣ φ t) s n₁ n₂ m ≤₁ ≤₂ = cong₂ appᵣ (↥[][≔] φ s n₁ n₂ m ≤₁ ≤₂) (↑[][≔] t s n₁ n₂ m ≤₁ ≤₂)
+↥[][≔] (t₁ ≈ t₂)  s n₁ n₂ m ≤₁ ≤₂ = cong₂ _≈_ (↑[][≔] t₁ s n₁ n₂ m ≤₁ ≤₂) (↑[][≔] t₂ s n₁ n₂ m ≤₁ ≤₂)
+↥[][≔] (φ₁ ⇒ φ₂)  s n₁ n₂ m ≤₁ ≤₂ = cong₂ _⇒_ (↥[][≔] φ₁ s n₁ n₂ m ≤₁ ≤₂) (↥[][≔] φ₂ s n₁ n₂ m ≤₁ ≤₂)
+↥[][≔] (∀' φ)     s n₁ n₂ m ≤₁ ≤₂ = cong ∀'_ (↥[][≔] φ s n₁ (suc n₂) (suc m) (s≤s ≤₁) (s≤s ≤₂))
 
 ↥[≔] : (φ : Formulaₗ l) (s : Term) (n₁ n₂ : ℕ) → (φ ↥ (suc (n₁ + n₂))) [ n₁ ≔ s ] ≡ φ ↥ (n₁ + n₂)
 ↥[≔] φ s n₁ n₂ = ↥[][≔] φ s (n₁ + n₂) n₁ 0 z≤n (m≤m+n n₁ n₂)
@@ -106,3 +99,24 @@ open import Relation.Binary.PropositionalEquality using (_≡_; cong; cong₂; s
 
 ↥1[≔] : (φ : Formulaₗ l) (s : Term) → (φ ↥ 1) [ 0 ≔ s ] ≡ φ
 ↥1[≔] φ s = ↥[]1[≔] φ s 0
+
+↑[≔]-cancel : (t : Termₗ l) (n : ℕ) → (t ↑[ suc n ] 1) [ n ≔ var 0 ]ₜ ≡ t
+↑[≔]-cancel (var k) n with k <? suc n
+... | yes k<1+n with <-cmp k n
+... | tri< _ _ _    = refl
+... | tri≈ _ refl _ = refl
+... | tri> _ _ n<k  = ⊥-elim $ 1+n≰n $ ≤-trans k<1+n n<k
+↑[≔]-cancel (var k) n | no k≮1+n with <-cmp (k + 1) n
+... | tri< p _ _   = ⊥-elim $ k≮1+n $ s≤s $ ≤-trans (≤-trans (m≤m+n _ _) (n≤1+n _)) p
+... | tri≈ ¬a refl ¬c = ⊥-elim $ k≮1+n $ s≤s $ m≤m+n _ _
+... | tri> ¬a ¬b c = cong var (m+n∸n≡m k 1)
+↑[≔]-cancel (func f)    n = refl
+↑[≔]-cancel (app t₁ t₂) n = cong₂ app (↑[≔]-cancel t₁ n) (↑[≔]-cancel t₂ n)
+
+↥[≔]-cancel : (φ : Formulaₗ l) (n : ℕ) → (φ ↥[ suc n ] 1) [ n ≔ var 0 ] ≡ φ
+↥[≔]-cancel ⊥          n = refl
+↥[≔]-cancel (rel R)    n = refl
+↥[≔]-cancel (appᵣ φ t) n = cong₂ appᵣ (↥[≔]-cancel φ n) (↑[≔]-cancel t n)
+↥[≔]-cancel (t₁ ≈ t₂)  n = cong₂ _≈_ (↑[≔]-cancel t₁ n) (↑[≔]-cancel t₂ n)
+↥[≔]-cancel (φ₁ ⇒ φ₂)  n = cong₂ _⇒_ (↥[≔]-cancel φ₁ n) (↥[≔]-cancel φ₂ n)
+↥[≔]-cancel (∀' φ)     n = cong ∀'_ (↥[≔]-cancel φ (suc n))
