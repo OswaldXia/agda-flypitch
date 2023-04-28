@@ -39,6 +39,7 @@ open import CubicalExt.Data.Vec using (quotientBeta)
 open import Cubical.HITs.SetQuotients using (eq/; squash/; effective)
   renaming ([_] to [_]/; elim to elim/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
+  renaming (map to map₁)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m)
@@ -115,10 +116,10 @@ termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
     ←: (λ ⊨ → ⇒-intro-of-complete H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {0} {suc n} (∀' φ) [] H =
   →: (λ ⊦ → elim/ (λ _ → isProp→isSet (isPropRealize _ _))
-    (λ t → to (⊨[≔]↔ φ t) $ to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !}) {!   !})
-    --to (termModelCompleteGuarded {n = suc n} (φ [≔ t ]) [] {!   !})
+    (λ t → to (⊨[≔]↔ φ t) $
+      to (termModelCompleteGuarded {n = n} (φ [≔ t ]) [] {!   !}) $
+      map₁ (substEq (_ Free.⊢_) (symEq (unbound-subst φ t)) ∘ ∀-elim) ⊦)
     --(substEq (_< n) (symEq {!   !}) {!   !})
-    -- ∣ substEq (_ Free.⊢_) (symEq (unbound-subst φ t)) (∀-elim {!   !}) ∣₁
     {!   !})
   ←: {!   !}
   where open OpenedRealizer termModel using (isPropRealize)
