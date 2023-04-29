@@ -26,5 +26,5 @@ module Complete {T} (compl : complete T) where
           map2 ⇒-elim (map (weakening1 ∘ axiom) ∣ ~φ₁∈T ∣₁) ∣ axiom1 ∣₁ })
     (compl .snd φ₁)
 
-  ¬-intro : ∀ {φ} → ¬ T ⊦ φ → T ⊦ ~ φ
-  ¬-intro ¬⊦ = ⇒-intro λ ⊦ → exfalso $ ¬⊦ ⊦
+  ~-intro : ∀ {φ} → ¬ T ⊦ φ → T ⊦ ~ φ
+  ~-intro ¬⊦ = ⇒-intro λ ⊦ → exfalso $ ¬⊦ ⊦
