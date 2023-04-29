@@ -50,7 +50,7 @@ open import Cubical.Relation.Nullary using (¬_)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m; <-pred)
-open import Data.Vec using (Vec; []; [_]; _∷_; map)
+open import Data.Vec using (Vec; []; _∷_; [_]; map)
 open import Function using (_∘_; _∘₂_; _$_)
 open import Relation.Binary.PropositionalEquality
   using () renaming (subst to substEq; sym to symEq)

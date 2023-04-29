@@ -19,7 +19,7 @@ open import CubicalExt.Functions.Logic.Iff
 open import Data.Nat
 open import Data.Nat.Properties using (<-cmp)
 open import Data.Fin using (Fin; zero; suc; toℕ)
-open import Data.Vec using (Vec; []; _∷_; lookup; map)
+open import Data.Vec using (Vec; []; _∷_; [_]; lookup; map; _∷ʳ_)
 open import Function using (_$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
@@ -57,6 +57,17 @@ module Pre where
     eq' x zero    = refl
     eq' x (suc k) = eq k
 
+  realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
+    rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (𝓋 ∷ʳ rₜ [] s []) t xs
+  realizeₜ-substₜ-eq {n} 𝓋 (var k) s xs with <-cmp (toℕ k) n
+  ... | tri< a ¬b ¬c = {!   !}
+  ... | tri≈ ¬a b ¬c = {!   !}
+  ... | tri> ¬a ¬b c = {!   !}
+  realizeₜ-substₜ-eq 𝓋 (func f)    s xs = refl
+  realizeₜ-substₜ-eq 𝓋 (app t₁ t₂) s xs
+    rewrite realizeₜ-substₜ-eq 𝓋 t₂ s []
+          | realizeₜ-substₜ-eq 𝓋 t₁ s (rₜ (𝓋 ∷ʳ rₜ [] s []) t₂ [] ∷ xs) = refl
+
   realize-appsᵣ-iff : (𝓋 : Vec Domain n) (φ : Formulaₗ n l) (xs : Vec (Term n) l) →
     r 𝓋 (appsᵣ φ xs) [] ↔ r 𝓋 φ (map (λ t → rₜ 𝓋 t []) xs)
   realize-appsᵣ-iff 𝓋 φ [] = ↔-refl
@@ -77,6 +88,14 @@ module Opened where
     (eq : ∀ k → lookup 𝓋 k ≡ 𝑣 (toℕ k)) (φ : Formula n)
     → r 𝓋 φ ↔ 𝑟 𝑣 (unbound φ)
   realize-iff 𝓋 𝑣 eq φ = Pre.realize-iff 𝓋 𝑣 eq φ []
+
+  realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Term (suc n)) (s : ClosedTerm) →
+    rₜ 𝓋 (t [≔ s ]ₜ) ≡ rₜ (𝓋 ∷ʳ rₜ [] s) t
+  realizeₜ-substₜ-eq 𝓋 t s = Pre.realizeₜ-substₜ-eq 𝓋 t s []
+
+  realize-subst-iff : (φ : Formula 1) (t : ClosedTerm) →
+    𝒮 ⊨ˢ φ [≔ t ] ↔ r [ rₜ [] t ] φ
+  realize-subst-iff φ t = {!   !}
 
 module Closed where
   open ClosedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
