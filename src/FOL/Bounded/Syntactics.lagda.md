@@ -27,7 +27,7 @@ open Free._⊢_ hiding (axiom)
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (Type; ℓ-suc; _,_; isSet)
 open import Cubical.Functions.Logic using (inl; inr)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁)
 open import CubicalExt.Foundations.Powerset* as 𝒫 using (𝒫; isSet𝒫; _∈_; _⊆_; _⟦_⟧; ⟦⟧⊆⟦⟧)
 
 open import Function using (_$_)
@@ -49,6 +49,14 @@ open 𝒫.SetBased2 {X = Sentence} {Y = Free.Formula} isSetFormula Free.isSetFor
 open 𝒫.SetBased {X = Free.Formula} Free.isSetFormula using () renaming (_⨭_ to _Free⨭_)
 ```
 
+我们使用以下隐式参数.
+
+```agda
+private variable
+  Γ Δ : Theory
+  φ φ₁ φ₂ φ₃ : Sentence
+```
+
 ## 证明
 
 ```agda
@@ -63,14 +71,11 @@ _⊢_ : Theory → Sentence → Type (ℓ-suc u)
 infix 4 _⊦_
 _⊦_ : Theory → Sentence → Type (ℓ-suc u)
 Γ ⊦ φ = ∥ Γ ⊢ φ ∥₁
-```
 
-我们将使用以下隐式参数.
-
-```agda
-private variable
-  Γ Δ : Theory
-  φ φ₁ φ₂ φ₃ : Sentence
+open import CubicalExt.Axiom.ExcludedMiddle using (isPropImplicit)
+instance
+  isProp-⊦ : isPropImplicit (Γ ⊦ φ)
+  isProp-⊦ = squash₁ _ _
 ```
 
 虽然我们最终只关心 `⊦`, 例如一阶逻辑的完备性将使用 `⊦` 来表达, 但在此之前需要先证明一系列关于 `⊢` 的引理.

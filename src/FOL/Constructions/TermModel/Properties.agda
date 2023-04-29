@@ -7,7 +7,7 @@ open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.PropertiesOfTheory using (complete; hasEnoughConstants)
 module FOL.Constructions.TermModel.Properties ⦃ em : EM ⦄ {ℒ : Language {u}} {T : Theory ℒ}
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
-open import CubicalExt.Classical ⦃ em ⦄ using (byContra*)
+open import CubicalExt.Classical ⦃ em ⦄ using (byContra)
 open Language ℒ
 
 open import FOL.Constructions.TermModel.Base T
@@ -31,17 +31,20 @@ open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 open import FOL.PropertiesOfTheory ℒ
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
-open import Cubical.Foundations.Prelude renaming (_,_ to infix 5 _,_)
+open import Cubical.Foundations.Prelude hiding (~_) renaming (_,_ to infix 5 _,_)
 open import Cubical.Foundations.HLevels using (isSetHProp)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Functions.Logic using (∥_∥ₚ)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientBeta)
+open import Cubical.Data.Empty using (isProp⊥)
+open import Cubical.Data.Sigma using (∃-syntax)
 open import Cubical.HITs.SetQuotients using (eq/; squash/; elimProp; effective)
   renaming ([_] to [_]/)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map2)
   renaming (map to map₁)
+open import Cubical.Relation.Nullary using (¬_)
 
 open import Data.Nat
 open import Data.Nat.Properties using (≤-refl; ≤-trans; m≤m+n; m≤n+m; <-pred)
@@ -87,6 +90,12 @@ module _ where
   ≡map[]/ [] = refl
   ≡map[]/ (x ∷ xs) = cong₂ _∷_ (≡[]/ x) (≡map[]/ xs)
 
+existsCounterExample : {φ : Formula 1} → ¬ T ⊦ ∀' φ → ∃[ t ∈ ClosedTerm ] T ⊢ ~ φ [≔ t ]
+existsCounterExample {φ} ¬⊢ = elim {P = λ _ → ∃[ t ∈ ClosedTerm ] T ⊢ ~ φ [≔ t ]}
+  (λ _ → squash₁)
+  (λ { (c , wit) → ∣ const c , ⇒-elim {!   !} {!   !} ∣₁ })
+  (H₂ $ ~ φ)
+
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
 termModelCompleteGuarded ⊥ [] _ =
@@ -116,13 +125,19 @@ termModelCompleteGuarded (φ₁ ⇒ φ₂) [] H =
   in  →: (λ ⊦ ⊨ → to IH₂ $ map2 ⇒-elim ⊦ $ from IH₁ ⊨)
       ←: (λ ⊨ → Complete.⇒-intro H₁ λ ⊦ → from IH₂ $ ⊨ $ to IH₁ ⊦)
 termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
-  →: (λ ⊦ → elimProp (λ _ → isPropRealize _ _) λ t → to (⊨[≔]↔ φ t)
-    $ to (termModelCompleteGuarded (φ [≔ t ]) []
-      (substEq (_< n) (symEq (count∀OfSubst _ _)) (<-pred H)))
+  →: (λ ⊦ → elimProp (λ _ → isPropRealize _ _) λ t
+    → to (⊨[≔]↔ φ t)
+    $ to (termModelCompleteGuarded (φ [≔ t ]) [] guard)
     $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
     $ map₁ ∀-elim ⊦)
-  ←: {!   !}
-  where open OpenedRealizer termModel using (isPropRealize)
+  ←: (λ ⊨ → byContra λ ¬⊦∀ → elim (λ _ → isProp⊥) (λ (t , ⊢~) →
+    elim (λ _ → isProp⊥) (fst H₁ ∘ ⇒-elim ⊢~)
+      $ from (termModelCompleteGuarded (φ [≔ t ]) [] guard)
+      $ from (⊨[≔]↔ φ t) (⊨ [ t ]/))
+    (existsCounterExample ¬⊦∀))
+  where guard : ∀ {t} → count∀ (φ [≔ t ]) < n
+        guard = substEq (_< n) (symEq (count∀OfSubst _ _)) (<-pred H)
+        open OpenedRealizer termModel using (isPropRealize)
 
 termModelComplete : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
