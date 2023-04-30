@@ -5,7 +5,6 @@ open import FOL.Language hiding (u)
 open import FOL.Bounded.Base {u} hiding (l)
 open import FOL.Language.Homomorphism.Base {u} using (_⟶_; id; _∘_)
 open import FOL.Language.Homomorphism.OnBounded.Base {u}
-open Definitions
 
 module _ {ℒ : Language {u}} where
   open import FOL.Bounded.Manipulations.Injecting ℒ using (injectₜ) public

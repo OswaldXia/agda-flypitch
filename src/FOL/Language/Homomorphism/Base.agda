@@ -2,6 +2,7 @@
 
 module FOL.Language.Homomorphism.Base {u} where
 open import FOL.Language hiding (u)
+open Language {u}
 
 open import Cubical.Foundations.Prelude using (Type)
 open import Data.Nat using (ℕ)
@@ -13,10 +14,14 @@ private variable
 
 record _⟶_ (ℒ₁ : Language) (ℒ₂ : Language) : Type u where
   constructor ⟪_,_⟫
-  open Language {u}
   field
     funMorph : ∀ {n} → ℒ₁ .𝔉 n → ℒ₂ .𝔉 n
     relMorph : ∀ {n} → ℒ₁ .ℜ n → ℒ₂ .ℜ n
+
+  record injective : Type u where
+    field
+      funMorph-injective : ∀ {n} {x y : ℒ₁ .𝔉 n} → funMorph x ≡ funMorph y → x ≡ y
+      relMorph-injective : ∀ {n} {x y : ℒ₁ .ℜ n} → relMorph x ≡ relMorph y → x ≡ y
 
 id : ℒ ⟶ ℒ
 id = ⟪ ⟨id⟩ , ⟨id⟩ ⟫

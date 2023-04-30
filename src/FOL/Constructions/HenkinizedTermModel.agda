@@ -16,7 +16,7 @@ open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; e
 open import Function using (_$_)
 
 henkinizedTermModel : Structure
-henkinizedTermModel = reduct termModel
+henkinizedTermModel = ⟦ termModel ⟧
 
 nonempty : Structure.nonempty henkinizedTermModel
 nonempty = elim {P = λ _ → Structure.nonempty henkinizedTermModel} (λ _ → squash₁)
