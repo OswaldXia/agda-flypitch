@@ -19,10 +19,10 @@ open import CubicalExt.Functions.Logic.Iff
 open import Data.Nat
 open import Data.Nat.Properties using (<-cmp)
 open import Data.Fin using (Fin; zero; suc; toℕ)
-open import Data.Vec using (Vec; []; _∷_; [_]; lookup; map; _∷ʳ_)
+open import StdlibExt.Data.Vec using (Vec; []; _∷_; [_]; lookup; map; _∷ʳ_; lookup∷ʳ)
 open import Function using (_$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; cong; cong₂)
 
 private variable
   n : ℕ
@@ -60,7 +60,7 @@ module Pre where
   realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
     rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (𝓋 ∷ʳ rₜ [] s []) t xs
   realizeₜ-substₜ-eq {n} 𝓋 (var k) s xs with <-cmp (toℕ k) n
-  ... | tri< a ¬b ¬c = {!   !}
+  ... | tri< k<n _ _ = sym $ lookup∷ʳ 𝓋 k k<n
   ... | tri≈ ¬a b ¬c = {!   !}
   ... | tri> ¬a ¬b c = {!   !}
   realizeₜ-substₜ-eq 𝓋 (func f)    s xs = refl
