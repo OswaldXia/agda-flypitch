@@ -10,7 +10,7 @@ zhihu-tags: Agda, 数理逻辑
 > 高亮渲染: [Soundness.html](https://choukh.github.io/agda-flypitch/FOL.Properties.Soundness.html)  
 
 ```agda
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language

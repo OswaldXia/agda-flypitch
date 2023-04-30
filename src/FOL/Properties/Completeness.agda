@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
@@ -35,7 +35,7 @@ Model→Con : Model {v} T → Con T
 Model→Con (ℳ , a , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ $ soundness ∣ T⊢⊥ ∣₁ ℳ a ℳ⊨T
 
 Con→Model : Con T → Model T
-Con→Model {T} T⊭⊥ = henkinizedTermModel , nonempty , {!   !}
+Con→Model {T} con = henkinizedTermModel , modelNonempty , modelComplete con
   where open import FOL.Constructions.HenkinizedTermModel T
 
 module _ {v} where
