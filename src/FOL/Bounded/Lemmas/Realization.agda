@@ -16,10 +16,12 @@ open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 open import Cubical.Data.Equality using (eqToPath)
 open import CubicalExt.Functions.Logic.Iff
 
+open import Data.Empty
 open import Data.Nat
-open import Data.Nat.Properties using (<-cmp)
+open import Data.Nat.Properties using (≤⇒≯; <-cmp)
 open import Data.Fin using (Fin; zero; suc; toℕ)
-open import StdlibExt.Data.Vec using (Vec; []; _∷_; [_]; lookup; map; _∷ʳ_; lookup∷ʳ)
+open import Data.Fin.Properties using (toℕ<n)
+open import StdlibExt.Data.Vec
 open import Function using (_$_)
 open import Relation.Binary using (tri<; tri≈; tri>)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; cong; cong₂)
@@ -58,26 +60,32 @@ module Pre where
     eq' x zero    = refl
     eq' x (suc k) = eq k
 
-  realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
+  realizeₜ-lift-eq : (𝓋 : Vec Domain n) (t : ClosedTermₗ l) (xs : Vec Domain l) →
+    rₜ 𝓋 (t ↑ n) xs ≡ rₜ [] t xs
+  realizeₜ-lift-eq 𝓋 (func f) xs = refl
+  realizeₜ-lift-eq 𝓋 (app t₁ t₂) xs
+    rewrite realizeₜ-lift-eq 𝓋 t₂ [] = realizeₜ-lift-eq 𝓋 t₁ _
+
+  realizeₜ-subst-eq : (𝓋 : Vec Domain n) (t : Termₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
     rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (𝓋 ∷ʳ rₜ [] s []) t xs
-  realizeₜ-substₜ-eq {n} 𝓋 (var k) s xs with <-cmp (toℕ k) n
-  ... | tri< k<n _ _ = sym $ lookup∷ʳ 𝓋 k k<n
-  ... | tri≈ ¬a b ¬c = {! s  !}
-  ... | tri> ¬a ¬b c = {!   !}
-  realizeₜ-substₜ-eq 𝓋 (func f)    s xs = refl
-  realizeₜ-substₜ-eq 𝓋 (app t₁ t₂) s xs
-    rewrite realizeₜ-substₜ-eq 𝓋 t₂ s []
-          | realizeₜ-substₜ-eq 𝓋 t₁ s (rₜ (𝓋 ∷ʳ rₜ [] s []) t₂ [] ∷ xs) = refl
+  realizeₜ-subst-eq {n} 𝓋 (var k) s [] with <-cmp (toℕ k) n
+  ... | tri< k<n _ _ = sym $ lookup∷ʳ-< 𝓋 k k<n
+  ... | tri≈ _ k≡n _ rewrite realizeₜ-lift-eq 𝓋 s [] = sym $ lookup∷ʳ-≡ 𝓋 k k≡n
+  ... | tri> _ _ k>n = ⊥-elim $ ≤⇒≯ k>n $ toℕ<n k
+  realizeₜ-subst-eq 𝓋 (func f)    s xs = refl
+  realizeₜ-subst-eq 𝓋 (app t₁ t₂) s xs
+    rewrite realizeₜ-subst-eq 𝓋 t₂ s []
+          | realizeₜ-subst-eq 𝓋 t₁ s (rₜ (𝓋 ∷ʳ rₜ [] s []) t₂ [] ∷ xs) = refl
 
   realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formulaₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
     r 𝓋 (φ [≔ s ]) xs ↔ r (𝓋 ∷ʳ rₜ [] s []) φ xs
   realize-subst-iff 𝓋 ⊥ s xs = ↔-refl
   realize-subst-iff 𝓋 (rel R) s xs = ↔-refl
   realize-subst-iff 𝓋 (appᵣ φ t) s xs
-    rewrite realizeₜ-substₜ-eq 𝓋 t s [] = realize-subst-iff 𝓋 φ s _
+    rewrite realizeₜ-subst-eq 𝓋 t s [] = realize-subst-iff 𝓋 φ s _
   realize-subst-iff 𝓋 (t₁ ≈ t₂) s xs = ≡↔≡
-    (eqToPath $ realizeₜ-substₜ-eq 𝓋 t₁ s xs)
-    (eqToPath $ realizeₜ-substₜ-eq 𝓋 t₂ s xs)
+    (eqToPath $ realizeₜ-subst-eq 𝓋 t₁ s xs)
+    (eqToPath $ realizeₜ-subst-eq 𝓋 t₂ s xs)
   realize-subst-iff 𝓋 (φ₁ ⇒ φ₂) s xs = →↔→
     (realize-subst-iff 𝓋 φ₁ s xs)
     (realize-subst-iff 𝓋 φ₂ s xs)
@@ -103,9 +111,9 @@ module Opened where
     → r 𝓋 φ ↔ 𝑟 𝑣 (unbound φ)
   realize-iff 𝓋 𝑣 eq φ = Pre.realize-iff 𝓋 𝑣 eq φ []
 
-  realizeₜ-substₜ-eq : (𝓋 : Vec Domain n) (t : Term (suc n)) (s : ClosedTerm) →
+  realizeₜ-subst-eq : (𝓋 : Vec Domain n) (t : Term (suc n)) (s : ClosedTerm) →
     rₜ 𝓋 (t [≔ s ]ₜ) ≡ rₜ (𝓋 ∷ʳ rₜ [] s) t
-  realizeₜ-substₜ-eq 𝓋 t s = Pre.realizeₜ-substₜ-eq 𝓋 t s []
+  realizeₜ-subst-eq 𝓋 t s = Pre.realizeₜ-subst-eq 𝓋 t s []
 
   realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formula (suc n)) (s : ClosedTerm) →
     r 𝓋 (φ [≔ s ]) ↔ r (𝓋 ∷ʳ rₜ [] s) φ
