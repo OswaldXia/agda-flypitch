@@ -11,9 +11,14 @@ open import FOL.Structure.Reduction.Base F
 open Structure
 
 open import FOL.Bounded.Base ℒ₁
-open import FOL.Bounded.Semantics
-open PreRealizer
+open import FOL.Bounded.Syntactics ℒ₁
+import FOL.Bounded.Semantics as Semantics
+open Semantics ℒ₁ renaming (_⊨ˢ_ to _⊨ˢ₁_; _⊨ᵀ_ to _⊨ᵀ₁_)
+open Semantics ℒ₂ renaming (_⊨ˢ_ to _⊨ˢ₂_; _⊨ᵀ_ to _⊨ᵀ₂_)
+open Semantics.PreRealizer
 
+open import Cubical.Core.Id using (reflId)
+open import Cubical.Foundations.Prelude using (_,_)
 open import CubicalExt.Functions.Logic.Iff
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
 
@@ -50,3 +55,9 @@ realize-reduct-iff 𝓋 (φ₁ ⇒ φ₂) [] = →↔→
   (realize-reduct-iff 𝓋 φ₁ [])
   (realize-reduct-iff 𝓋 φ₂ [])
 realize-reduct-iff 𝓋 (∀' φ) [] = Π↔Π λ x → realize-reduct-iff (x ∷ 𝓋) φ []
+
+reduct⊨ˢ : (φ : Sentence) → 𝒮 ⊨ˢ₂ sentenceMorph φ → ⟦ 𝒮 ⟧ ⊨ˢ₁ φ
+reduct⊨ˢ φ = to (realize-reduct-iff [] φ [])
+
+reduct⊨ᵀ : (T : Theory) → 𝒮 ⊨ᵀ₂ theoryMorph T → ⟦ 𝒮 ⟧ ⊨ᵀ₁ T
+reduct⊨ᵀ T ⊨₂ φ φ∈T = reduct⊨ˢ φ (⊨₂ (sentenceMorph φ) ∣ φ , φ∈T , reflId ∣₁)
