@@ -18,6 +18,7 @@ record _⟶_ (ℒ₁ : Language) (ℒ₂ : Language) : Type u where
     funMorph : ∀ {n} → ℒ₁ .𝔉 n → ℒ₂ .𝔉 n
     relMorph : ∀ {n} → ℒ₁ .ℜ n → ℒ₂ .ℜ n
 
+  -- currently not used
   record injective : Type u where
     field
       funMorph-injective : ∀ {n} {x y : ℒ₁ .𝔉 n} → funMorph x ≡ funMorph y → x ≡ y

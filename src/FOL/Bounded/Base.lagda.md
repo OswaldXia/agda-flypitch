@@ -30,7 +30,6 @@ open import Agda.Builtin.Equality
 open import Cubical.Foundations.Prelude using (Type)
 open import Data.Nat using (ℕ; suc)
 open import Data.Fin using (Fin; toℕ)
-open import Data.Fin.Properties using (toℕ-injective)
 open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_∘_; _$_)
 open import Relation.Nullary using (¬_)

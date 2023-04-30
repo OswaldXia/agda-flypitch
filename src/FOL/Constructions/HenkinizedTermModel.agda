@@ -27,9 +27,8 @@ modelNonempty : Structure.nonempty henkinizedTermModel
 modelNonempty = reductNonempty $ TermModel.nonempty $ ∞-theory-hasEnoughConstants T
 
 modelComplete : Con T → henkinizedTermModel ⊨ᵀ T
-modelComplete con = reduct⊨ᵀ T λ φ φ∈T' → termModelWellDefined φ {! φ∈T'  !}
+modelComplete con = reduct⊨ᵀ T λ φ φ∈T' → termModelWellDefined φ {!   !}
   where H₁ : complete (∞-theory T)
         H₁ = {!   !}
-        H₂ : hasEnoughConstants (∞-theory T)
-        H₂ = {!   !}
+        H₂ = ∞-theory-hasEnoughConstants T
         open import FOL.Constructions.TermModel.Properties H₁ H₂
