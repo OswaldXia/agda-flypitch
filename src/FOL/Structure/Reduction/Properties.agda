@@ -15,16 +15,21 @@ open import FOL.Bounded.Semantics
 open PreRealizer
 
 open import Data.Nat using (ℕ)
-open import Data.Vec using (Vec)
+open import Data.Vec using (Vec; []; _∷_)
 open import Function using (_∘_; id)
-open import Relation.Binary.PropositionalEquality using (_≡_)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
 
 private variable
   n : ℕ
-  𝒮 : Structure ℒ₂ {v}
 
-realizeₜ-reduct-eq : (𝓋 : Vec (Domain 𝒮) n) (t : Termₗ n l) (xs : Vec (Domain 𝒮) l) →
-  realizeₜ ℒ₂ 𝒮 𝓋 (termMorph t) xs ≡ realizeₜ ℒ₁ ⟦ 𝒮 ⟧ 𝓋 t xs
-realizeₜ-reduct-eq = {!   !}
+module _ {v} {𝒮 : Structure ℒ₂ {v}} where
+  realizeₜ-reduct-eq : (𝓋 : Vec (Domain 𝒮) n) (t : Termₗ n l) (xs : Vec (Domain 𝒮) l) →
+    realizeₜ ℒ₂ 𝒮 𝓋 (termMorph t) xs ≡ realizeₜ ℒ₁ ⟦ 𝒮 ⟧ 𝓋 t xs
+  realizeₜ-reduct-eq 𝓋 (var k)     xs = refl
+  realizeₜ-reduct-eq 𝓋 (func f)    xs = refl
+  realizeₜ-reduct-eq 𝓋 (app t₁ t₂) xs
+    rewrite realizeₜ-reduct-eq 𝓋 t₂ []
+          | realizeₜ-reduct-eq 𝓋 t₁ (realizeₜ ℒ₁ ⟦ 𝒮 ⟧ 𝓋 t₂ [] ∷ xs) = refl
 
-module _ (inj : injective) where
+  module _ (inj : injective) where
+    
