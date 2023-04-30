@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical #-}
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language
@@ -33,7 +33,8 @@ open import FOL.Bounded.Lemmas.QuantifierCounting ℒ
 open import FOL.Bounded.Manipulations.Substitution.Closed ℒ
 open import FOL.Constructions.Equivalence.BoundedTruncated T
 
-open import Cubical.Foundations.Prelude hiding (~_) renaming (_,_ to infix 5 _,_)
+open import Cubical.Foundations.Prelude hiding (~_)
+  renaming (_,_ to infix 5 _,_) renaming (subst to ≡-subst)
 open import Cubical.Foundations.HLevels using (isSetHProp)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
@@ -71,13 +72,6 @@ module _ where
     [ apps t₁ (t₂ ∷ xs)]/                            ∎
 
 module _ where
-  open OpenedRealizer termModel
-
-  ⊨[≔]↔ : (φ : Formula 1) (t : ClosedTerm) →
-    termModel ⊨ˢ φ [≔ t ] ↔ realize [ [ t ]/ ] φ
-  ⊨[≔]↔ φ t = {!   !}
-
-module _ where
   open ClosedRealizer termModel
 
   ≡preRel : (R : ℜ l) (xs : Vec ClosedTerm l) →
@@ -92,13 +86,21 @@ module _ where
   ≡map[]/ [] = refl
   ≡map[]/ (x ∷ xs) = cong₂ _∷_ (≡[]/ x) (≡map[]/ xs)
 
+module _ where
+  open OpenedRealizer termModel
+  open Opened
+
+  ⊨[≔]↔ : (φ : Formula 1) (t : ClosedTerm) →
+    termModel ⊨ˢ φ [≔ t ] ↔ realize [ [ t ]/ ] φ
+  ⊨[≔]↔ φ t = ≡-subst (λ x → _ ⊨ˢ _ ↔ realize [ x ] φ) (≡[]/ t) (realize-subst-iff [] φ t)
+
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
 termModelCompleteGuarded ⊥ [] _ =
   →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
 termModelCompleteGuarded (rel R) xs _ = hPropExt⁻ $ sym $
-  termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ realize-appsᵣ-iff [] (rel R) _ ⟩
+  termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ Pre.realize-appsᵣ-iff [] (rel R) _ ⟩
   relMap R (map realizeₜ xs)                    ≡⟨ cong (relMap R) (≡map[]/ _) ⟩
   relMap R (map [_]/ xs)                        ≡⟨ ≡preRel _ _ ⟩
   preRel (rel R) xs , squash₁                   ≡⟨⟩

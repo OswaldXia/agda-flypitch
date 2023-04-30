@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --allow-unsolved-metas #-}
 
 open import FOL.Language
 open import FOL.Structure.Base using (Structure)
@@ -61,7 +61,7 @@ module Pre where
     rₜ 𝓋 (t [≔ s ]ₜ) xs ≡ rₜ (𝓋 ∷ʳ rₜ [] s []) t xs
   realizeₜ-substₜ-eq {n} 𝓋 (var k) s xs with <-cmp (toℕ k) n
   ... | tri< k<n _ _ = sym $ lookup∷ʳ 𝓋 k k<n
-  ... | tri≈ ¬a b ¬c = {!   !}
+  ... | tri≈ ¬a b ¬c = {! s  !}
   ... | tri> ¬a ¬b c = {!   !}
   realizeₜ-substₜ-eq 𝓋 (func f)    s xs = refl
   realizeₜ-substₜ-eq 𝓋 (app t₁ t₂) s xs
@@ -72,8 +72,6 @@ module Pre where
     r 𝓋 (appsᵣ φ xs) [] ↔ r 𝓋 φ (map (λ t → rₜ 𝓋 t []) xs)
   realize-appsᵣ-iff 𝓋 φ [] = ↔-refl
   realize-appsᵣ-iff 𝓋 φ (x ∷ xs) = realize-appsᵣ-iff 𝓋 (appᵣ φ x) xs
-
-open Pre using (realize-appsᵣ-iff) public
 
 module Opened where
   open OpenedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
@@ -93,8 +91,8 @@ module Opened where
     rₜ 𝓋 (t [≔ s ]ₜ) ≡ rₜ (𝓋 ∷ʳ rₜ [] s) t
   realizeₜ-substₜ-eq 𝓋 t s = Pre.realizeₜ-substₜ-eq 𝓋 t s []
 
-  realize-subst-iff : (φ : Formula 1) (t : ClosedTerm) →
-    𝒮 ⊨ˢ φ [≔ t ] ↔ r [ rₜ [] t ] φ
+  realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formula (suc n)) (t : ClosedTerm) →
+    r 𝓋 (φ [≔ t ]) ↔ r (𝓋 ∷ʳ rₜ [] t) φ
   realize-subst-iff φ t = {!   !}
 
 module Closed where
