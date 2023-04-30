@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
 open import FOL.Language

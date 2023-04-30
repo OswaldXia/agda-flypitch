@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical --safe #-}
 
 open import FOL.Language
 open import FOL.Structure.Base using (Structure)
@@ -49,8 +49,9 @@ module Pre where
   realize-iff 𝓋 𝑣 eq (t₁ ≈ t₂)  [] = ≡↔≡
     (eqToPath $ realizeₜ-eq 𝓋 𝑣 eq t₁ [])
     (eqToPath $ realizeₜ-eq 𝓋 𝑣 eq t₂ [])
-  realize-iff 𝓋 𝑣 eq (φ₁ ⇒ φ₂)  xs =
-    →↔→ (realize-iff 𝓋 𝑣 eq φ₁ xs) (realize-iff 𝓋 𝑣 eq φ₂ xs)
+  realize-iff 𝓋 𝑣 eq (φ₁ ⇒ φ₂)  xs = →↔→
+    (realize-iff 𝓋 𝑣 eq φ₁ xs)
+    (realize-iff 𝓋 𝑣 eq φ₂ xs)
   realize-iff 𝓋 𝑣 eq (∀' φ)     [] = Π↔Π $ λ x →
     realize-iff (x ∷ 𝓋) (𝑣 [ 0 ≔ x ]ᵥ) (eq' x) φ [] where
     eq' : ∀ x k → lookup (x ∷ 𝓋) k ≡ (𝑣 [ 0 ≔ x ]ᵥ) (toℕ k)
@@ -67,6 +68,21 @@ module Pre where
   realizeₜ-substₜ-eq 𝓋 (app t₁ t₂) s xs
     rewrite realizeₜ-substₜ-eq 𝓋 t₂ s []
           | realizeₜ-substₜ-eq 𝓋 t₁ s (rₜ (𝓋 ∷ʳ rₜ [] s []) t₂ [] ∷ xs) = refl
+
+  realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formulaₗ (suc n) l) (s : ClosedTerm) (xs : Vec Domain l) →
+    r 𝓋 (φ [≔ s ]) xs ↔ r (𝓋 ∷ʳ rₜ [] s []) φ xs
+  realize-subst-iff 𝓋 ⊥ s xs = ↔-refl
+  realize-subst-iff 𝓋 (rel R) s xs = ↔-refl
+  realize-subst-iff 𝓋 (appᵣ φ t) s xs
+    rewrite realizeₜ-substₜ-eq 𝓋 t s [] = realize-subst-iff 𝓋 φ s _
+  realize-subst-iff 𝓋 (t₁ ≈ t₂) s xs = ≡↔≡
+    (eqToPath $ realizeₜ-substₜ-eq 𝓋 t₁ s xs)
+    (eqToPath $ realizeₜ-substₜ-eq 𝓋 t₂ s xs)
+  realize-subst-iff 𝓋 (φ₁ ⇒ φ₂) s xs = →↔→
+    (realize-subst-iff 𝓋 φ₁ s xs)
+    (realize-subst-iff 𝓋 φ₂ s xs)
+  realize-subst-iff 𝓋 (∀' φ) s xs = Π↔Π λ x →
+    realize-subst-iff (x ∷ 𝓋) φ s xs
 
   realize-appsᵣ-iff : (𝓋 : Vec Domain n) (φ : Formulaₗ n l) (xs : Vec (Term n) l) →
     r 𝓋 (appsᵣ φ xs) [] ↔ r 𝓋 φ (map (λ t → rₜ 𝓋 t []) xs)
@@ -91,9 +107,9 @@ module Opened where
     rₜ 𝓋 (t [≔ s ]ₜ) ≡ rₜ (𝓋 ∷ʳ rₜ [] s) t
   realizeₜ-substₜ-eq 𝓋 t s = Pre.realizeₜ-substₜ-eq 𝓋 t s []
 
-  realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formula (suc n)) (t : ClosedTerm) →
-    r 𝓋 (φ [≔ t ]) ↔ r (𝓋 ∷ʳ rₜ [] t) φ
-  realize-subst-iff φ t = {!   !}
+  realize-subst-iff : (𝓋 : Vec Domain n) (φ : Formula (suc n)) (s : ClosedTerm) →
+    r 𝓋 (φ [≔ s ]) ↔ r (𝓋 ∷ʳ rₜ [] s) φ
+  realize-subst-iff 𝓋 φ s = Pre.realize-subst-iff 𝓋 φ s []
 
 module Closed where
   open ClosedRealizer 𝒮 using () renaming (realizeₜ to rₜ; realize to r) public
