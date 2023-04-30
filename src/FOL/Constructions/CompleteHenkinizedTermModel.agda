@@ -3,7 +3,7 @@
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
-module FOL.Constructions.HenkinizedTermModel ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
+module FOL.Constructions.CompleteHenkinizedTermModel ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Constructions.Henkin.LanguageChain u
 open import FOL.Constructions.Henkin.TheoryChain u
@@ -20,13 +20,13 @@ module _ {ℒ : Language {u}} where
 
 open import Function using (_$_)
 
-henkinizedTermModel : Structure
-henkinizedTermModel = ⟦ termModel ⟧
+theModel : Structure
+theModel = ⟦ termModel ⟧
 
-modelNonempty : Structure.nonempty henkinizedTermModel
+modelNonempty : Structure.nonempty theModel
 modelNonempty = reductNonempty $ TermModel.nonempty $ ∞-theory-hasEnoughConstants T
 
-modelComplete : Con T → henkinizedTermModel ⊨ᵀ T
+modelComplete : Con T → theModel ⊨ᵀ T
 modelComplete con = reduct⊨ᵀ T λ φ φ∈T' → termModelWellDefined φ {!   !}
   where H₁ : complete (∞-theory T)
         H₁ = {!   !}

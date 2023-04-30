@@ -9,4 +9,4 @@ isPropImplicit : ∀ {ℓ} → Type ℓ → Type ℓ
 isPropImplicit A = {x y : A} → x ≡ y
 
 EM : Typeω
-EM = ∀ {ℓ} {A : Type ℓ} → ⦃ isPropImplicit A ⦄ → Dec A
+EM = {ℓ : Level} {A : Type ℓ} → ⦃ isPropImplicit A ⦄ → Dec A

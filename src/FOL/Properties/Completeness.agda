@@ -35,8 +35,8 @@ Model→Con : Model {v} T → Con T
 Model→Con (ℳ , a , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ $ soundness ∣ T⊢⊥ ∣₁ ℳ a ℳ⊨T
 
 Con→Model : Con T → Model T
-Con→Model {T} con = henkinizedTermModel , modelNonempty , modelComplete con
-  where open import FOL.Constructions.HenkinizedTermModel T
+Con→Model {T} con = theModel , modelNonempty , modelComplete con
+  where open import FOL.Constructions.CompleteHenkinizedTermModel T
 
 module _ {v} where
   open Implication v
