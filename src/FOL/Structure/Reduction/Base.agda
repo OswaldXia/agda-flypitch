@@ -16,5 +16,5 @@ open import Function using (_∘_; id)
   ; relMap = relMap ∘ relMorph
   } where open Structure ℒ₂ 𝒮
 
-reductId : ∀ {v} → {𝒮 : Structure ℒ₂ {v}} → Structure.Domain 𝒮 → Structure.Domain ⟦ 𝒮 ⟧
-reductId = id
+reductId : ∀ {v} (𝒮 : Structure ℒ₂ {v}) → Structure.Domain 𝒮 → Structure.Domain ⟦ 𝒮 ⟧
+reductId _ = id
