@@ -10,14 +10,10 @@ open import FOL.Bounded.Syntactics ℒ
 open import FOL.Bounded.Semantics ℒ
 open import FOL.PropertiesOfTheory ℒ
 open import FOL.Properties.Soundness ℒ
-open import FOL.Constructions.Henkin.LanguageChain u
-open import FOL.Constructions.Henkin.TheoryChain u
-open import FOL.Constructions.Henkin.Properties ℒ
-open import FOL.Structure.Base using (Structure)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma using (_×_)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; map)
 open import CubicalExt.Classical
 open import Function using (_$_)
 
@@ -39,14 +35,8 @@ Model→Con : Model {v} T → Con T
 Model→Con (ℳ , a , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ $ soundness ∣ T⊢⊥ ∣₁ ℳ a ℳ⊨T
 
 Con→Model : Con T → Model T
-Con→Model {T} T⊭⊥ =
-    reduct termModel
-  , elim {P = λ _ → Structure.nonempty (reduct termModel)} (λ _ → squash₁)
-      (λ x → ∣ (reductId {𝒮 = termModel} x) ∣₁)
-      (TermModel.nonempty $ ∞-theory-hasEnoughConstants T)
-  , {!   !}
-  where open import FOL.Structure.Reduction (henkinization ℒ)
-        open import FOL.Constructions.TermModel.Base (∞-theory T)
+Con→Model {T} T⊭⊥ = henkinizedTermModel , nonempty , {!   !}
+  where open import FOL.Constructions.HenkinizedTermModel T
 
 module _ {v} where
   open Implication v
