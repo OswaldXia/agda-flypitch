@@ -36,7 +36,7 @@ AC ℓ ℓ' = {A : Type ℓ} {B : A → Type ℓ'} → isSet A → (∀ x → is
   (∀ x → ∥ B x ∥₁) → ∥ (∀ x → B x) ∥₁
 
 ACDep→ACRel : ACDep ℓ ℓ' ℓ'' → ACRel ℓ ℓ' ℓ''
-ACDep→ACRel acDep {A} {B} Aset Bset = acDep {A} {λ _ → B} Aset (λ _ → Bset)
+ACDep→ACRel acDep {A} {C} Aset Bset = acDep {A} {λ _ → C} Aset (λ _ → Bset)
 
 ∃→[]₁ : (∃[ x ∈ A ] ∀ (_ : A') → Unit* {ℓ}) → ∥ A ∥₁
 ∃→[]₁ = elim (λ _ → squash₁) (∣_∣₁ ∘ fst)
@@ -49,8 +49,8 @@ ACDep→AC : ACDep ℓ ℓ' ℓ'' → AC ℓ ℓ'
 ACDep→AC acDep Aset Bset [Bx] = ∃→[]₁ $ acDep Aset Bset (λ _ _ → isPropUnit*) $ []₁→∃ ∘ [Bx]
 
 AC→ACDep : AC ℓ (ℓ-max ℓ' ℓ'') → ACDep ℓ ℓ' ℓ''
-AC→ACDep ac {A} {B} {P} Aset Bset Pprop = map (quasiAC {B = B} {P = P}) ∘
-  ac {B = λ x → Σ-syntax (B x) λ y → P x y} Aset λ _ → isSetΣ (Bset _) λ _ → isProp→isSet (Pprop _ _)
+AC→ACDep ac {A} {C} {P} Aset Bset Pprop = map (quasiAC {B = C} {P = P}) ∘
+  ac {B = λ x → Σ-syntax (C x) λ y → P x y} Aset λ _ → isSetΣ (Bset _) λ _ → isProp→isSet (Pprop _ _)
 
 AC→ACRel : AC ℓ (ℓ-max ℓ' ℓ'') → ACRel ℓ ℓ' ℓ''
 AC→ACRel = ACDep→ACRel ∘ AC→ACDep
