@@ -11,7 +11,7 @@ open import Cubical.HITs.SetQuotients as Quot using (_/_; [_]; eq/; squash/; rec
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim→Set; elim2→Set)
 open import Cubical.Relation.Nullary using (Discrete; Discrete→isSet)
 open import Cubical.Relation.Binary
-open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel)
+open BinaryRelation using (isRefl; isSym; isTrans; isEquivRel; equivRel)
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_∘_; _$_)
@@ -102,11 +102,7 @@ record DirectedDiagram (D : DirectedType {u}) : Type (ℓ-max u $ ℓ-suc v) whe
       z₃≡y₃ rewrite j→l₂→l₃ | k→l₂→l₃ | z₂≡y₂ = refl
 
   isEquivRel≃ : isEquivRel _≃_
-  isEquivRel≃ = record
-    { reflexive = isRefl≃
-    ; symmetric = isSym≃
-    ; transitive = isTrans≃
-    }
+  isEquivRel≃ = equivRel isRefl≃ isSym≃ isTrans≃
 
   Colimit = Coproduct / _≃_
 

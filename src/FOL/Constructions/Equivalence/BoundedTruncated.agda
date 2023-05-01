@@ -7,7 +7,7 @@ module FOL.Constructions.Equivalence.BoundedTruncated {ℒ : Language {u}} (T : 
 open import CubicalExt.Foundations.Powerset* using (_⟦_⟧)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; map; map2)
 import Cubical.Relation.Binary as CubicalRel
-open CubicalRel.BinaryRelation using (isPropValued; isEquivRel)
+open CubicalRel.BinaryRelation using (isPropValued; isEquivRel; equivRel)
 
 open import FOL.Bounded.Base ℒ hiding (_⇒_)
 open import FOL.Bounded.Syntactics ℒ
@@ -41,11 +41,7 @@ isPropValued≋ : isPropValued _≋_
 isPropValued≋ _ _ = squash₁
 
 isEquivRel≋ : isEquivRel _≋_
-isEquivRel≋ = record
-  { reflexive = λ _ → ≋-refl
-  ; symmetric = λ _ _ → ≋-sym
-  ; transitive = λ _ _ _ → ≋-trans
-  }
+isEquivRel≋ = equivRel (λ _ → ≋-refl) (λ _ _ → ≋-sym) (λ _ _ _ → ≋-trans)
 
 ≋-cong : t₁ ≋ t₂ → app f t₁ ≋ app f t₂
 ≋-cong = map Free.≋-cong
