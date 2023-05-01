@@ -55,7 +55,7 @@ SurjectionHasRightInverse ℓ ℓ' = {A : Type ℓ} {B : Type ℓ'} {f : A → B
 []₁→∃ = elim (λ _ → squash₁) (λ x → ∣ x , tt* ∣₁)
 
 --------------------------------------------------
--- Implication
+-- Implications
 
 ACDep→ACRel : ACDep ℓ ℓ' ℓ'' → ACRel ℓ ℓ' ℓ''
 ACDep→ACRel acDep {A} {C} Aset Bset = acDep {A} {λ _ → C} Aset (λ _ → Bset)

@@ -1,10 +1,8 @@
 {-# OPTIONS --cubical --safe #-}
 
-open import Cubical.Foundations.Prelude using (Type; isProp)
+open import Cubical.Foundations.Prelude
 module CubicalExt.Logic.Diaconescu {ℓ} {P : Type ℓ} (Pprop : isProp P) where
 
-open import Agda.Builtin.Equality
-open import Cubical.Foundations.Prelude using (ℓ-zero; Σ-syntax; fst; snd; _,_; cong; sym; _∙_)
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Foundations.Isomorphism using (section)
 open import Cubical.Data.Bool using (Bool; true; false; isSetBool; _≟_)
@@ -24,13 +22,13 @@ false ~ false = Unit*
 _     ~ _     = P
 
 isPropValued~ : isPropValued _~_
-isPropValued~ true  true = isPropUnit*
+isPropValued~ true  true  = isPropUnit*
 isPropValued~ false false = isPropUnit*
 isPropValued~ true  false = Pprop
 isPropValued~ false true  = Pprop
 
 isRefl~ : isRefl _~_
-isRefl~ true = tt*
+isRefl~ true  = tt*
 isRefl~ false = tt*
 
 isSym~ : isSym _~_
@@ -64,5 +62,5 @@ module _ (ac : SurjectionHasRightInverse ℓ-zero ℓ) where
   existsRightInverse : ∥ RightInverse ∥₁
   existsRightInverse = ac isSetBool squash/ []surjective
 
-  Diaconescu : Dec P
-  Diaconescu = elim (λ _ → isPropDec Pprop) RightInverse→DecP existsRightInverse
+  diaconescu : Dec P
+  diaconescu = elim (λ _ → isPropDec Pprop) RightInverse→DecP existsRightInverse

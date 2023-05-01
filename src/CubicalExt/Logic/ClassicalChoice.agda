@@ -10,7 +10,7 @@ open import Cubical.Functions.Surjection
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Axiom.ExcludedMiddle
-open import CubicalExt.Logic.Diaconescu using (Diaconescu)
+open import CubicalExt.Logic.Diaconescu using (diaconescu)
 open import Function using (it)
 
 private variable
@@ -26,4 +26,6 @@ surjectionHasRightInverse : SurjectionHasRightInverse ℓ ℓ'
 surjectionHasRightInverse Aset Bset sur = acRel Bset Aset (λ _ _ → Bset _ _) sur
 
 em : EM ℓ
-em = Diaconescu (λ _ _ → it) surjectionHasRightInverse
+em = diaconescu (λ _ _ → it) surjectionHasRightInverse
+
+-- TODO : zorn
