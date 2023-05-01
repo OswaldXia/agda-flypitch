@@ -3,7 +3,7 @@
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
-module FOL.Constructions.CompleteHenkinizedTermModel ⦃ em : EM ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
+module FOL.Constructions.CompleteHenkinizedTermModel ⦃ _ : ∀ {ℓ} → EM ℓ ⦄ {ℒ : Language {u}} (T : Theory ℒ) where
 
 open import FOL.Constructions.Henkin.LanguageChain u
 open import FOL.Constructions.Henkin.TheoryChain u

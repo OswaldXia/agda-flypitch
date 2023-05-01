@@ -15,7 +15,7 @@ zhihu-tags: Agda, 数理逻辑
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Properties.Soundness ⦃ em : EM ⦄ (ℒ : Language {u}) where
+module FOL.Properties.Soundness ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (ℒ : Language {u}) where
 open import CubicalExt.Logic.Classical ⦃ em ⦄ using (byContra*)
 ```
 

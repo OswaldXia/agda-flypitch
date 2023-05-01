@@ -3,7 +3,7 @@
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Properties.Completeness ⦃ _ : EM ⦄ (ℒ : Language {u}) where
+module FOL.Properties.Completeness ⦃ _ : ∀ {ℓ} → EM ℓ ⦄ (ℒ : Language {u}) where
 
 open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ

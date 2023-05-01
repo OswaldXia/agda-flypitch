@@ -5,7 +5,7 @@ open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
 open import FOL.PropertiesOfTheory using (complete; hasEnoughConstants)
-module FOL.Constructions.TermModel.Properties ⦃ em : EM ⦄ {ℒ : Language {u}} {T : Theory ℒ}
+module FOL.Constructions.TermModel.Properties ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {ℒ : Language {u}} {T : Theory ℒ}
   (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
 open import CubicalExt.Logic.Classical ⦃ em ⦄ using (byContra)
 open Language ℒ

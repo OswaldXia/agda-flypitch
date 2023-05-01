@@ -3,7 +3,7 @@
 
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
-module FOL.Constructions.Henkin.Properties ⦃ _ : EM ⦄ (ℒ : Language {u}) where
+module FOL.Constructions.Henkin.Properties ⦃ _ : ∀ {ℓ} → EM ℓ ⦄ (ℒ : Language {u}) where
 open import FOL.Constructions.Henkin.LanguageChain u
 open import FOL.Constructions.Henkin.TermChain u
 open import FOL.Constructions.Henkin.FormulaChain u
