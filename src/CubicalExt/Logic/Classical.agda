@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 
 open import CubicalExt.Axiom.ExcludedMiddle
-module CubicalExt.Classical ⦃ em : EM ⦄ where
+module CubicalExt.Logic.Classical ⦃ em : ∀ {ℓ} → EM ℓ ⦄ where
 
 open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Function using (_∘_; _$--)

@@ -5,9 +5,6 @@ module CubicalExt.Axiom.Choice where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma using (∃-syntax)
 
-private variable
-  ℓ ℓ' : Level
-  X : Type ℓ
-
-AC : (A : X → Type ℓ) (P : ∀ x → A x → Type ℓ') → Type _
-AC A P = (∀ x → ∃[ a ∈ A x ] P x a) → ∃[ f ∈ (∀ x → A x) ] ∀ x → P x (f x)
+AC : (ℓ ℓ' ℓ'' : Level) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-suc ℓ''))
+AC ℓ ℓ' ℓ'' = (A : Type ℓ) (B : A → Type ℓ') (P : ∀ x → B x → Type ℓ'') →
+  (∀ x → ∃[ a ∈ B x ] P x a) → ∃[ f ∈ (∀ x → B x) ] ∀ x → P x (f x)

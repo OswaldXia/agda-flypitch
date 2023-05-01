@@ -14,7 +14,7 @@ open import FOL.Properties.Soundness ℒ
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma using (_×_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; map)
-open import CubicalExt.Classical
+open import CubicalExt.Logic.Classical
 open import Function using (_$_)
 
 private variable
