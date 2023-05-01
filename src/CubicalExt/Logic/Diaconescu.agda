@@ -1,32 +1,27 @@
 {-# OPTIONS --cubical --safe #-}
 
-open import CubicalExt.Axiom.Choice
 open import Cubical.Foundations.Prelude using (Type; isProp)
-module CubicalExt.Logic.Diaconescu (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') {ℓ} {P : Type ℓ} (Pprop : isProp P) where
+module CubicalExt.Logic.Diaconescu {ℓ} {P : Type ℓ} (Pprop : isProp P) where
 
 open import Agda.Builtin.Equality
-open import Cubical.Foundations.Prelude using (Σ-syntax; fst; snd; _,_; cong; sym; _∙_)
+open import Cubical.Foundations.Prelude using (ℓ-zero; Σ-syntax; fst; snd; _,_; cong; sym; _∙_)
 open import Cubical.Foundations.Function using (_∘_; _$_)
-open import Cubical.Foundations.HLevels using (isPropΠ)
 open import Cubical.Foundations.Isomorphism using (section)
-open import Cubical.Functions.Logic using (_⊔′_; inl; inr)
 open import Cubical.Data.Bool using (Bool; true; false; isSetBool; _≟_)
-open import Cubical.Data.Empty using (isProp⊥)
 open import Cubical.Data.Unit using (tt*; Unit*; isPropUnit*)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; []surjective; effective)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁; elim)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no; isPropDec)
 open import Cubical.Relation.Binary
+open import CubicalExt.Axiom.Choice
 open import CubicalExt.Axiom.ExcludedMiddle
-open import CubicalExt.Logic.ClassicalChoice ac
 import Cubical.Data.Sum as ⊎
 open BinaryRelation
 
 _~_ : Rel Bool Bool ℓ
 true  ~ true  = Unit*
 false ~ false = Unit*
-true  ~ false = P
-false ~ true  = P
+_     ~ _     = P
 
 isPropValued~ : isPropValued _~_
 isPropValued~ true  true = isPropUnit*
@@ -55,17 +50,19 @@ isTrans~ false false true  _ p = p
 isEquivRel~ : isEquivRel _~_
 isEquivRel~ = equivRel isRefl~ isSym~ isTrans~
 
-Section : Type ℓ
-Section = Σ[ g ∈ (Bool / _~_ → Bool) ] section [_] g
+RightInverse : Type ℓ
+RightInverse = Σ[ g ∈ (Bool / _~_ → Bool) ] section [_] g
 
-section→decP : Section → Dec P
-section→decP (g , sec) with g [ true ] ≟ g [ false ]
+RightInverse→DecP : RightInverse → Dec P
+RightInverse→DecP (g , sec) with g [ true ] ≟ g [ false ]
 ... | yes p = yes $ effective isPropValued~ isEquivRel~ _ _ $
   sym (sec [ true ]) ∙ cong [_] p ∙ sec [ false ]
 ... | no ¬p = no $ ¬p ∘ cong g ∘ eq/ _ _
 
-existsSection : ∥ Section ∥₁
-existsSection = isSurjection→section isSetBool squash/ []surjective
+module _ (ac : SurjectionHasRightInverse ℓ-zero ℓ) where
 
-decP : Dec P
-decP = elim (λ _ → isPropDec Pprop) section→decP existsSection
+  existsRightInverse : ∥ RightInverse ∥₁
+  existsRightInverse = ac isSetBool squash/ []surjective
+
+  Diaconescu : Dec P
+  Diaconescu = elim (λ _ → isPropDec Pprop) RightInverse→DecP existsRightInverse
