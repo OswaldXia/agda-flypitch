@@ -36,8 +36,8 @@ isRefl~ false = tt*
 isSym~ : isSym _~_
 isSym~ true  true  tt* = tt*
 isSym~ false false tt* = tt*
-isSym~ true  false p    = p
-isSym~ false true  p    = p
+isSym~ true  false p   = p
+isSym~ false true  p   = p
 
 isTrans~ : isTrans _~_
 isTrans~ true  _     true  _ _ = tt*
