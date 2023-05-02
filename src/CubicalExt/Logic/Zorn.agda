@@ -5,12 +5,10 @@ open import Cubical.Relation.Binary
 module CubicalExt.Logic.Zorn {ℓ ℓ'} {U : Type ℓ} (_≤_ : Rel U U ℓ') where
 
 open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_)
-open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
 open import Cubical.Data.Sum using () renaming (_⊎_ to infixr 3 _⊎_)
-open import Cubical.HITs.PropositionalTruncation using (map)
-open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary using (¬_)
 open BinaryRelation
 
 --------------------------------------------------
