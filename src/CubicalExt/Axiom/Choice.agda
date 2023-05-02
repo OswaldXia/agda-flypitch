@@ -48,11 +48,11 @@ SurjectionHasRightInverse ℓ ℓ' = {A : Type ℓ} {B : Type ℓ'} {f : A → B
 --------------------------------------------------
 -- Lemmas
 
-∃→[]₁ : (∃[ x ∈ A ] ∀ (_ : A') → Unit* {ℓ}) → ∥ A ∥₁
-∃→[]₁ = elim (λ _ → squash₁) (∣_∣₁ ∘ fst)
+∃→∥₁ : (∃[ x ∈ A ] ∀ (_ : A') → Unit* {ℓ}) → ∥ A ∥₁
+∃→∥₁ = elim (λ _ → squash₁) (∣_∣₁ ∘ fst)
 
-[]₁→∃ : ∥ A ∥₁ → ∃[ x ∈ A ] Unit* {ℓ}
-[]₁→∃ = elim (λ _ → squash₁) (λ x → ∣ x , tt* ∣₁)
+∥₁→∃ : ∥ A ∥₁ → ∃[ x ∈ A ] Unit* {ℓ}
+∥₁→∃ = elim (λ _ → squash₁) (λ x → ∣ x , tt* ∣₁)
 
 --------------------------------------------------
 -- Implications
@@ -62,7 +62,7 @@ ACDep→ACRel acDep {A} {C} Aset Bset = acDep {A} {λ _ → C} Aset (λ _ → Bs
 
 -- HoTT Book 3.8.2
 ACDep→AC : ACDep ℓ ℓ' ℓ'' → AC ℓ ℓ'
-ACDep→AC acDep Aset Bset [Bx] = ∃→[]₁ $ acDep Aset Bset (λ _ _ → isPropUnit*) $ []₁→∃ ∘ [Bx]
+ACDep→AC acDep Aset Bset [Bx] = ∃→∥₁ $ acDep Aset Bset (λ _ _ → isPropUnit*) $ ∥₁→∃ ∘ [Bx]
 
 AC→ACDep : AC ℓ (ℓ-max ℓ' ℓ'') → ACDep ℓ ℓ' ℓ''
 AC→ACDep ac {A} {C} {P} Aset Bset Pprop = map (quasiAC {B = C} {P = P}) ∘

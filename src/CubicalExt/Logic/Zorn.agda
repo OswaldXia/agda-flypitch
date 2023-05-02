@@ -6,7 +6,7 @@ open BinaryRelation
 module CubicalExt.Logic.Zorn {ℓ ℓ'} {U : Type ℓ} {_≤_ : Rel U U ℓ'} (isTrans≤ : isTrans _≤_) where
 
 open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_)
-open import Cubical.Data.Sigma using (∃-syntax; _×_)
+open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infix 3 _×_)
 open import Cubical.Data.Sum renaming (_⊎_ to infix 3 _⊎_)
 
 --------------------------------------------------
@@ -23,6 +23,9 @@ Zorn = EveryChainHasAnUpperBound → HasMaximum
 
 --------------------------------------------------
 -- Proof
+
+superChain : 𝒫 U ℓ → 𝒫 U ℓ → Type _
+superChain A B = isChain B × A ⊆ B
 
 isMaxChain : 𝒫 U ℓ → Type _
 isMaxChain A = isChain A × ∀ B → isChain B → A ⊆ B → A ≡ B
