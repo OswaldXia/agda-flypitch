@@ -1,20 +1,23 @@
 {-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Relation.Binary
-module CubicalExt.Logic.Zorn {u r} {U : Type u} (_≤_ : Rel U U r) where
+open BinaryRelation
+module CubicalExt.Logic.Zorn {u r} {U : Type u} {_≤_ : Rel U U r} (isPropValued≤ : isPropValued _≤_) where
 
+open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_)
-open import Cubical.Foundations.HLevels using (hProp)
-open import Cubical.Functions.Logic using (∥_∥ₚ) renaming (_⊔′_ to infixr 3 _∨_)
+open import Cubical.Foundations.Function using (_$_)
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
+open import Cubical.Functions.Logic using (∥_∥ₚ; inl; inr) renaming (_⊔′_ to infixr 3 _∨_)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
 open import Cubical.HITs.PropositionalTruncation using (squash₁; elim2)
-open import Cubical.Relation.Nullary using (¬_)
-open BinaryRelation
+open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 
 private variable
   ℓ : Level
-  x : U
+  x y : U
   A : 𝒫 U ℓ
 
 --------------------------------------------------
@@ -37,6 +40,10 @@ Zorn = isRefl _≤_ → isTrans _≤_ → EveryChainHasUpperBound → ∃[ m ∈
 --------------------------------------------------
 -- Proof
 
+instance
+  isPropImplicitValued≤ : isPropImplicit (x ≤ y)
+  isPropImplicitValued≤ = isPropValued≤ _ _ _ _
+
 Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 
 -- least upper bound
@@ -45,7 +52,8 @@ supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
 
 EveryChainHasSupremum = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
 
-module _ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
+module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
+  open import CubicalExt.Logic.Classical
 
   data Tower (ℓ : Level) : U → Type (ℓ-max (ℓ-max u r) (ℓ-suc ℓ)) where
     includeSuc : (x : U) → Tower ℓ x → Tower ℓ (hasSuc x .fst)
@@ -59,4 +67,6 @@ module _ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
   isChainTowerSet x y = elim2 (λ _ _ → squash₁) (isChainTower x y) where
     isChainTower : ∀ x y → Tower ℓ x → Tower ℓ y → x ≤ y ∨ y ≤ x
     isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) = {!   !}
-    isChainTower x .(hasSup A isChainA .fst) x∈ (includeSup A A⊆ isChainA) = {!   !}
+    isChainTower x .(hasSup A isChainA .fst) x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
+    ... | yes p = inr $ hasSup A isChainA .snd .snd x p
+    ... | no ¬p = inl $ {! ¬∀→∃¬ ¬p !}

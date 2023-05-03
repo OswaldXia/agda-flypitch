@@ -2,7 +2,7 @@
 
 open import CubicalExt.Axiom.ExcludedMiddle
 module FOL.Language.DirectedDiagram ⦃ em : ∀ {ℓ} → EM ℓ ⦄ where
-open import CubicalExt.Logic.Classical ⦃ em ⦄ using (isSet→DiscreteEq)
+open import CubicalExt.Logic.Classical using (isSet→DiscreteEq)
 
 open import FOL.Language hiding (u)
 open import FOL.Language.Homomorphism renaming (_∘_ to _◯_)
