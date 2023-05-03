@@ -18,5 +18,5 @@ EM : (ℓ : Level) → Type (ℓ-suc ℓ)
 EM ℓ = {P : Type ℓ} → ⦃ isPropImplicit P ⦄ → Dec P
 
 instance
-  isPropImplicitΠIteration : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ((x : A) → B x)
-  isPropImplicitΠIteration ⦃ H ⦄ = isPropΠ (λ _ _ _ → H) _ _
+  isPropImplicitΠn : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ((x : A) → B x)
+  isPropImplicitΠn ⦃ H ⦄ = isPropΠ (λ _ _ _ → H) _ _
