@@ -21,6 +21,10 @@ private variable
   x y : U
   A : 𝒫 U ℓ
 
+instance
+  ≤-propImplicit : isPropImplicit (x ≤ y)
+  ≤-propImplicit = ≤-prop _ _ _ _
+
 --------------------------------------------------
 -- Definition
 
@@ -40,10 +44,6 @@ Zorn = EveryChainHasUpperBound → ∃[ m ∈ U ] premaximum m
 
 --------------------------------------------------
 -- Proof
-
-instance
-  isPropImplicitValued≤ : isPropImplicit (x ≤ y)
-  isPropImplicitValued≤ = ≤-prop _ _ _ _
 
 Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 
