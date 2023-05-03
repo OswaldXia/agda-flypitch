@@ -12,7 +12,7 @@ open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import Cubical.Functions.Logic using (∥_∥ₚ; inl; inr) renaming (_⊔′_ to infixr 3 _∨_)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
-open import Cubical.HITs.PropositionalTruncation using (squash₁; elim2)
+open import Cubical.HITs.PropositionalTruncation using (squash₁; elim; elim2)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 
 private variable
@@ -69,4 +69,4 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
     isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) = {!   !}
     isChainTower x .(hasSup A isChainA .fst) x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
     ... | yes p = inr $ hasSup A isChainA .snd .snd x p
-    ... | no ¬p = inl $ {! ¬∀→∃¬ ¬p !}
+    ... | no ¬p = inl $ elim (λ _ → isPropValued≤ _ _) {!   !} (¬∀→∃¬ ¬p)
