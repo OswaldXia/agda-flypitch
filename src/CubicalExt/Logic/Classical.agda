@@ -5,13 +5,14 @@ module CubicalExt.Logic.Classical ⦃ em : ∀ {ℓ} → EM ℓ ⦄ where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_∘_; _$_)
+open import Cubical.Functions.Logic using () renaming (_⊓′_ to infixr 3 _∧_)
 open import Cubical.Data.Empty using (⊥; ⊥*; rec; rec*)
 open import Cubical.Data.Sigma using (∃-syntax)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁)
 open import CubicalExt.Relation.Nullary
 
 private variable
-  ℓ : Level
+  ℓ ℓ' : Level
   A : Type ℓ
   P : A → Type ℓ
 
@@ -32,6 +33,11 @@ module _ ⦃ Aprop : isPropImplicit A ⦄ where
   byContra* ¬A⇒⊥ with em ⦃ Aprop ⦄
   ... | yes p = p
   ... | no ¬p = rec* (¬A⇒⊥ ¬p)
+
+module _ (A : Type ℓ) ⦃ Aprop : isPropImplicit A ⦄ (B : Type ℓ') ⦃ Bprop : isPropImplicit B ⦄ where
+
+  ¬→→∧ : ¬ (A → B) → A ∧ ¬ B
+  ¬→→∧ ¬→ = (byContra λ ¬a → ¬→ λ a → rec $ ¬a a) , (λ b → ¬→ λ _ → b)
 
 module _ ⦃ Pprop : {x : A} → isPropImplicit (P x) ⦄ where
 

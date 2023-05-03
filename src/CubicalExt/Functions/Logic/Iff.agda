@@ -16,8 +16,7 @@ open import Cubical.Reflection.RecordEquiv using (declareRecordIsoΣ)
 private variable
   ℓ ℓ' : Level
   A B C D : Type ℓ
-  f : A → Type ℓ'
-  g : A → Type ℓ'
+  f g : A → Type ℓ
   P Q : hProp ℓ
 
 --------------------------------------------------------------------------------

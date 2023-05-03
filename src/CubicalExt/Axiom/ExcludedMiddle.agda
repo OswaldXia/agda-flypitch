@@ -3,7 +3,7 @@
 module CubicalExt.Axiom.ExcludedMiddle where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels using (isPropΠ)
+open import Cubical.Foundations.HLevels using (isPropΠ; isPropImplicitΠ)
 open import Cubical.Relation.Nullary using (Dec)
 
 private variable
@@ -18,5 +18,8 @@ EM : (ℓ : Level) → Type (ℓ-suc ℓ)
 EM ℓ = {P : Type ℓ} → ⦃ isPropImplicit P ⦄ → Dec P
 
 instance
-  isPropImplicitΠn : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ((x : A) → B x)
-  isPropImplicitΠn ⦃ H ⦄ = isPropΠ (λ _ _ _ → H) _ _
+  isPropΠn : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ((x : A) → B x)
+  isPropΠn ⦃ H ⦄ = isPropΠ (λ _ _ _ → H) _ _
+
+  isPropImpliciΠn : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ({x : A} → B x)
+  isPropImpliciΠn ⦃ H ⦄ = isPropImplicitΠ (λ _ _ _ → H) _ _
