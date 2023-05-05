@@ -15,6 +15,7 @@ open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
 open import Cubical.HITs.PropositionalTruncation using (squash₁; elim; elim2)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
+import Cubical.Data.Sum as ⊎
 
 private variable
   ℓ : Level
@@ -67,7 +68,13 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   isChainTowerSet : isChain (TowerSet ℓ)
   isChainTowerSet x y = elim2 (λ _ _ → squash₁) (isChainTower x y) where
     isChainTower : ∀ x y → Tower ℓ x → Tower ℓ y → x ≤ y ∨ y ≤ x
-    isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) = {!   !}
+    isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) with hasSuc y
+    ... | (y' , y≤y' , ¬y≡y' , suc) = elim {P = λ _ → x ≤ y' ∨ y' ≤ x} (λ _ → squash₁)
+      (λ{ (⊎.inl x≤y ) → inl (≤-trans x y y' x≤y y≤y')
+        ; (⊎.inr y'≤x) → inr y'≤x })
+      (helper x x∈) where
+      helper : ∀ z → Tower ℓ z → z ≤ y ∨ y' ≤ z
+      helper = {!   !}
     isChainTower x .(hasSup A isChainA .fst) x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
     ... | yes p = inr $ hasSup A isChainA .snd .snd x p
     ... | no ¬p = inl $ elim (λ _ → ≤-prop _ _)

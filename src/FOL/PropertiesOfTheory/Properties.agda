@@ -21,9 +21,9 @@ module Complete {T} (compl : complete T) where
 
   ⇒-intro : ∀ {φ₁ φ₂} → (T ⊦ φ₁ → T ⊦ φ₂) → T ⊦ φ₁ ⇒ φ₂
   ⇒-intro {φ₁} H = elim (λ _ → squash₁)
-    (λ { (inl  φ₁∈T) → map (⇒I ∘ weakening1) $ H $ map axiom ∣ φ₁∈T ∣₁
-       ; (inr ~φ₁∈T) → map (⇒I ∘ ⊥-elim ∘ weakening1) $
-          map2 ⇒-elim (map (weakening1 ∘ axiom) ∣ ~φ₁∈T ∣₁) ∣ axiom1 ∣₁ })
+    (λ{ (inl  φ₁∈T) → map (⇒I ∘ weakening1) $ H $ map axiom ∣ φ₁∈T ∣₁
+      ; (inr ~φ₁∈T) → map (⇒I ∘ ⊥-elim ∘ weakening1) $
+        map2 ⇒-elim (map (weakening1 ∘ axiom) ∣ ~φ₁∈T ∣₁) ∣ axiom1 ∣₁ })
     (compl .snd φ₁)
 
   ~-intro : ∀ {φ} → ¬ T ⊦ φ → T ⊦ ~ φ
