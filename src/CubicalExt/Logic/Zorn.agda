@@ -11,7 +11,7 @@ open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_; ∈-isProp)
 open import CubicalExt.Foundations.Function using (_$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
-open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ)
+open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
 open import Cubical.HITs.PropositionalTruncation using (squash₁; elim; elim2)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
@@ -69,17 +69,29 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   isChainTowerSet x y = elim2 (λ _ _ → squash₁) (isChainTower x y) where
     isChainTower : ∀ x y → Tower ℓ x → Tower ℓ y → x ≤ y ∨ y ≤ x
     isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) with hasSuc y
-    ... | (y' , y≤y' , ¬y≡y' , suc) = elim {P = λ _ → x ≤ y' ∨ y' ≤ x} (λ _ → squash₁)
+    ... | (y' , y≤y' , ¬y≡y' , suc-y) = elim {P = λ _ → x ≤ y' ∨ y' ≤ x} (λ _ → squash₁)
       (λ{ (⊎.inl x≤y ) → inl (≤-trans x y y' x≤y y≤y')
         ; (⊎.inr y'≤x) → inr y'≤x })
       (helper x x∈) where
-      helper : ∀ z → Tower ℓ z → z ≤ y ∨ y' ≤ z
-      helper = {!   !}
-    isChainTower x .(hasSup A isChainA .fst) x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
+      helper : ∀ w → Tower ℓ w → w ≤ y ∨ y' ≤ w
+      helper .(hasSuc w .fst) (includeSuc w w∈) with hasSuc w
+      ... | (w' , w≤w' , ¬w≡w' , suc-w) = elim {P = λ _ → w' ≤ y ∨ y' ≤ w'} (λ _ → squash₁)
+        (λ{ (⊎.inl w≤y ) → {!   !}
+          ; (⊎.inr y'≤w) → inr (≤-trans y' w w' y'≤w w≤w') })
+        (helper w w∈)
+      helper w (includeSup A A⊆ isChainA) with em {P = upperBound A y}
+      ... | yes p = inl $ hasSup A isChainA .snd .snd y p
+      ... | no ¬p = inr $ elim (λ _ → ≤-prop _ _)
+        (λ { (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
+          ≤-trans y' z w
+            (∨-elimʳ (≤-prop _ _) (helper z $ A⊆ z z∈A) ¬z≤y)
+            (hasSup A isChainA .snd .fst z z∈A) })
+        (¬∀→∃¬ ¬p)
+    isChainTower x y x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
     ... | yes p = inr $ hasSup A isChainA .snd .snd x p
     ... | no ¬p = inl $ elim (λ _ → ≤-prop _ _)
-      (λ { (y , ¬ub) → let (y∈A , ¬y≤x) = ¬→→∧ (y ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (y ≤ x) ¬ub in
-        ≤-trans x y (hasSup A isChainA .fst)
-          (∨-elimˡ (≤-prop _ _) (isChainTower x y x∈ (A⊆ y y∈A)) ¬y≤x)
-          (hasSup A isChainA .snd .fst y y∈A) })
+      (λ { (z , ¬ub) → let (z∈A , ¬z≤x) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ x) ¬ub in
+        ≤-trans x z y
+          (∨-elimˡ (≤-prop _ _) (isChainTower x z x∈ $ A⊆ z z∈A) ¬z≤x)
+          (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
