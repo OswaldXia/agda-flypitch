@@ -12,8 +12,9 @@ open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_; ∈-isPr
 open import CubicalExt.Foundations.Function using (_$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
+open import Cubical.Data.Empty using (⊥)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
-open import Cubical.HITs.PropositionalTruncation using (squash₁; elim; elim2)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim2)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 import Cubical.Data.Sum as ⊎
 
@@ -101,3 +102,12 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
           (∨-elimˡ (≤-prop _ _) (isChainTower x z x∈ $ A⊆ z z∈A) ¬z≤x)
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
+
+  sup : (ℓ : Level) → U
+  sup ℓ = hasSup (TowerSet ℓ) isChainTowerSet .fst
+
+  sup∈ : sup ℓ ∈ TowerSet _
+  sup∈ {ℓ} = ∣_∣₁ $ includeSup (TowerSet ℓ) (λ x x∈ → {!   !}) isChainTowerSet
+
+  false : ⊥
+  false = {!   !}
