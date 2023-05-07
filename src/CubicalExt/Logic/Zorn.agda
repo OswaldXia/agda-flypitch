@@ -18,7 +18,7 @@ open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 import Cubical.Data.Sum as ⊎
 
 private variable
-  ℓ : Level
+  ℓ ℓ' : Level
   x y : U
   A : 𝒫 U ℓ
 
@@ -67,18 +67,22 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
 
   isChainTowerSet : isChain (TowerSet ℓ)
   isChainTowerSet x y = elim2 (λ _ _ → squash₁) (isChainTower x y) where
-    isChainTower : ∀ x y → Tower ℓ x → Tower ℓ y → x ≤ y ∨ y ≤ x
+    isChainTower : ∀ x y → Tower ℓ x → Tower ℓ' y → x ≤ y ∨ y ≤ x
     isChainTower x .(hasSuc y .fst) x∈ (includeSuc y y∈) with hasSuc y
-    ... | (y' , y≤y' , ¬y≡y' , suc-y) = elim {P = λ _ → x ≤ y' ∨ y' ≤ x} (λ _ → squash₁)
-      (λ{ (⊎.inl x≤y ) → inl (≤-trans x y y' x≤y y≤y')
+    ... | (y' , y≤y' , _ , _) = elim {P = λ _ → x ≤ y' ∨ y' ≤ x} (λ _ → squash₁)
+      (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
         ; (⊎.inr y'≤x) → inr y'≤x })
       (helper x x∈) where
       helper : ∀ w → Tower ℓ w → w ≤ y ∨ y' ≤ w
-      helper .(hasSuc w .fst) (includeSuc w w∈) with hasSuc w
-      ... | (w' , w≤w' , ¬w≡w' , suc-w) = elim {P = λ _ → w' ≤ y ∨ y' ≤ w'} (λ _ → squash₁)
-        (λ{ (⊎.inl w≤y ) → {!   !}
-          ; (⊎.inr y'≤w) → inr (≤-trans y' w w' y'≤w w≤w') })
-        (helper w w∈)
+      helper .(hasSuc w .fst) (includeSuc w w∈) with hasSuc w | isChainTower (hasSuc w .fst) y (includeSuc w w∈) y∈
+      ... | (w' , w≤w' , _ , suc-w) | IH = elim2 {P = λ _ _ → w' ≤ y ∨ y' ≤ w'} (λ _ _ → squash₁)
+        (λ{ (⊎.inl w≤y) (⊎.inl w'≤y) → inl w'≤y
+          ; (⊎.inl w≤y) (⊎.inr y≤w') → elim (λ _ → squash₁)
+            (λ{ (⊎.inl y≡w)  → inr {!   !}
+              ; (⊎.inr y≡w') → inl {!   !} })
+            (suc-w y w≤y y≤w')
+          ; (⊎.inr y'≤w) _ → inr $ ≤-trans y' w w' y'≤w w≤w' })
+        (helper w w∈) IH
       helper w (includeSup A A⊆ isChainA) with em {P = upperBound A y}
       ... | yes p = inl $ hasSup A isChainA .snd .snd y p
       ... | no ¬p = inr $ elim (λ _ → ≤-prop _ _)
@@ -95,3 +99,4 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
           (∨-elimˡ (≤-prop _ _) (isChainTower x z x∈ $ A⊆ z z∈A) ¬z≤x)
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
+   
