@@ -8,7 +8,7 @@ module CubicalExt.Logic.Zorn {u r} {U : Type u} {_≤_ : Rel U U r}
   (≤-prop : isPropValued _≤_) (≤-refl : isRefl _≤_) (≤-trans : isTrans _≤_) where
 
 open import CubicalExt.Axiom.ExcludedMiddle
-open import CubicalExt.Foundations.Powerset* using (𝒫; _∈_; _⊆_; ∈-isProp)
+open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
 open import CubicalExt.Foundations.Function using (_$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
@@ -118,15 +118,15 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
 
-  liftTower : (x : U) → Tower ℓ-zero x → Tower ℓ x
-  liftTower _ (includeSuc x x∈) = includeSuc x (liftTower x x∈)
-  liftTower {ℓ} _ (includeSup A A⊆ isChainA) = {! includeSup  !}
+  liftTower : Tower ℓ-zero x → Tower ℓ x
+  liftTower (includeSuc x x∈) = includeSuc x (liftTower x∈)
+  liftTower (includeSup A A⊆ isChainA) = {! includeSup (lift𝒫 A)  !}
 
   sup : U
   sup = hasSup (TowerSet ℓ-zero) isChainTowerSet .fst
 
-  sup∈tower : sup ∈ TowerSet _
-  sup∈tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) (map $ liftTower _) isChainTowerSet
+  sup∈Tower : sup ∈ TowerSet _
+  sup∈Tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) (map $ liftTower) isChainTowerSet
 
   false : ⊥
   false = {!   !}

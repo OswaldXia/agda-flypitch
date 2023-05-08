@@ -37,6 +37,15 @@ isSet𝒫 : isSet (𝒫 X ℓ)
 isSet𝒫 = isSetΠ λ x → isSetHProp
 
 ------------------------------------------------------------------------
+-- Lifting
+
+liftHProp : hProp ℓ-zero → hProp ℓ
+liftHProp (A , Aprop) = Lift A , isOfHLevelLift 1 Aprop
+
+lift𝒫 : 𝒫 X ℓ-zero → 𝒫 X ℓ
+lift𝒫 A x = liftHProp (A x)
+
+------------------------------------------------------------------------
 -- Special sets
 
 -- Empty set
