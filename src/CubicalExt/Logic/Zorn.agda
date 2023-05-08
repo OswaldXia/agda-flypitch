@@ -14,7 +14,7 @@ open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 open import Cubical.Data.Empty using (⊥)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim2)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; elim; elim2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 import Cubical.Data.Sum as ⊎
 
@@ -47,7 +47,7 @@ Zorn = EveryChainHasUpperBound → ∃[ m ∈ U ] premaximum m
 --------------------------------------------------
 -- Proof
 
-Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ y ≤ x) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 
 -- least upper bound
 supremum : 𝒫 U ℓ → U → Type _
@@ -58,23 +58,29 @@ EveryChainHasSupremum = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈
 module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
   open import CubicalExt.Logic.Classical
 
-  data Tower (ℓ : Level) : U → Type (ℓ-max (ℓ-max u r) (ℓ-suc ℓ)) where
+  data Tower (ℓ : Level) : U → Type (ℓ-max (ℓ-max u r) (ℓ-suc ℓ))
+  TowerSet : (ℓ : Level) → 𝒫 U _
+  TowerSet ℓ x = ∥ Tower ℓ x ∥ₚ
+
+  data Tower ℓ where
+    lift : (x : U) → x ∈ TowerSet ℓ-zero → Tower ℓ x
     includeSuc : (x : U) → Tower ℓ x → Tower ℓ (hasSuc x .fst)
     includeSup : (A : 𝒫 U ℓ) → (∀ x → x ∈ A → Tower ℓ x) → (isChainA : isChain A) →
       Tower ℓ (hasSup A isChainA .fst)
 
-  TowerSet : (ℓ : Level) → 𝒫 U _
-  TowerSet ℓ x = ∥ Tower ℓ x ∥ₚ
-
   isChainTowerSet : isChain (TowerSet ℓ)
   isChainTowerSet x y = elim2 (λ _ _ → squash₁) (isChainTower x y) where
     isChainTower : ∀ x y → Tower ℓ x → Tower ℓ' y → x ≤ y ∨ y ≤ x
+    isChainTower x y x∈ (lift y y∈) = isChainTower x y x∈ {!   !}
+    --elim (λ _ → squash₁) (isChainTower x y x∈) y∈
+    --isChainTower x y x∈ y∈
     isChainTower x y' x∈ (includeSuc y y∈) = elim (λ _ → squash₁)
       (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
         ; (⊎.inr y'≤x) → inr y'≤x })
       (helper x x∈) where
       y≤y' = hasSuc y .snd .fst
       helper : ∀ w → Tower ℓ w → w ≤ y ∨ y' ≤ w
+      helper w (lift w w∈) = {!   !} --helper w w∈
       helper w' (includeSuc w w∈) with isChainTower w' y (includeSuc w w∈) y∈
       ... | IH = elim2 (λ _ _ → squash₁)
         (λ{ (⊎.inl w≤y) (⊎.inl w'≤y) → inl w'≤y
@@ -103,11 +109,11 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
 
-  sup : (ℓ : Level) → U
-  sup ℓ = hasSup (TowerSet ℓ) isChainTowerSet .fst
+  sup : U
+  sup = hasSup (TowerSet ℓ-zero) isChainTowerSet .fst
 
-  sup∈ : sup ℓ ∈ TowerSet _
-  sup∈ {ℓ} = ∣_∣₁ $ includeSup (TowerSet ℓ) (λ x x∈ → {!   !}) isChainTowerSet
+  sup∈tower : sup ∈ TowerSet (ℓ-max (ℓ-max (ℓ-suc ℓ-zero) u) r)
+  sup∈tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) {!   !} isChainTowerSet
 
   false : ⊥
   false = {!   !}
