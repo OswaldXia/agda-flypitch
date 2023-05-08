@@ -20,7 +20,7 @@ open Semantics.PreRealizer
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude using (_,_)
 open import CubicalExt.Functions.Logic.Iff
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec)
 
 open import Data.Nat using (ℕ)
 open import Data.Vec using (Vec; []; _∷_)
@@ -31,7 +31,7 @@ private variable
   n : ℕ
 
 reductNonempty : nonempty 𝒮 → nonempty ⟦ 𝒮 ⟧
-reductNonempty = elim (λ _ → squash₁) (λ x → ∣ (reductId 𝒮 x) ∣₁)
+reductNonempty = rec squash₁ (λ x → ∣ (reductId 𝒮 x) ∣₁)
 
 module _ (𝓋 : Vec (Domain 𝒮) n) where
   realizeₜ-reduct-eq : (t : Termₗ n l) (xs : Vec (Domain 𝒮) l) →

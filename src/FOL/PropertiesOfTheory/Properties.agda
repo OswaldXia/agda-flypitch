@@ -12,15 +12,15 @@ open import FOL.Bounded.Syntactics ℒ using (_⊦_; axiom)
 open import Cubical.Foundations.Prelude hiding (~_)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sum using (inl; inr)
-open import Cubical.Data.Empty renaming (elim to exfalso)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; map; map2)
+open import Cubical.Data.Empty using () renaming (rec to exfalso)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; map; map2)
 open import Cubical.Relation.Nullary using (¬_)
 open import Function using (_∘_; _$_)
 
 module Complete {T} (compl : complete T) where
 
   ⇒-intro : ∀ {φ₁ φ₂} → (T ⊦ φ₁ → T ⊦ φ₂) → T ⊦ φ₁ ⇒ φ₂
-  ⇒-intro {φ₁} H = elim (λ _ → squash₁)
+  ⇒-intro {φ₁} H = rec squash₁
     (λ{ (inl  φ₁∈T) → map (⇒I ∘ weakening1) $ H $ map axiom ∣ φ₁∈T ∣₁
       ; (inr ~φ₁∈T) → map (⇒I ∘ ⊥-elim ∘ weakening1) $
         map2 ⇒-elim (map (weakening1 ∘ axiom) ∣ ~φ₁∈T ∣₁) ∣ axiom1 ∣₁ })

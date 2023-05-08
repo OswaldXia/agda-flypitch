@@ -20,7 +20,7 @@ open import Cubical.Data.Sigma
 import Cubical.Data.Sum as ⊎
 open import Cubical.Functions.Logic hiding (¬_)
 open import Cubical.Relation.Nullary using (¬_)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec)
 
 private variable
   ℓ ℓ' ℓ'' ℓ₁ ℓ₂ : Level
@@ -134,7 +134,7 @@ private variable
   x : X
 
 ⟦⟧⊆⟦⟧ : A ⊆ B → f ⟦ A ⟧ ⊆ f ⟦ B ⟧
-⟦⟧⊆⟦⟧ A⊆B = elim (λ _ → ∈-isProp _ _)
+⟦⟧⊆⟦⟧ A⊆B = rec (∈-isProp _ _)
   λ { (x , x∈A , eq) → ∣ x , A⊆B x∈A , eq ∣₁ }
 
 module SetBased (Xset : isSet X) where
@@ -158,7 +158,7 @@ module SetBased (Xset : isSet X) where
   ⊆⨭ x∈A = inl x∈A
 
   ⨭⊆⨭ : A ⊆ B → A ⨭ x ⊆ B ⨭ x
-  ⨭⊆⨭ A⊆B = elim (λ _ → ∈-isProp _ _)
+  ⨭⊆⨭ A⊆B = rec (∈-isProp _ _)
     λ { (⊎.inl H) → inl (A⊆B H)
       ; (⊎.inr H) → inr H
       }
@@ -168,15 +168,15 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
   open SetBased Yset renaming (｛_｝ to ｛_｝₂; _⟦｛_｝⟧ to _⟦｛_｝⟧₂; _⨭_ to _⨭₂_)
 
   ⟦｛｝⟧⊆ : f ⟦｛ x ｝⟧₁ ⊆ ｛ f x ｝₂
-  ⟦｛｝⟧⊆ = elim (λ _ → ∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
+  ⟦｛｝⟧⊆ = rec (∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
 
   ⊆⟦｛｝⟧ : ｛ f x ｝₂ ⊆ f ⟦｛ x ｝⟧₁
   ⊆⟦｛｝⟧ reflId = ∣ _ , reflId , reflId ∣₁
 
   ⟦⨭⟧⊆ : f ⟦ A ⨭₁ x ⟧ ⊆ f ⟦ A ⟧ ⨭₂ f x
-  ⟦⨭⟧⊆ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
+  ⟦⨭⟧⊆ {f = f} {A = A} = rec (∈-isProp _ _)
     λ { (y , y∈⨭ , reflId) →
-        elim (λ _ → ∈-isProp (f ⟦ A ⟧ ⨭₂ _) _) (
+        rec (∈-isProp (f ⟦ A ⟧ ⨭₂ _) _) (
           λ { (⊎.inl y∈A) → inl ∣ y , y∈A , reflId ∣₁
             ; (⊎.inr reflId) → inr reflId
             })
@@ -184,9 +184,9 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
       }
 
   ⊆⟦⨭⟧ : f ⟦ A ⟧ ⨭₂ f x ⊆ f ⟦ A ⨭₁ x ⟧
-  ⊆⟦⨭⟧ {f = f} {A = A} = elim (λ _ → ∈-isProp _ _)
+  ⊆⟦⨭⟧ {f = f} {A = A} = rec (∈-isProp _ _)
     λ { (⊎.inl y∈f) →
-        elim (λ _ → ∈-isProp (f ⟦ A ⨭₁ _ ⟧) _) (
+        rec (∈-isProp (f ⟦ A ⨭₁ _ ⟧) _) (
           λ { (y , y∈A , reflId) → ∣ y , inl y∈A , reflId ∣₁ })
           y∈f
       ; (⊎.inr reflId) → ∣ _ , inr reflId , reflId ∣₁

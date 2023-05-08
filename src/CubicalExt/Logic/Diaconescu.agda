@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism using (section)
 open import Cubical.Data.Bool using (Bool; true; false; isSetBool; _≟_)
 open import Cubical.Data.Unit using (tt*; Unit*; isPropUnit*)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/; []surjective; effective)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁; rec)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no; isPropDec)
 open import Cubical.Relation.Binary
 open import CubicalExt.Axiom.Choice
@@ -63,4 +63,4 @@ module _ (ac : SurjectionHasRightInverse ℓ-zero ℓ) where
   existsRightInverse = ac isSetBool squash/ []surjective
 
   diaconescu : Dec P
-  diaconescu = elim (λ _ → isPropDec Pprop) RightInverse→DecP existsRightInverse
+  diaconescu = rec (isPropDec Pprop) RightInverse→DecP existsRightInverse

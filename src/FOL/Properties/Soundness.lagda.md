@@ -26,7 +26,7 @@ open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import CubicalExt.Functions.Logic.Iff
 open import Cubical.Data.Sum using (inl; inr)
 open import Cubical.Data.Equality using (pathToEq)
-open import Cubical.HITs.PropositionalTruncation using (elim)
+open import Cubical.HITs.PropositionalTruncation using (rec)
 open import Function using (_∘_; _$_)
 ```
 
@@ -45,17 +45,17 @@ module Untruncated where
     soundness : ∀ {Γ φ} → Γ ⊢ φ → Γ ⊨ φ
     soundness (axiom φ∈Γ) _ _ 𝒮⊨Γ = 𝒮⊨Γ _ φ∈Γ
     soundness {_} {φ} (⊥-elim ⊢₀) 𝒮 𝓋 𝒮⊨Γ = byContra* λ ¬ →
-      soundness ⊢₀ 𝒮 𝓋 λ φ → elim (λ _ → isPropRealize _ _ _)
+      soundness ⊢₀ 𝒮 𝓋 λ φ → rec (isPropRealize _ _ _)
         λ { (inl φ∈Γ) → 𝒮⊨Γ φ φ∈Γ
           ; (inr reflId) → lift ∘ ¬ }
     soundness ≈-refl _ _ _ = refl
     soundness (⇒-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ realization =
-      soundness ⊢₀ 𝒮 𝓋 λ φ → elim (λ _ → isPropRealize _ _ _)
+      soundness ⊢₀ 𝒮 𝓋 λ φ → rec (isPropRealize _ _ _)
         λ { (inl φ∈Γ) → 𝒮⊨Γ φ φ∈Γ
           ; (inr reflId) → realization }
     soundness (⇒-elim ⊢₁ ⊢₂) 𝒮 𝓋 𝒮⊨Γ = (soundness ⊢₁ 𝒮 𝓋 𝒮⊨Γ) (soundness ⊢₂ 𝒮 𝓋 𝒮⊨Γ)
     soundness (∀-intro ⊢₀) 𝒮 𝓋 𝒮⊨Γ x =
-      soundness ⊢₀ 𝒮 _ λ φ → elim (λ _ → isPropRealize _ _ _)
+      soundness ⊢₀ 𝒮 _ λ φ → rec (isPropRealize _ _ _)
         λ { (ψ , ψ∈Γ , reflId) → from (realize-subst-lift 𝒮 𝓋 0 ψ x) $ 𝒮⊨Γ ψ ψ∈Γ }
     soundness (∀-elim {_} {φ} {t} ⊢₀) 𝒮 𝓋 𝒮⊨Γ =
       to (realize-subst0 𝒮 𝓋 φ t) $ soundness ⊢₀ 𝒮 𝓋 𝒮⊨Γ _
@@ -87,6 +87,5 @@ module _ {v} where
   Soundness = ∀ {Γ φ} → Γ ⊦ φ → Γ ⊨ φ
 
   soundness : Soundness
-  soundness = elim (λ _ → isProp-⊨ _ _) Untruncated.soundness
+  soundness = rec (isProp-⊨ _ _) Untruncated.soundness
 ```
- 

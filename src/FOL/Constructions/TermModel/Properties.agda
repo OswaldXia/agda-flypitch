@@ -45,7 +45,7 @@ open import Cubical.Data.Empty using (isProp⊥)
 open import Cubical.Data.Sigma using (∃-syntax)
 open import Cubical.HITs.SetQuotients using (eq/; squash/; elimProp; effective)
   renaming ([_] to [_]/)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; elim; elim2; map2)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map2)
   renaming (map to map₁)
 open import Cubical.Relation.Nullary using (¬_)
 
@@ -97,7 +97,7 @@ module _ where
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
 termModelCompleteGuarded ⊥ [] _ =
-  →: elim (λ _ → isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
+  →: rec (isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
   ←: λ ()
 termModelCompleteGuarded (rel R) xs _ = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ Pre.realize-appsᵣ-iff [] (rel R) _ ⟩
@@ -128,8 +128,8 @@ termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
       $ to (termModelCompleteGuarded (φ [≔ t ]) [] guard)
       $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
       $ map₁ ∀-elim ⊦)
-  ←: (λ ⊨ → byContra λ ¬⊦∀ → elim2 (λ _ _ → isProp⊥)
-    (λ (c , wit) ¬⊢ → elim (λ _ → isProp⊥) (fst H₁ ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
+  ←: (λ ⊨ → byContra λ ¬⊦∀ → rec2 isProp⊥
+    (λ (c , wit) ¬⊢ → rec isProp⊥ (fst H₁ ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
       $ from (termModelCompleteGuarded (φ [≔ const c ]) [] guard)
       $ from (⊨[≔]↔ φ (const c)) (⊨ _))
     (H₂ $ ~ φ) (~-intro ¬⊦∀))

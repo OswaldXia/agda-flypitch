@@ -49,10 +49,10 @@ SurjectionHasRightInverse ℓ ℓ' = {A : Type ℓ} {B : Type ℓ'} {f : A → B
 -- Lemmas
 
 ∃→∥₁ : (∃[ x ∈ A ] ∀ (_ : A') → Unit* {ℓ}) → ∥ A ∥₁
-∃→∥₁ = elim (λ _ → squash₁) (∣_∣₁ ∘ fst)
+∃→∥₁ = rec squash₁ (∣_∣₁ ∘ fst)
 
 ∥₁→∃ : ∥ A ∥₁ → ∃[ x ∈ A ] Unit* {ℓ}
-∥₁→∃ = elim (λ _ → squash₁) (λ x → ∣ x , tt* ∣₁)
+∥₁→∃ = rec squash₁ (λ x → ∣ x , tt* ∣₁)
 
 --------------------------------------------------
 -- Implications

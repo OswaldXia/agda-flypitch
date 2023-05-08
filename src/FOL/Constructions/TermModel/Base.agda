@@ -13,7 +13,7 @@ open import Cubical.Foundations.HLevels using (hProp; isSetHProp)
 open import CubicalExt.Functions.Logic.Iff
 open import CubicalExt.Data.Vec using (quotientLift)
 open import Cubical.HITs.SetQuotients using (_/_; [_]; eq/; squash/)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec)
 
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Fin using (fromℕ)
@@ -31,7 +31,7 @@ module TermModel where
   Domain = ClosedTerm / _≋_
 
   nonempty : hasEnoughConstants T → ∥ Domain ∥₁
-  nonempty H = elim (λ _ → squash₁)
+  nonempty H = rec squash₁
     (λ { (c , _) → ∣ [ const c ] ∣₁ })
     (H (var (fromℕ 0) ≈ var (fromℕ 0)))
 

@@ -19,7 +19,7 @@ open import Cubical.Core.Id using (reflId)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 import Cubical.Data.Sum as ⊎
 open import Cubical.Functions.Logic using (inl; inr)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; elim)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; rec)
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_$_)
@@ -46,6 +46,6 @@ module _ {ℒ : Language} where
 
   ∈-∞-theory : ∀ {T : Theory ℒ} (i : ℕ) (φ : Sentence $ obj ℒ $ suc i) →
     φ ∈ [ suc i ]-theory T → map (suc i) φ ∈ [ suc i ]→∞-theory T
-  ∈-∞-theory {ℒ} i φ = elim (λ _ → ∈-isProp _ _)
+  ∈-∞-theory {ℒ} i φ = rec (∈-isProp _ _)
     λ { (⊎.inl ∈) → ∣ φ , inl ∈ , reflId ∣₁
       ; (⊎.inr ∈) → ∣ φ , inr ∈ , reflId ∣₁ }
