@@ -4,8 +4,11 @@
 open import Cubical.Foundations.Prelude
 open import Cubical.Relation.Binary
 open BinaryRelation
-module CubicalExt.Logic.Zorn {u r} {U : Type u} {_≤_ : Rel U U r}
-  (≤-prop : isPropValued _≤_) (≤-refl : isRefl _≤_) (≤-trans : isTrans _≤_) where
+module CubicalExt.Logic.Zorn.PartialOrder {u r} {U : Type u} {_≤_ : Rel U U r}
+  (≤-prop     : isPropValued _≤_)
+  (≤-refl     : isRefl _≤_)
+  (≤-antisym  : isAntisym _≤_)
+  (≤-trans    : isTrans _≤_) where
 
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
@@ -21,7 +24,6 @@ import Cubical.Data.Sum as ⊎
 private variable
   ℓ ℓ' : Level
   x y : U
-  A : 𝒫 U ℓ
 
 instance
   ≤-propImplicit : isPropImplicit (x ≤ y)
@@ -38,20 +40,23 @@ upperBound A ub = ∀ x → x ∈ A → x ≤ ub
 
 EveryChainHasUpperBound = ∀ {ℓ} (A : 𝒫 U ℓ) → Σ[ ub ∈ U ] upperBound A ub
 
-premaximum : U → Type _
-premaximum m = ∀ x → m ≤ x → x ≤ m
+maximum : U → Type _
+maximum m = ∀ x → m ≤ x → x ≡ m
 
--- Given preorder (U, ≤), if every chain A ⊆ U has an upper bound, then (U, ≤) merely has a premaximum.
-Zorn = EveryChainHasUpperBound → ∃[ m ∈ U ] premaximum m
+-- Given a parial order (U, ≤), if every chain A ⊆ U has an upper bound, then (U, ≤) merely has a maximum.
+Zorn = EveryChainHasUpperBound → ∃[ m ∈ U ] maximum m
 
 --------------------------------------------------
 -- Proof
 
-Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ y ≤ x) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 
 -- least upper bound
 supremum : 𝒫 U ℓ → U → Type _
 supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
+
+supUnique : {A : 𝒫 U ℓ} {sup₁ sup₂ : U} → supremum A sup₁ → supremum A sup₂ → sup₁ ≡ sup₂
+supUnique (ub₁ , least₁) (ub₂ , least₂) = ≤-antisym _ _ (least₁ _ ub₂) (least₂ _ ub₁)
 
 EveryChainHasSupremum = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
 
@@ -118,15 +123,40 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
 
-  liftTower : Tower ℓ-zero x → Tower ℓ x
-  liftTower (includeSuc x x∈) = includeSuc x (liftTower x∈)
-  liftTower (includeSup A A⊆ isChainA) = {! includeSup (lift𝒫 A)  !}
+  module _ {ℓ} {A : 𝒫 U ℓ-zero} (isChainA : isChain A) where
+    private LiftA = lift𝒫 {ℓ = ℓ} A
 
-  sup : U
+    isChainLiftA : isChain LiftA
+    isChainLiftA x y (lift x∈) (lift y∈) = isChainA x y x∈ y∈
+
+    private
+      supA         = hasSup A isChainA .fst
+      supA-ish     = hasSup A isChainA .snd
+      supLiftA     = hasSup LiftA isChainLiftA .fst
+      supLiftA-ish = hasSup LiftA isChainLiftA .snd
+
+    supA-ish' : supremum LiftA supA
+    supA-ish' = (λ { ub (lift ub∈) → supA-ish .fst ub ub∈ }) ,
+      λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
+
+    supLiftA≡supA : supLiftA ≡ supA
+    supLiftA≡supA = supUnique supLiftA-ish supA-ish'
+
+  liftTower : Tower ℓ-zero x → Tower ℓ x
+  liftTowerSet : x ∈ TowerSet ℓ-zero → x ∈ TowerSet ℓ
+  liftTowerSet ∣ x∈ ∣₁ = ∣ liftTower x∈ ∣₁
+  liftTowerSet (squash₁ x∈₁ x∈₂ i) = squash₁ (liftTowerSet x∈₁) (liftTowerSet x∈₂) i
+
+  liftTower (includeSuc x x∈) = includeSuc x (liftTower x∈)
+  liftTower (includeSup A A⊆ isChainA) = subst (Tower _) (supLiftA≡supA isChainA) $
+    includeSup (lift𝒫 A) (λ { (lift x∈) → liftTowerSet (A⊆ x∈)}) (isChainLiftA isChainA)
+
   sup = hasSup (TowerSet ℓ-zero) isChainTowerSet .fst
 
   sup∈Tower : sup ∈ TowerSet _
-  sup∈Tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) (map $ liftTower) isChainTowerSet
+  sup∈Tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
+
+  sucSup = hasSuc sup .fst
 
   false : ⊥
   false = {!   !}
