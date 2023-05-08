@@ -72,56 +72,56 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
     includeSup : (A : 𝒫 U ℓ) → (A ⊆ TowerSet ℓ) → (isChainA : isChain A) →
       Tower ℓ (hasSup A isChainA .fst)
 
+  isChainTower : ∀ x y → Tower ℓ x → Tower ℓ' y → x ≤ y ∨ y ≤ x
   isChainTowerSet : isChain (TowerSet ℓ)
-  isChainTowerSet x y = rec2 squash₁ (isChainTower x y) where
-    isChainTower  : ∀ x y → Tower ℓ x → Tower ℓ' y → x ≤ y ∨ y ≤ x
+  isChainTowerSet x y = rec2 squash₁ (isChainTower x y)
 
-    isChainTower' : ∀ x y → Tower ℓ x → y ∈ TowerSet ℓ' → x ≤ y ∨ y ≤ x
-    isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
-    isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
+  isChainTower' : ∀ x y → Tower ℓ x → y ∈ TowerSet ℓ' → x ≤ y ∨ y ≤ x
+  isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
+  isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
 
-    module _ y (y∈ : Tower ℓ y) where
-      private y' = hasSuc y .fst
-      almostChain : ∀ x → Tower ℓ' x → x ≤ y ∨ y' ≤ x
+  module _ y (y∈ : Tower ℓ y) where
+    private y' = hasSuc y .fst
+    almostChain : ∀ x → Tower ℓ' x → x ≤ y ∨ y' ≤ x
 
-      almostChain' : ∀ x → x ∈ TowerSet ℓ' → x ≤ y ∨ y' ≤ x
-      almostChain' x ∣ x∈ ∣₁ = almostChain x x∈
-      almostChain' x (squash₁ x∈₁ x∈₂ i) = squash₁ (almostChain' x x∈₁) (almostChain' x x∈₂) i
+    almostChain' : ∀ x → x ∈ TowerSet ℓ' → x ≤ y ∨ y' ≤ x
+    almostChain' x ∣ x∈ ∣₁ = almostChain x x∈
+    almostChain' x (squash₁ x∈₁ x∈₂ i) = squash₁ (almostChain' x x∈₁) (almostChain' x x∈₂) i
 
-      almostChain x' (includeSuc x x∈) with isChainTower x' y (includeSuc x x∈) y∈
-      ... | IH = rec2 squash₁
-        (λ{ (⊎.inl x≤y) (⊎.inl x'≤y) → inl x'≤y
-          ; (⊎.inl x≤y) (⊎.inr y≤x') → rec squash₁
-            (λ{ (⊎.inl y≡x)  → inr $ subst (λ x → _ ≤ hasSuc x .fst) y≡x (≤-refl _)
-              ; (⊎.inr y≡x') → inl $ subst (λ x → _ ≤ x) (sym y≡x') (≤-refl _) })
-            (noMid y x≤y y≤x')
-          ; (⊎.inr y'≤x) _ → inr $ ≤-trans y' x x' y'≤x x≤x' })
-        (almostChain x x∈) IH where
-        x≤x'  = hasSuc x .snd .fst
-        noMid = hasSuc x .snd .snd .snd
+    almostChain x' (includeSuc x x∈) with isChainTower x' y (includeSuc x x∈) y∈
+    ... | IH = rec2 squash₁
+      (λ{ (⊎.inl x≤y) (⊎.inl x'≤y) → inl x'≤y
+        ; (⊎.inl x≤y) (⊎.inr y≤x') → rec squash₁
+          (λ{ (⊎.inl y≡x)  → inr $ subst (λ x → _ ≤ hasSuc x .fst) y≡x (≤-refl _)
+            ; (⊎.inr y≡x') → inl $ subst (λ x → _ ≤ x) (sym y≡x') (≤-refl _) })
+          (noMid y x≤y y≤x')
+        ; (⊎.inr y'≤x) _ → inr $ ≤-trans y' x x' y'≤x x≤x' })
+      (almostChain x x∈) IH where
+      x≤x'  = hasSuc x .snd .fst
+      noMid = hasSuc x .snd .snd .snd
 
-      almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
-      ... | yes p = inl $ hasSup A isChainA .snd .snd y p
-      ... | no ¬p = inr $ rec (≤-prop _ _)
-        (λ { (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
-          ≤-trans y' z x
-            (∨-elimʳ (≤-prop _ _) (almostChain' z (A⊆ z∈A)) ¬z≤y)
-            (hasSup A isChainA .snd .fst z z∈A) })
-        (¬∀→∃¬ ¬p)
-
-    isChainTower x y' x∈ (includeSuc y y∈) = rec squash₁
-      (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
-        ; (⊎.inr y'≤x) → inr y'≤x })
-      (almostChain y y∈ x x∈) where y≤y' = hasSuc y .snd .fst
-
-    isChainTower x y x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
-    ... | yes p = inr $ hasSup A isChainA .snd .snd x p
-    ... | no ¬p = inl $ rec (≤-prop _ _)
-      (λ{ (z , ¬ub) → let (z∈A , ¬z≤x) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ x) ¬ub in
-        ≤-trans x z y
-          (∨-elimˡ (≤-prop _ _) (isChainTower' x z x∈ (A⊆ z∈A)) ¬z≤x)
+    almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
+    ... | yes p = inl $ hasSup A isChainA .snd .snd y p
+    ... | no ¬p = inr $ rec (≤-prop _ _)
+      (λ { (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
+        ≤-trans y' z x
+          (∨-elimʳ (≤-prop _ _) (almostChain' z (A⊆ z∈A)) ¬z≤y)
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
+
+  isChainTower x y' x∈ (includeSuc y y∈) = rec squash₁
+    (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
+      ; (⊎.inr y'≤x) → inr y'≤x })
+    (almostChain y y∈ x x∈) where y≤y' = hasSuc y .snd .fst
+
+  isChainTower x y x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
+  ... | yes p = inr $ hasSup A isChainA .snd .snd x p
+  ... | no ¬p = inl $ rec (≤-prop _ _)
+    (λ{ (z , ¬ub) → let (z∈A , ¬z≤x) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ x) ¬ub in
+      ≤-trans x z y
+        (∨-elimˡ (≤-prop _ _) (isChainTower' x z x∈ (A⊆ z∈A)) ¬z≤x)
+        (hasSup A isChainA .snd .fst z z∈A) })
+    (¬∀→∃¬ ¬p)
 
   module _ {ℓ} {A : 𝒫 U ℓ-zero} (isChainA : isChain A) where
     private LiftA = lift𝒫 {ℓ = ℓ} A
@@ -135,13 +135,9 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
       supLiftA     = hasSup LiftA isChainLiftA .fst
       supLiftA-ish = hasSup LiftA isChainLiftA .snd
 
-    upperBoundUnlift : upperBound LiftA x → upperBound A x
-    upperBoundUnlift H x x∈ = H x (lift x∈)
-
     supA-ish' : supremum LiftA supA
     supA-ish' = (λ { ub (lift ub∈) → supA-ish .fst ub ub∈ }) ,
-      λ ub H → supA-ish .snd ub (upperBoundUnlift H)
-      --λ x x∈ → H x (lift x∈)
+      λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
 
     supLiftA≡supA : supLiftA ≡ supA
     supLiftA≡supA = supUnique supLiftA-ish supA-ish'
@@ -170,3 +166,4 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   false : ⊥
   false = sup≢suc $ ≤-antisym _ _ sup≤suc $ {!   !}
     --sup-ub suc $ map (includeSuc sup) {!   !} --sup∈Tower
+ 
