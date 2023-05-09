@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.Foundations.Isomorphism using (Iso; iso; _Iso⟨_⟩_; _∎Iso; invIso)
+open import Cubical.Foundations.Structure using (⟨_⟩)
 open import CubicalExt.Functions.Logic using (_∧_; ⊤; ⊥)
 open import CubicalExt.Functions.Logic.Iff using (hPropExt; →:_←:_)
 open import Cubical.Data.Bool using (Bool; true; false)
@@ -19,7 +20,8 @@ open import CubicalExt.Relation.Nullary
 private variable
   ℓ ℓ' : Level
   A : Type ℓ
-  P : A → Type ℓ
+  B : A → Type ℓ
+  P Q : hProp ℓ
 
 isSet→Discrete : isSet A → Discrete A
 isSet→Discrete Aset x y = em ⦃ Aset x y _ _ ⦄
@@ -50,9 +52,15 @@ hPropIsoBool ℓ = iso to from to∘from from∘to where
   ... | yes p = hPropExt $ →: (λ _ → p) ←: (λ _ → tt*)
   ... | no ¬p = hPropExt $ →: (λ ()) ←: (λ p → lift $ ¬p p)
 
-impredicativity : ∀ ℓ ℓ' → Iso (hProp ℓ) (hProp ℓ')
-impredicativity ℓ ℓ' = hProp ℓ Iso⟨ hPropIsoBool ℓ ⟩ Bool
+impredicativity : Iso (hProp ℓ) (hProp ℓ')
+impredicativity {ℓ} {ℓ'} = hProp ℓ Iso⟨ hPropIsoBool ℓ ⟩ Bool
   Iso⟨ invIso $ hPropIsoBool ℓ' ⟩ hProp ℓ' ∎Iso
+
+resize : hProp ℓ → hProp ℓ'
+resize = impredicativity .Iso.fun
+
+--fuck : ⟨ resize {ℓ} {ℓ'} P ⟩ → ⟨ P ⟩
+--fuck H = {!   !}
 
 module _ ⦃ Aprop : isPropImplicit A ⦄ where
 
@@ -71,7 +79,7 @@ module _ (A : Type ℓ) ⦃ Aprop : isPropImplicit A ⦄ (B : Type ℓ') ⦃ Bpr
   ¬→→∧ : ¬ (A → B) → A ∧ ¬ B
   ¬→→∧ ¬→ = (byContra λ ¬a → ¬→ λ a → ⊥.rec $ ¬a a) , (λ b → ¬→ λ _ → b)
 
-module _ ⦃ Pprop : {x : A} → isPropImplicit (P x) ⦄ where
+module _ ⦃ Pprop : {x : A} → isPropImplicit (B x) ⦄ where
 
-  ¬∀→∃¬ : (¬ ∀ x → P x) → ∃[ x ∈ A ] ¬ P x
-  ¬∀→∃¬ ¬∀xPx = byContra ⦃ squash₁ _ _ ⦄ λ ¬∃x¬Px → ¬∀xPx λ x → byContra λ ¬Px → ¬∃x¬Px ∣ x , ¬Px ∣₁
+  ¬∀→∃¬ : (¬ ∀ x → B x) → ∃[ x ∈ A ] ¬ B x
+  ¬∀→∃¬ ¬∀xBx = byContra ⦃ squash₁ _ _ ⦄ λ ¬∃x¬Bx → ¬∀xBx λ x → byContra λ ¬Bx → ¬∃x¬Bx ∣ x , ¬Bx ∣₁

@@ -14,6 +14,7 @@ open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
 open import CubicalExt.Foundations.Function using (_$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
+open import Cubical.Foundations.Isomorphism using (Iso)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 open import Cubical.Data.Empty using (⊥)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
@@ -124,20 +125,20 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
     (¬∀→∃¬ ¬p)
 
   module _ {ℓ} {A : 𝒫 U ℓ-zero} (isChainA : isChain A) where
-    private LiftA = lift𝒫 {ℓ = ℓ} A
+    private
+      LiftA = lift𝒫 {ℓ = ℓ} A
 
-    isChainLiftA : isChain LiftA
-    isChainLiftA x y (lift x∈) (lift y∈) = isChainA x y x∈ y∈
+    isChainLift : isChain LiftA
+    isChainLift x y (lift x∈) (lift y∈) = isChainA x y x∈ y∈
 
     private
       supA         = hasSup A isChainA .fst
       supA-ish     = hasSup A isChainA .snd
-      supLiftA     = hasSup LiftA isChainLiftA .fst
-      supLiftA-ish = hasSup LiftA isChainLiftA .snd
-
-    supA-ish' : supremum LiftA supA
-    supA-ish' = (λ { x (lift x∈) → supA-ish .fst x x∈ }) ,
-      λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
+      supLiftA     = hasSup LiftA isChainLift .fst
+      supLiftA-ish = hasSup LiftA isChainLift .snd
+      supA-ish' : supremum LiftA supA
+      supA-ish' = (λ { x (lift x∈) → supA-ish .fst x x∈ }) ,
+        λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
 
     supLiftA≡supA : supLiftA ≡ supA
     supLiftA≡supA = supUnique supLiftA-ish supA-ish'
@@ -149,14 +150,18 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
 
   liftTower (includeSuc x x∈) = includeSuc x (liftTower x∈)
   liftTower (includeSup A A⊆ isChainA) = subst (Tower _) (supLiftA≡supA isChainA) $
-    includeSup (lift𝒫 A) (λ { (lift x∈) → liftTowerSet (A⊆ x∈)}) (isChainLiftA isChainA)
+    includeSup (lift𝒫 A) (λ { (lift x∈) → liftTowerSet (A⊆ x∈)}) (isChainLift isChainA)
+
+  lowerTowerSet : x ∈ TowerSet ℓ → x ∈ TowerSet ℓ-zero
+  lowerTowerSet = {!   !}
 
   Σsup = hasSup (TowerSet ℓ-zero) isChainTowerSet
   sup = Σsup .fst
   sup-ub = Σsup .snd .fst
 
-  sup∈Tower : Tower _ sup
-  sup∈Tower = includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
+  sup∈TowerSet : sup ∈ TowerSet ℓ-zero
+  sup∈TowerSet = lowerTowerSet $ ∣_∣₁ $
+    includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
 
   Σsuc = hasSuc sup
   suc = Σsuc .fst
@@ -165,4 +170,4 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
 
   false : ⊥
   false = sup≢suc $ ≤-antisym _ _ sup≤suc $
-    sup-ub suc $ map (includeSuc sup) {!   !}
+    sup-ub suc $ map (includeSuc sup) sup∈TowerSet
