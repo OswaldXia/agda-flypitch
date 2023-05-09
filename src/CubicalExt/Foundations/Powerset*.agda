@@ -23,7 +23,7 @@ open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec)
 
 private variable
-  ℓ ℓ' ℓ'' ℓ₁ ℓ₂ : Level
+  ℓ ℓ' ℓ'' ℓ₀ ℓ₁ ℓ₂ : Level
   X : Type ℓ
   Y : Type ℓ'
 
@@ -39,10 +39,10 @@ isSet𝒫 = isSetΠ λ x → isSetHProp
 ------------------------------------------------------------------------
 -- Lifting
 
-liftHProp : hProp ℓ-zero → hProp ℓ
-liftHProp (A , Aprop) = Lift A , isOfHLevelLift 1 Aprop
+liftHProp : hProp ℓ₀ → hProp (ℓ-max ℓ₀ ℓ)
+liftHProp {ℓ₀} {ℓ} (A , Aprop) = Lift {ℓ₀} {ℓ} A , isOfHLevelLift 1 Aprop
 
-lift𝒫 : 𝒫 X ℓ-zero → 𝒫 X ℓ
+lift𝒫 : 𝒫 X ℓ₀ → 𝒫 X (ℓ-max ℓ₀ ℓ)
 lift𝒫 A x = liftHProp (A x)
 
 ------------------------------------------------------------------------

@@ -136,7 +136,7 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
       supLiftA-ish = hasSup LiftA isChainLiftA .snd
 
     supA-ish' : supremum LiftA supA
-    supA-ish' = (λ { ub (lift ub∈) → supA-ish .fst ub ub∈ }) ,
+    supA-ish' = (λ { x (lift x∈) → supA-ish .fst x x∈ }) ,
       λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
 
     supLiftA≡supA : supLiftA ≡ supA
@@ -155,8 +155,8 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   sup = Σsup .fst
   sup-ub = Σsup .snd .fst
 
-  sup∈Tower : sup ∈ TowerSet _
-  sup∈Tower = ∣_∣₁ $ includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
+  sup∈Tower : Tower _ sup
+  sup∈Tower = includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
 
   Σsuc = hasSuc sup
   suc = Σsuc .fst
@@ -164,6 +164,5 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   sup≢suc = Σsuc .snd .snd .fst
 
   false : ⊥
-  false = sup≢suc $ ≤-antisym _ _ sup≤suc $ {!   !}
-    --sup-ub suc $ map (includeSuc sup) {!   !} --sup∈Tower
- 
+  false = sup≢suc $ ≤-antisym _ _ sup≤suc $
+    sup-ub suc $ map (includeSuc sup) {!   !}
