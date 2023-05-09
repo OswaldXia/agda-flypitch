@@ -7,7 +7,6 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΣ)
 open import Cubical.Foundations.Isomorphism using (iso; isoToEquiv; isoToPath)
 open import Cubical.Foundations.Structure using (⟨_⟩)
-open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.Functions.Logic using (∥_∥ₚ; ⇒∶_⇐∶_)
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; map)
@@ -133,5 +132,5 @@ hPropExt⁻ : P ≡ Q → ⟨ P ⟩ ↔ ⟨ Q ⟩
 hPropExt⁻ {P = P} P≡Q = subst (λ X → ⟨ P ⟩ ↔ ⟨ X ⟩) P≡Q ↔-refl
 
 hPropTruncExt : A ↔ B → ∥ A ∥ₚ ≡ ∥ B ∥ₚ
-hPropTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ ua $ isoToEquiv $ iso
+hPropTruncExt iff = Σ≡Prop (λ _ → isPropIsProp) $ isoToPath $ iso
   (map $ to iff) (map $ from iff) (λ x → squash₁ _ x) (λ x → squash₁ _ x)

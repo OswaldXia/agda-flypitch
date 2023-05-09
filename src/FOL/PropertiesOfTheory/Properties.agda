@@ -12,7 +12,7 @@ open import FOL.Bounded.Syntactics ℒ using (_⊦_; axiom)
 open import Cubical.Foundations.Prelude hiding (~_)
 open import CubicalExt.Foundations.Powerset* using (_∈_)
 open import Cubical.Data.Sum using (inl; inr)
-open import Cubical.Data.Empty using () renaming (rec to exfalso)
+import Cubical.Data.Empty as ⊥
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; map; map2)
 open import Cubical.Relation.Nullary using (¬_)
 open import Function using (_∘_; _$_)
@@ -27,4 +27,4 @@ module Complete {T} (compl : complete T) where
     (compl .snd φ₁)
 
   ~-intro : ∀ {φ} → ¬ T ⊦ φ → T ⊦ ~ φ
-  ~-intro ¬⊦ = ⇒-intro λ ⊦ → exfalso $ ¬⊦ ⊦
+  ~-intro ¬⊦ = ⇒-intro λ ⊦ → ⊥.rec $ ¬⊦ ⊦
