@@ -1,16 +1,25 @@
+---
+title: Agda佐恩引理
+zhihu-tags: Agda, 数理逻辑
+---
+
+# Agda佐恩引理
+
+> 交流Q群: 893531731  
+> 本文源码: [Zorn.lagda.md](https://github.com/choukh/agda-flypitch/blob/main/src/CubicalExt/Logic/Zorn.lagda.md)  
+> 高亮渲染: [Zorn.html](https://choukh.github.io/agda-flypitch/CubicalExt.Logic.Zorn.html)  
+> 改编自: Coq [ZornsLemma.v](https://github.com/coq-community/zorns-lemma/blob/master/ZornsLemma.v)  
+
+## 前言
+
+```agda
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Relation.Binary
-open BinaryRelation
-module CubicalExt.Logic.Zorn.PartialOrder {u r} {U : Type u} {_≤_ : Rel U U r}
-  (≤-prop     : isPropValued _≤_)
-  (≤-refl     : isRefl _≤_)
-  (≤-antisym  : isAntisym _≤_)
-  (≤-trans    : isTrans _≤_) where
+module CubicalExt.Logic.Zorn where
 
 open import CubicalExt.Axiom.ExcludedMiddle
+open import Cubical.Foundations.Prelude
 open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
 open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
@@ -18,51 +27,75 @@ open import Cubical.Foundations.Isomorphism using (Iso)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 open import Cubical.Data.Empty using (⊥)
 open import Cubical.Data.Sigma using (∃-syntax; _×_)
+import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
-import Cubical.Data.Sum as ⊎
+open import Cubical.Relation.Binary
+open BinaryRelation
 
 private variable
-  ℓ ℓ' : Level
-  x y : U
+  ℓ u r : Level
+  A U : Type ℓ
+  _≤_ : Rel U U ℓ
+```
 
-instance
-  ≤-propImplicit : isPropImplicit (x ≤ y)
-  ≤-propImplicit = ≤-prop _ _ _ _
+## 定义
 
---------------------------------------------------
--- Definition
+```agda
+isPoset : Rel A A ℓ → Type _
+isPoset R = isPropValued R × isRefl R × isAntisym R × isTrans R
 
-isChain : 𝒫 U ℓ → Type _
-isChain A = ∀ x y → x ∈ A → y ∈ A → x ≤ y ∨ y ≤ x
+isProset : Rel A A ℓ → Type _
+isProset R = isPropValued R × isRefl R × isTrans R
 
-upperBound : 𝒫 U ℓ → U → Type _
-upperBound A ub = ∀ x → x ∈ A → x ≤ ub
+isPoset→isProset : isPoset _≤_ → isProset _≤_
+isPoset→isProset (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
 
-EveryChainHasUpperBound = ∀ {ℓ} (A : 𝒫 U ℓ) → Σ[ ub ∈ U ] upperBound A ub
+module Def {U : Type u} (_≤_ : Rel U U r) where
 
-maximum : U → Type _
-maximum m = ∀ x → m ≤ x → x ≡ m
+  isChain : 𝒫 U ℓ → Type _
+  isChain A = ∀ x y → x ∈ A → y ∈ A → x ≤ y ∨ y ≤ x
 
--- Given a parial order (U, ≤), if every chain A ⊆ U has an upper bound, then (U, ≤) merely has a maximum.
-Zorn = EveryChainHasUpperBound → ∃[ m ∈ U ] maximum m
+  upperBound : 𝒫 U ℓ → U → Type _
+  upperBound A ub = ∀ x → x ∈ A → x ≤ ub
 
---------------------------------------------------
--- Proof
+  AllChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
 
-Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+  maximum : U → Type _
+  maximum m = ∀ x → m ≤ x → x ≡ m
 
--- least upper bound
-supremum : 𝒫 U ℓ → U → Type _
-supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
+  -- Given a parial order (U, ≤), if every chain A ⊆ U has an upper bound, then (U, ≤) merely has a maximum
+  Zorn = isPoset _≤_ → AllChainHasUb → ∃[ m ∈ U ] maximum m
 
-supUnique : {A : 𝒫 U ℓ} {sup₁ sup₂ : U} → supremum A sup₁ → supremum A sup₂ → sup₁ ≡ sup₂
-supUnique (ub₁ , least₁) (ub₂ , least₂) = ≤-antisym _ _ (least₁ _ ub₂) (least₂ _ ub₁)
+  -- least upper bound
+  supremum : 𝒫 U ℓ → U → Type _
+  supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
 
-EveryChainHasSupremum = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
+  AllChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
 
-module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
+  Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+```
+
+## 证明
+
+### 构造矛盾
+
+```agda
+module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
+  (isPoset≤ : isPoset _≤_) (hasSuc : Def.Successive _≤_) (hasSup : Def.AllChainHasSup _≤_) where
   open import CubicalExt.Logic.Classical
+  open Def _≤_
+
+  private
+    ≤-prop    = isPoset≤ .fst
+    ≤-refl    = isPoset≤ .snd .fst
+    ≤-antisym = isPoset≤ .snd .snd .fst
+    ≤-trans   = isPoset≤ .snd .snd .snd
+    variable
+      x y : U
+    instance
+      ≤-propImplicit : isPropImplicit (x ≤ y)
+      ≤-propImplicit = ≤-prop _ _ _ _
 
   data Tower : U → Type (ℓ-max (ℓ-suc ℓ-zero) (ℓ-max u r))
   TowerSetℓ : 𝒫 U _
@@ -137,7 +170,7 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
   sup≢suc = Σsuc .snd .snd .fst
 
   sup∈Tower : Tower sup
-  sup∈Tower = includeSup TowerSet (λ x → unresize x) isChainTowerSet
+  sup∈Tower = includeSup TowerSet unresize isChainTowerSet
 
   suc∈TowerSet : suc ∈ TowerSet
   suc∈TowerSet = resize $ map (includeSuc sup) ∣ sup∈Tower ∣₁
@@ -147,3 +180,16 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
 
   false : ⊥
   false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup
+```
+
+### 构造链的偏序
+
+```agda
+module Chain {U : Type u} (_≤_ : Rel U U r) (hasUb : Def.AllChainHasUb _≤_) where
+  open Def _≤_
+
+  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
+
+  _⪯_ : Rel Chain Chain u
+  S ⪯ T = S .fst ⊆ T .fst
+```

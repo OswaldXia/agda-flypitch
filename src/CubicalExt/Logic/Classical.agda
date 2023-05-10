@@ -89,4 +89,3 @@ module _ ⦃ Pprop : {x : A} → isPropImplicit (B x) ⦄ where
 
   ¬∀→∃¬ : (¬ ∀ x → B x) → ∃[ x ∈ A ] ¬ B x
   ¬∀→∃¬ ¬∀xBx = byContra ⦃ squash₁ _ _ ⦄ λ ¬∃x¬Bx → ¬∀xBx λ x → byContra λ ¬Bx → ¬∃x¬Bx ∣ x , ¬Bx ∣₁
- 
