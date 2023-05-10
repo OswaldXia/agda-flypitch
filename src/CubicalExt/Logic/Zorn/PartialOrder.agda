@@ -12,7 +12,7 @@ module CubicalExt.Logic.Zorn.PartialOrder {u r} {U : Type u} {_≤_ : Rel U U r}
 
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
-open import CubicalExt.Foundations.Function using (_$_; it)
+open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import Cubical.Foundations.Isomorphism using (Iso)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
@@ -64,28 +64,31 @@ EveryChainHasSupremum = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈
 module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : EveryChainHasSupremum) where
   open import CubicalExt.Logic.Classical
 
-  data Tower (ℓ : Level) : U → Type (ℓ-max (ℓ-max u r) (ℓ-suc ℓ))
-  TowerSet : (ℓ : Level) → 𝒫 U _
-  TowerSet ℓ x = ∥ Tower ℓ x ∥ₚ
+  data Tower : U → Type (ℓ-max (ℓ-suc ℓ-zero) (ℓ-max u r))
+  TowerSetℓ : 𝒫 U _
+  TowerSetℓ x = ∥ Tower x ∥ₚ
+  TowerSet : 𝒫 U ℓ-zero
+  TowerSet = Resize ∘ TowerSetℓ
 
-  data Tower ℓ where
-    includeSuc : (x : U) → Tower ℓ x → Tower ℓ (hasSuc x .fst)
-    includeSup : (A : 𝒫 U ℓ) → (A ⊆ TowerSet ℓ) → (isChainA : isChain A) →
-      Tower ℓ (hasSup A isChainA .fst)
+  data Tower where
+    includeSuc : (x : U) → Tower x → Tower (hasSuc x .fst)
+    includeSup : (A : 𝒫 U ℓ-zero) → (A ⊆ TowerSetℓ) → (isChainA : isChain A) →
+      Tower (hasSup A isChainA .fst)
 
-  isChainTower : ∀ x y → Tower ℓ x → Tower ℓ' y → x ≤ y ∨ y ≤ x
-  isChainTowerSet : isChain (TowerSet ℓ)
-  isChainTowerSet x y = rec2 squash₁ (isChainTower x y)
+  isChainTower : ∀ x y → Tower x → Tower y → x ≤ y ∨ y ≤ x
+  isChainTowerSetℓ : isChain TowerSetℓ
+  isChainTowerSetℓ x y = rec2 squash₁ (isChainTower x y)
+  isChainTowerSet : isChain TowerSet
+  isChainTowerSet x y x∈ y∈ = isChainTowerSetℓ x y (unresize x∈) (unresize y∈)
 
-  isChainTower' : ∀ x y → Tower ℓ x → y ∈ TowerSet ℓ' → x ≤ y ∨ y ≤ x
+  isChainTower' : ∀ x y → Tower x → y ∈ TowerSetℓ → x ≤ y ∨ y ≤ x
   isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
   isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
 
-  module _ y (y∈ : Tower ℓ y) where
+  module _ y (y∈ : Tower y) where
     private y' = hasSuc y .fst
-    almostChain : ∀ x → Tower ℓ' x → x ≤ y ∨ y' ≤ x
-
-    almostChain' : ∀ x → x ∈ TowerSet ℓ' → x ≤ y ∨ y' ≤ x
+    almostChain : ∀ x → Tower x → x ≤ y ∨ y' ≤ x
+    almostChain' : ∀ x → x ∈ TowerSetℓ → x ≤ y ∨ y' ≤ x
     almostChain' x ∣ x∈ ∣₁ = almostChain x x∈
     almostChain' x (squash₁ x∈₁ x∈₂ i) = squash₁ (almostChain' x x∈₁) (almostChain' x x∈₂) i
 
@@ -124,50 +127,23 @@ module _ ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (hasSuc : Successive) (hasSup : Every
         (hasSup A isChainA .snd .fst z z∈A) })
     (¬∀→∃¬ ¬p)
 
-  module _ {ℓ} {A : 𝒫 U ℓ-zero} (isChainA : isChain A) where
-    private
-      LiftA = lift𝒫 {ℓ = ℓ} A
-
-    isChainLift : isChain LiftA
-    isChainLift x y (lift x∈) (lift y∈) = isChainA x y x∈ y∈
-
-    private
-      supA         = hasSup A isChainA .fst
-      supA-ish     = hasSup A isChainA .snd
-      supLiftA     = hasSup LiftA isChainLift .fst
-      supLiftA-ish = hasSup LiftA isChainLift .snd
-      supA-ish' : supremum LiftA supA
-      supA-ish' = (λ { x (lift x∈) → supA-ish .fst x x∈ }) ,
-        λ ub H → supA-ish .snd ub λ x x∈ → H x (lift x∈)
-
-    supLiftA≡supA : supLiftA ≡ supA
-    supLiftA≡supA = supUnique supLiftA-ish supA-ish'
-
-  liftTower : Tower ℓ-zero x → Tower ℓ x
-  liftTowerSet : x ∈ TowerSet ℓ-zero → x ∈ TowerSet ℓ
-  liftTowerSet ∣ x∈ ∣₁ = ∣ liftTower x∈ ∣₁
-  liftTowerSet (squash₁ x∈₁ x∈₂ i) = squash₁ (liftTowerSet x∈₁) (liftTowerSet x∈₂) i
-
-  liftTower (includeSuc x x∈) = includeSuc x (liftTower x∈)
-  liftTower (includeSup A A⊆ isChainA) = subst (Tower _) (supLiftA≡supA isChainA) $
-    includeSup (lift𝒫 A) (λ { (lift x∈) → liftTowerSet (A⊆ x∈)}) (isChainLift isChainA)
-
-  lowerTowerSet : x ∈ TowerSet ℓ → x ∈ TowerSet ℓ-zero
-  lowerTowerSet = {!   !}
-
-  Σsup = hasSup (TowerSet ℓ-zero) isChainTowerSet
+  Σsup = hasSup TowerSet isChainTowerSet
   sup = Σsup .fst
   sup-ub = Σsup .snd .fst
-
-  sup∈TowerSet : sup ∈ TowerSet ℓ-zero
-  sup∈TowerSet = lowerTowerSet $ ∣_∣₁ $
-    includeSup (TowerSet ℓ-zero) liftTowerSet isChainTowerSet
 
   Σsuc = hasSuc sup
   suc = Σsuc .fst
   sup≤suc = Σsuc .snd .fst
   sup≢suc = Σsuc .snd .snd .fst
 
+  sup∈Tower : Tower sup
+  sup∈Tower = includeSup TowerSet (λ x → unresize x) isChainTowerSet
+
+  suc∈TowerSet : suc ∈ TowerSet
+  suc∈TowerSet = resize $ map (includeSuc sup) ∣ sup∈Tower ∣₁
+
+  suc≤sup : suc ≤ sup
+  suc≤sup = sup-ub suc suc∈TowerSet
+
   false : ⊥
-  false = sup≢suc $ ≤-antisym _ _ sup≤suc $
-    sup-ub suc $ map (includeSuc sup) sup∈TowerSet
+  false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup

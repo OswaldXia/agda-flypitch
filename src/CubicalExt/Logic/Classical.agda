@@ -52,15 +52,21 @@ hPropIsoBool ℓ = iso to from to∘from from∘to where
   ... | yes p = hPropExt $ →: (λ _ → p) ←: (λ _ → tt*)
   ... | no ¬p = hPropExt $ →: (λ ()) ←: (λ p → lift $ ¬p p)
 
-impredicativity : Iso (hProp ℓ) (hProp ℓ')
-impredicativity {ℓ} {ℓ'} = hProp ℓ Iso⟨ hPropIsoBool ℓ ⟩ Bool
-  Iso⟨ invIso $ hPropIsoBool ℓ' ⟩ hProp ℓ' ∎Iso
+impredicativity : Iso (hProp ℓ) (hProp ℓ-zero)
+impredicativity {ℓ} = hProp ℓ Iso⟨ hPropIsoBool ℓ ⟩ Bool
+  Iso⟨ invIso $ hPropIsoBool ℓ-zero ⟩ hProp ℓ-zero ∎Iso
 
-resize : hProp ℓ → hProp ℓ'
-resize = impredicativity .Iso.fun
+Resize : hProp ℓ → hProp ℓ-zero
+Resize = impredicativity .Iso.fun
 
---fuck : ⟨ resize {ℓ} {ℓ'} P ⟩ → ⟨ P ⟩
---fuck H = {!   !}
+resize : ⟨ P ⟩ → ⟨ Resize P ⟩
+resize {P = P} p with em ⦃ P .snd _ _ ⦄
+... | yes _ = tt*
+... | no ¬p = lift $ ¬p p
+
+unresize : ⟨ Resize P ⟩ → ⟨ P ⟩
+unresize {P = P} _ with em ⦃ P .snd _ _ ⦄
+... | yes p = p
 
 module _ ⦃ Aprop : isPropImplicit A ⦄ where
 
@@ -83,3 +89,4 @@ module _ ⦃ Pprop : {x : A} → isPropImplicit (B x) ⦄ where
 
   ¬∀→∃¬ : (¬ ∀ x → B x) → ∃[ x ∈ A ] ¬ B x
   ¬∀→∃¬ ¬∀xBx = byContra ⦃ squash₁ _ _ ⦄ λ ¬∃x¬Bx → ¬∀xBx λ x → byContra λ ¬Bx → ¬∃x¬Bx ∣ x , ¬Bx ∣₁
+ 
