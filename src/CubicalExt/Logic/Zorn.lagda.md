@@ -21,10 +21,10 @@ module CubicalExt.Logic.Zorn where
 
 ```agda
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism using (Iso)
 open import Cubical.Data.Empty using (⊥)
-open import Cubical.Data.Sigma using (∃-syntax; _×_; ΣPathP)
+open import Cubical.Data.Sigma using (∃-syntax; ΣPathP) renaming (_×_ to infixr 3 _×_)
 import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
@@ -95,9 +95,63 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
   Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 ```
 
-## 证明
+## 链的链
 
-### 构造矛盾
+```agda
+module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
+  (≤-poset : isPoset _≤_) (hasUb : Def.AllChainHasUb _≤_) where
+  open import CubicalExt.Logic.Classical
+```
+
+```agda
+  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
+    where open Def _≤_
+```
+
+### 偏序
+
+```
+  _⪯_ : Rel Chain Chain u
+  a ⪯ b = a .fst ⊆ b .fst
+```
+
+```agda
+  ⪯-prop : isPropValued _⪯_
+  ⪯-prop _ _ = ⊆-isProp _ _
+
+  ⪯-refl : isRefl _⪯_
+  ⪯-refl = ⊆-refl ∘ fst
+
+  ⪯-antisym : isAntisym _⪯_
+  ⪯-antisym _ _ H₁ H₂ = ΣPathP $ ⊆-antisym _ _ H₁ H₂ , toPathP (isPropIsChain _ _)
+    where open Def _≤_
+
+  ⪯-trans : isTrans _⪯_
+  ⪯-trans _ _ _ H₁ H₂ x∈ = H₂ $ H₁ x∈
+
+  ⪯-poset : isPoset _⪯_
+  ⪯-poset = ⪯-prop , ⪯-refl , ⪯-antisym , ⪯-trans
+```
+
+### 上确界
+
+```agda
+  open Def _⪯_
+
+  sup : (A : 𝒫 Chain ℓ) → isChain A → Chain
+  sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst × a ∈ A) , squash₁) ,
+    λ x y x∈ y∈ → rec2 squash₁
+      (λ { (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
+        (λ { (⊎.inl a⪯b) → b .snd x y (a⪯b x∈a) y∈b
+           ; (⊎.inr b⪯a) → a .snd x y x∈a (b⪯a y∈b) })
+        (isChainA a b a∈A b∈A)})
+      (unresize x∈) (unresize y∈)
+
+  suphood : (A : 𝒫 Chain ℓ) (isChainA : isChain A) → supremum A (sup A isChainA)
+  suphood A isChainA = {!   !}
+```
+
+## 构造矛盾
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
@@ -181,7 +235,7 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 
   Σsup = hasSup TowerSet isChainTowerSet
   sup = Σsup .fst
-  sup-ub = Σsup .snd .fst
+  ubhood = Σsup .snd .fst
 
   Σsuc = hasSuc sup
   suc = Σsuc .fst
@@ -195,45 +249,8 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   suc∈TowerSet = resize $ map (includeSuc sup) ∣ sup∈Tower ∣₁
 
   suc≤sup : suc ≤ sup
-  suc≤sup = sup-ub suc suc∈TowerSet
+  suc≤sup = ubhood suc suc∈TowerSet
 
   false : ⊥
   false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup
-```
-
-### 构造链的偏序
-
-```agda
-module Chain {U : Type u} {_≤_ : Rel U U r} (≤-poset : isPoset _≤_) (hasUb : Def.AllChainHasUb _≤_) where
-  open Def _≤_
-
-  private
-    ≤-prop    = ≤-poset .fst
-    ≤-refl    = ≤-poset .snd .fst
-    ≤-antisym = ≤-poset .snd .snd .fst
-    ≤-trans   = ≤-poset .snd .snd .snd
-```
-
-```agda
-  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
-
-  _⪯_ : Rel Chain Chain u
-  X ⪯ Y = X .fst ⊆ Y .fst
-```
-
-```agda
-  ⪯-prop : isPropValued _⪯_
-  ⪯-prop _ _ = ⊆-isProp _ _
-
-  ⪯-refl : isRefl _⪯_
-  ⪯-refl = ⊆-refl ∘ fst
-
-  ⪯-antisym : isAntisym _⪯_
-  ⪯-antisym _ _ H₁ H₂ = ΣPathP $ ⊆-antisym _ _ H₁ H₂ , toPathP (isPropIsChain _ _)
-
-  ⪯-trans : isTrans _⪯_
-  ⪯-trans = {!   !}
-
-  ⪯-poset : isPoset _⪯_
-  ⪯-poset = ⪯-prop , ⪯-refl , ⪯-antisym , ⪯-trans
 ```
