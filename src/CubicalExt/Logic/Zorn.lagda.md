@@ -17,44 +17,58 @@ zhihu-tags: Agda, 数理逻辑
 {-# OPTIONS --lossy-unification #-}
 
 module CubicalExt.Logic.Zorn where
+```
 
-open import CubicalExt.Axiom.ExcludedMiddle
+```agda
 open import Cubical.Foundations.Prelude
-open import CubicalExt.Foundations.Powerset* using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp)
-open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
 open import Cubical.Foundations.HLevels using (hProp; isPropΠ2)
 open import Cubical.Foundations.Isomorphism using (Iso)
-open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 open import Cubical.Data.Empty using (⊥)
-open import Cubical.Data.Sigma using (∃-syntax; _×_)
+open import Cubical.Data.Sigma using (∃-syntax; _×_; ΣPathP)
 import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 open import Cubical.Relation.Binary
 open BinaryRelation
+```
 
+```agda
+open import CubicalExt.Axiom.ExcludedMiddle
+open import CubicalExt.Foundations.Powerset*
+  using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp; ⊆-isProp; ⊆-refl; ⊆-antisym; ⊆-trans)
+open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
+open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
+```
+
+```agda
 private variable
   ℓ u r : Level
-  A U : Type ℓ
+  U : Type ℓ
+  A : 𝒫 U ℓ
   _≤_ : Rel U U ℓ
 ```
 
 ## 定义
 
 ```agda
-isPoset : Rel A A ℓ → Type _
+isPoset : Rel U U ℓ → Type _
 isPoset R = isPropValued R × isRefl R × isAntisym R × isTrans R
 
-isProset : Rel A A ℓ → Type _
+isProset : Rel U U ℓ → Type _
 isProset R = isPropValued R × isRefl R × isTrans R
 
 isPoset→isProset : isPoset _≤_ → isProset _≤_
 isPoset→isProset (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
+```
 
+```agda
 module Def {U : Type u} (_≤_ : Rel U U r) where
 
   isChain : 𝒫 U ℓ → Type _
   isChain A = ∀ x y → x ∈ A → y ∈ A → x ≤ y ∨ y ≤ x
+
+  isPropIsChain : isProp (isChain A)
+  isPropIsChain = isPropΠ2 λ _ _ → isPropΠ2 λ _ _ → squash₁
 
   upperBound : 𝒫 U ℓ → U → Type _
   upperBound A ub = ∀ x → x ∈ A → x ≤ ub
@@ -63,10 +77,15 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
 
   maximum : U → Type _
   maximum m = ∀ x → m ≤ x → x ≡ m
+```
 
-  -- Given a parial order (U, ≤), if every chain A ⊆ U has an upper bound, then (U, ≤) merely has a maximum
+给定偏序结构 (`U`, `≤`), 如果 `U` 中的每条链都有一个上界, 那么 (`U`, `≤`) 中存在一个最大元.
+
+```agda
   Zorn = isPoset _≤_ → AllChainHasUb → ∃[ m ∈ U ] maximum m
+```
 
+```agda
   -- least upper bound
   supremum : 𝒫 U ℓ → U → Type _
   supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
@@ -82,15 +101,15 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
-  (isPoset≤ : isPoset _≤_) (hasSuc : Def.Successive _≤_) (hasSup : Def.AllChainHasSup _≤_) where
+  (≤-poset : isPoset _≤_) (hasSuc : Def.Successive _≤_) (hasSup : Def.AllChainHasSup _≤_) where
   open import CubicalExt.Logic.Classical
   open Def _≤_
 
   private
-    ≤-prop    = isPoset≤ .fst
-    ≤-refl    = isPoset≤ .snd .fst
-    ≤-antisym = isPoset≤ .snd .snd .fst
-    ≤-trans   = isPoset≤ .snd .snd .snd
+    ≤-prop    = ≤-poset .fst
+    ≤-refl    = ≤-poset .snd .fst
+    ≤-antisym = ≤-poset .snd .snd .fst
+    ≤-trans   = ≤-poset .snd .snd .snd
     variable
       x y : U
     instance
@@ -185,11 +204,36 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 ### 构造链的偏序
 
 ```agda
-module Chain {U : Type u} (_≤_ : Rel U U r) (hasUb : Def.AllChainHasUb _≤_) where
+module Chain {U : Type u} {_≤_ : Rel U U r} (≤-poset : isPoset _≤_) (hasUb : Def.AllChainHasUb _≤_) where
   open Def _≤_
 
+  private
+    ≤-prop    = ≤-poset .fst
+    ≤-refl    = ≤-poset .snd .fst
+    ≤-antisym = ≤-poset .snd .snd .fst
+    ≤-trans   = ≤-poset .snd .snd .snd
+```
+
+```agda
   Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
 
   _⪯_ : Rel Chain Chain u
-  S ⪯ T = S .fst ⊆ T .fst
+  X ⪯ Y = X .fst ⊆ Y .fst
+```
+
+```agda
+  ⪯-prop : isPropValued _⪯_
+  ⪯-prop _ _ = ⊆-isProp _ _
+
+  ⪯-refl : isRefl _⪯_
+  ⪯-refl = ⊆-refl ∘ fst
+
+  ⪯-antisym : isAntisym _⪯_
+  ⪯-antisym _ _ H₁ H₂ = ΣPathP $ ⊆-antisym _ _ H₁ H₂ , toPathP (isPropIsChain _ _)
+
+  ⪯-trans : isTrans _⪯_
+  ⪯-trans = {!   !}
+
+  ⪯-poset : isPoset _⪯_
+  ⪯-poset = ⪯-prop , ⪯-refl , ⪯-antisym , ⪯-trans
 ```

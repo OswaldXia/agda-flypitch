@@ -24,8 +24,7 @@ open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; r
 
 private variable
   ℓ ℓ' ℓ'' ℓ₀ ℓ₁ ℓ₂ : Level
-  X : Type ℓ
-  Y : Type ℓ'
+  X Y : Type ℓ
 
 ------------------------------------------------------------------------
 -- Definition
@@ -87,7 +86,7 @@ subst-∈ A = subst (_∈ A)
 _⊆_ : 𝒫 X ℓ₁ → 𝒫 X ℓ₂ → Type _
 A ⊆ B = ∀ {x} → x ∈ A → x ∈ B
 
-⊆-isProp : (A B : 𝒫 X ℓ) → isProp (A ⊆ B)
+⊆-isProp : (A : 𝒫 X ℓ) (B : 𝒫 X ℓ') → isProp (A ⊆ B)
 ⊆-isProp A B = isPropImplicitΠ $ λ x → isPropΠ $ λ _ → ∈-isProp B x
 
 ⊆-refl : (A : 𝒫 X ℓ) → A ⊆ A
@@ -106,6 +105,12 @@ A ⊆ B = ∀ {x} → x ∈ A → x ∈ B
                                             (⊆-refl-consequence A B)
                                             (λ _ → isSet𝒫 A B _ _)
                                             (λ _ → isPropΣ (⊆-isProp A B) (λ _ → ⊆-isProp B A) _ _))
+
+⊆-antisym : (A B : 𝒫 X ℓ) → A ⊆ B → B ⊆ A → A ≡ B
+⊆-antisym A B A⊆B B⊆A = ⊆-extensionality A B $ A⊆B , B⊆A
+
+⊆-trans : (A : 𝒫 X ℓ) (B : 𝒫 X ℓ') (C : 𝒫 X ℓ'') → A ⊆ B → B ⊆ C → A ⊆ C
+⊆-trans A B C A⊆B B⊆C x∈A = B⊆C $ A⊆B x∈A
 
 ------------------------------------------------------------------------
 -- Operations on sets
