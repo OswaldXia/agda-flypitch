@@ -24,8 +24,8 @@ open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism using (Iso)
-open import Cubical.Data.Empty using (⊥)
-open import Cubical.Data.Sigma using (∃-syntax; ΣPathP) renaming (_×_ to infixr 3 _×_)
+open import Cubical.Data.Empty as ⊥ using (⊥)
+open import Cubical.Data.Sigma renaming (_×_ to infixr 3 _×_)
 import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
@@ -201,16 +201,16 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
   sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
   sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst × a ∈ A) , squash₁) ,
     λ x y x∈ y∈ → rec2 squash₁
-      (λ { (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
-        (λ { (⊎.inl a⪯b) → b .snd x y (a⪯b x∈a) y∈b
-           ; (⊎.inr b⪯a) → a .snd x y x∈a (b⪯a y∈b) })
+      (λ{ (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
+        (λ{ (⊎.inl a⪯b) → b .snd x y (a⪯b x∈a) y∈b
+          ; (⊎.inr b⪯a) → a .snd x y x∈a (b⪯a y∈b) })
         (isChainA a b a∈A b∈A)})
       (unresize x∈) (unresize y∈)
 
   suphood : (A : 𝒫 Chain ℓ) (isChainA : ⪯.isChain A) → ⪯.supremum A (sup A isChainA)
   suphood A isChainA = (λ { a a∈A x∈a₁ → resize ∣ a , x∈a₁ , a∈A ∣₁ }) ,
     λ ub ubhood x∈sup → rec (∈-isProp (ub .fst) _)
-      (λ { (a , x∈a₁ , a∈A) → ubhood a a∈A x∈a₁ })
+      (λ{ (a , x∈a₁ , a∈A) → ubhood a a∈A x∈a₁ })
       (unresize x∈sup)
 
   ⪯-allChainHasSup : ⪯.allChainHasSup
@@ -221,23 +221,49 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 ```agda
   ⪯-successvie : ≤.isPoset → ≤.allChainHasUb → ≤.unbound → ⪯.successive
-  ⪯-successvie (Uset , ≤-po) hasUb unbnd (A , isChainA) =
-    let ≤-refl  = ≤-po .snd .fst
-        ≤-trans = ≤-po .snd .snd .snd
-        (ub , ubhood) = hasUb A isChainA
-        (ub' , ub≤ , ub≢) = unbnd ub
-        A' = Resize ∘ (A ⨭ ub')
-        isChainA' : ≤.isChain A'
-        isChainA' x y x∈ y∈ = rec2 squash₁
-          (λ { (⊎.inl x∈A)    (⊎.inl y∈A)    → isChainA x y x∈A y∈A
-             ; (⊎.inl x∈A)    (⊎.inr reflId) → inl (≤-trans x ub y (ubhood x x∈A) ub≤)
-             ; (⊎.inr reflId) (⊎.inl y∈A)    → inr (≤-trans y ub x (ubhood y y∈A) ub≤)
-             ; (⊎.inr reflId) (⊎.inr reflId) → inl (≤-refl x) })
-          (unresize x∈) (unresize y∈)
-    in (A' , isChainA') , resize ∘ inl
-    , {!   !}
-    , {!   !}
-    where open SetBased Uset
+  ⪯-successvie (Uset , ≤-po) hasUb unbnd a@(A , isChainA) = a' , resize ∘ inl , a≢a' , noMid where
+
+    ≤-refl    = ≤-po .snd .fst
+    ≤-antisym = ≤-po .snd .snd .fst
+    ≤-trans   = ≤-po .snd .snd .snd
+
+    ub        = hasUb A isChainA .fst
+    ubhood    = hasUb A isChainA .snd
+    ub'       = unbnd ub .fst
+    ub≤       = unbnd ub .snd .fst
+    ub≢       = unbnd ub .snd. snd
+
+    open SetBased Uset using (_⨭_)
+    A' = Resize ∘ (A ⨭ ub')
+
+    isChainA' : ≤.isChain A'
+    isChainA' x y x∈ y∈ = rec2 squash₁
+      (λ{ (⊎.inl x∈A)    (⊎.inl y∈A)    → isChainA x y x∈A y∈A
+        ; (⊎.inl x∈A)    (⊎.inr reflId) → inl $ ≤-trans x ub y (ubhood x x∈A) ub≤
+        ; (⊎.inr reflId) (⊎.inl y∈A)    → inr $ ≤-trans y ub x (ubhood y y∈A) ub≤
+        ; (⊎.inr reflId) (⊎.inr reflId) → inl $ ≤-refl x })
+      (unresize x∈) (unresize y∈)
+
+    a' = A' , isChainA'
+    a≢a' : ¬ a ≡ a'
+    a≢a' eq = let eq = PathPΣ eq .fst in
+      ub≢ $ ≤-antisym ub ub' ub≤ $ ubhood ub' $
+      subst (ub' ∈_) (sym eq) $ resize $ inr reflId
+
+    noMid : ∀ b → a ⪯ b → b ⪯ a' → b ≡ a ∨ b ≡ a'
+    noMid b@(B , isChainB) A⊆B B⊆A' with em ⦃ ∈-isProp B ub' _ _ ⦄
+    ... | yes ub'∈B = inr $ ΣPathP $ ⊆-antisym B A' B⊆A' A'⊆B , toPathP (≤.isPropIsChain _ isChainA')
+      where A'⊆B : A' ⊆ B
+            A'⊆B x∈A' = rec (∈-isProp B _)
+              (λ{ (⊎.inl x∈A)    → A⊆B x∈A
+                ; (⊎.inr reflId) → ub'∈B })
+              (unresize x∈A')
+    ... | no  ub'∉B = inl $ ΣPathP $ ⊆-antisym B A B⊆A A⊆B , toPathP (≤.isPropIsChain _ isChainA)
+      where B⊆A : B ⊆ A
+            B⊆A x∈B = rec (∈-isProp A _)
+              (λ{ (⊎.inl x∈A)    → x∈A
+                ; (⊎.inr reflId) → ⊥.rec $ ub'∉B x∈B })
+              (unresize (B⊆A' x∈B))
 ```
 
 ## 构造矛盾
@@ -302,7 +328,7 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
     ... | yes p = inl $ hasSup A isChainA .snd .snd y p
     ... | no ¬p = inr $ rec (≤-prop _ _)
-      (λ { (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
+      (λ{ (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
         ≤-trans y' z x
           (∨-elimʳ (≤-prop _ _) (almostChain' z (A⊆ z∈A)) ¬z≤y)
           (hasSup A isChainA .snd .fst z z∈A) })
