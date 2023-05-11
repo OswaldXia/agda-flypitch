@@ -20,6 +20,7 @@ module CubicalExt.Logic.Zorn where
 ```
 
 ```agda
+open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism using (Iso)
@@ -34,8 +35,7 @@ open BinaryRelation
 
 ```agda
 open import CubicalExt.Axiom.ExcludedMiddle
-open import CubicalExt.Foundations.Powerset*
-  using (𝒫; lift𝒫; _∈_; _⊆_; ∈-isProp; ⊆-isProp; ⊆-refl; ⊆-antisym; ⊆-trans)
+open import CubicalExt.Foundations.Powerset* hiding (U)
 open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
 open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
 ```
@@ -45,57 +45,58 @@ private variable
   ℓ u r : Level
   U : Type ℓ
   A : 𝒫 U ℓ
-  _≤_ : Rel U U ℓ
 ```
 
-## 定义
+## 序理论
+
+```agda
+module Order {U : Type u} (R : Rel U U r) where
+```
 
 偏序
 
 ```agda
-isPo : Rel U U ℓ → Type _
-isPo R = isPropValued R × isRefl R × isAntisym R × isTrans R
+  isPo : Type _
+  isPo = isPropValued R × isRefl R × isAntisym R × isTrans R
 
-isPoset : Rel U U ℓ → Type _
-isPoset {_} {U} R = isSet U × isPo R
+  isPoset : Type _
+  isPoset = isSet U × isPo
 ```
 
 预序
 
 ```agda
-isPro : Rel U U ℓ → Type _
-isPro R = isPropValued R × isRefl R × isTrans R
+  isPro : Type _
+  isPro = isPropValued R × isRefl R × isTrans R
 
-isProset : Rel U U ℓ → Type _
-isProset {_} {U} R = isSet U × isPro R
+  isProset : Type _
+  isProset = isSet U × isPro
 ```
 
 偏序是预序
 
 ```agda
-isPo→isPro : isPo _≤_ → isPro _≤_
-isPo→isPro (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
+  isPo→isPro : isPo → isPro
+  isPo→isPro (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
 ```
 
 无界
 
 ```agda
-unbound : Rel U U ℓ → Type _
-unbound _≤_ = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y)
+  private _≤_ = R
+
+  unbound : Type _
+  unbound = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y)
 ```
 
 后继的
 
 ```agda
-successive : Rel U U ℓ → Type _
-successive _≤_ = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+  successive : Type _
+  successive = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 ```
 
 考虑 `U` 的子集 `𝒫 U ℓ`
-
-```agda
-module Def {U : Type u} (_≤_ : Rel U U r) where
-```
 
 链
 
@@ -121,7 +122,7 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
 所有链都有上界
 
 ```agda
-  AllChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
+  allChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
 ```
 
 最大元
@@ -131,16 +132,9 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
   maximum m = ∀ x → m ≤ x → x ≡ m
 ```
 
-给定偏序集 (`U`, `≤`), 如果 `U` 中的所有链都有上界, 那么 (`U`, `≤`) 中存在一个最大元.
-
-```agda
-  Zorn = isPoset _≤_ → AllChainHasUb → ∃[ m ∈ U ] maximum m
-```
-
 上确界
 
 ```agda
-  -- least upper bound
   supremum : 𝒫 U ℓ → U → Type _
   supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
 ```
@@ -148,7 +142,13 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
 所有链都有上确界
 
 ```agda
-  AllChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
+  allChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
+```
+
+给定偏序集 (`U`, `≤`), 如果 `U` 中的所有链都有上界, 那么 (`U`, `≤`) 中存在一个最大元.
+
+```agda
+  Zorn = isPoset → allChainHasUb → ∃[ m ∈ U ] maximum m
 ```
 
 ## 链的链
@@ -156,16 +156,15 @@ module Def {U : Type u} (_≤_ : Rel U U r) where
 给定偏序 (`U`, `≤`)
 
 ```agda
-module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
-  (≤-po : isPo _≤_) where
+module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
   open import CubicalExt.Logic.Classical
+  open module ≤ = Order _≤_
 ```
 
 链的链
 
 ```agda
-  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
-    where open Def _≤_
+  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] ≤.isChain S
 ```
 
 ### 偏序
@@ -185,22 +184,21 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   ⪯-refl = ⊆-refl ∘ fst
 
   ⪯-antisym : isAntisym _⪯_
-  ⪯-antisym _ _ H₁ H₂ = ΣPathP $ ⊆-antisym _ _ H₁ H₂ , toPathP (isPropIsChain _ _)
-    where open Def _≤_
+  ⪯-antisym _ _ H₁ H₂ = ΣPathP $ ⊆-antisym _ _ H₁ H₂ , toPathP (≤.isPropIsChain _ _)
 
   ⪯-trans : isTrans _⪯_
   ⪯-trans _ _ _ H₁ H₂ x∈ = H₂ $ H₁ x∈
 
-  ⪯-po : isPo _⪯_
+  open module ⪯ = Order _⪯_
+
+  ⪯-po : ⪯.isPo
   ⪯-po = ⪯-prop , ⪯-refl , ⪯-antisym , ⪯-trans
 ```
 
 ### 上确界
 
 ```agda
-  open Def _⪯_
-
-  sup : (A : 𝒫 Chain ℓ) → isChain A → Chain
+  sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
   sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst × a ∈ A) , squash₁) ,
     λ x y x∈ y∈ → rec2 squash₁
       (λ { (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
@@ -209,34 +207,46 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
         (isChainA a b a∈A b∈A)})
       (unresize x∈) (unresize y∈)
 
-  suphood : (A : 𝒫 Chain ℓ) (isChainA : isChain A) → supremum A (sup A isChainA)
+  suphood : (A : 𝒫 Chain ℓ) (isChainA : ⪯.isChain A) → ⪯.supremum A (sup A isChainA)
   suphood A isChainA = (λ { a a∈A x∈a₁ → resize ∣ a , x∈a₁ , a∈A ∣₁ }) ,
     λ ub ubhood x∈sup → rec (∈-isProp (ub .fst) _)
       (λ { (a , x∈a₁ , a∈A) → ubhood a a∈A x∈a₁ })
       (unresize x∈sup)
 
-  allChainHasSup : AllChainHasSup
-  allChainHasSup A isChainA = sup A isChainA , suphood A isChainA
+  ⪯-allChainHasSup : ⪯.allChainHasSup
+  ⪯-allChainHasSup A isChainA = sup A isChainA , suphood A isChainA
 ```
 
 ### 后继性
 
 ```agda
-  ⪯-successvie : isSet U → Def.AllChainHasUb _≤_ → unbound _≤_ → successive _⪯_
-  ⪯-successvie Uset hasUb unbnd (A , isChainA) =
-    let (ub , ubhood) = hasUb A isChainA
-        (ub2 , ub≤ , ub≢) = unbnd ub
-    in
-    {! ub2  !}
+  ⪯-successvie : ≤.isPoset → ≤.allChainHasUb → ≤.unbound → ⪯.successive
+  ⪯-successvie (Uset , ≤-po) hasUb unbnd (A , isChainA) =
+    let ≤-refl  = ≤-po .snd .fst
+        ≤-trans = ≤-po .snd .snd .snd
+        (ub , ubhood) = hasUb A isChainA
+        (ub' , ub≤ , ub≢) = unbnd ub
+        A' = Resize ∘ (A ⨭ ub')
+        isChainA' : ≤.isChain A'
+        isChainA' x y x∈ y∈ = rec2 squash₁
+          (λ { (⊎.inl x∈A)    (⊎.inl y∈A)    → isChainA x y x∈A y∈A
+             ; (⊎.inl x∈A)    (⊎.inr reflId) → inl (≤-trans x ub y (ubhood x x∈A) ub≤)
+             ; (⊎.inr reflId) (⊎.inl y∈A)    → inr (≤-trans y ub x (ubhood y y∈A) ub≤)
+             ; (⊎.inr reflId) (⊎.inr reflId) → inl (≤-refl x) })
+          (unresize x∈) (unresize y∈)
+    in (A' , isChainA') , resize ∘ inl
+    , {!   !}
+    , {!   !}
+    where open SetBased Uset
 ```
 
 ## 构造矛盾
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
-  (≤-po : isPo _≤_) (hasSup : Def.AllChainHasSup _≤_) (hasSuc : successive _≤_) where
+  (≤-po : Order.isPo _≤_) (hasSup : Order.allChainHasSup _≤_) (hasSuc : Order.successive _≤_) where
   open import CubicalExt.Logic.Classical
-  open Def _≤_
+  open Order _≤_
 
   private
     ≤-prop    = ≤-po .fst
@@ -339,10 +349,10 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 ```agda
 module PartialOrder ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
   open import CubicalExt.Logic.Classical
-  open Def _≤_
+  open Order _≤_
 
   zorn : Zorn
-  zorn (Uset , ≤-po) hasUb = byContra λ noMax → Contra.false ⪯-po allChainHasSup $
-    ⪯-successvie Uset hasUb {!   !}
-    where open Chain ≤-po
+  zorn ≤-poset hasUb = byContra λ noMax → Contra.false ⪯-po ⪯-allChainHasSup $
+    ⪯-successvie ≤-poset hasUb {!   !}
+    where open Chain _≤_
 ```
