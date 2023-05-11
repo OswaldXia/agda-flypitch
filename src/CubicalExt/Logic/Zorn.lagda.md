@@ -50,58 +50,112 @@ private variable
 
 ## 定义
 
+偏序
+
 ```agda
 isPoset : Rel U U ℓ → Type _
 isPoset R = isPropValued R × isRefl R × isAntisym R × isTrans R
+```
 
+预序
+
+```agda
 isProset : Rel U U ℓ → Type _
 isProset R = isPropValued R × isRefl R × isTrans R
+```
 
+偏序是预序
+
+```agda
 isPoset→isProset : isPoset _≤_ → isProset _≤_
 isPoset→isProset (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
 ```
 
+无界
+
+```agda
+unbound : Rel U U ℓ → Type _
+unbound _≤_ = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y)
+```
+
+相继的
+
+```agda
+successive : Rel U U ℓ → Type _
+successive _≤_ = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+```
+
+考虑 `U` 的子集
+
 ```agda
 module Def {U : Type u} (_≤_ : Rel U U r) where
+```
 
+链
+
+```agda
   isChain : 𝒫 U ℓ → Type _
   isChain A = ∀ x y → x ∈ A → y ∈ A → x ≤ y ∨ y ≤ x
+```
 
+"某某是链"是命题
+
+```agda
   isPropIsChain : isProp (isChain A)
   isPropIsChain = isPropΠ2 λ _ _ → isPropΠ2 λ _ _ → squash₁
+```
 
+上界
+
+```agda
   upperBound : 𝒫 U ℓ → U → Type _
   upperBound A ub = ∀ x → x ∈ A → x ≤ ub
+```
 
+所有链都有上界
+
+```agda
   AllChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
+```
 
+最大元
+
+```agda
   maximum : U → Type _
   maximum m = ∀ x → m ≤ x → x ≡ m
 ```
 
-给定偏序结构 (`U`, `≤`), 如果 `U` 中的每条链都有一个上界, 那么 (`U`, `≤`) 中存在一个最大元.
+给定偏序结构 (`U`, `≤`), 如果 `U` 中的所有链都有上界, 那么 (`U`, `≤`) 中存在一个最大元.
 
 ```agda
   Zorn = isPoset _≤_ → AllChainHasUb → ∃[ m ∈ U ] maximum m
 ```
 
+上确界
+
 ```agda
   -- least upper bound
   supremum : 𝒫 U ℓ → U → Type _
   supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
+```
 
+所有链都有上确界
+
+```agda
   AllChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
-
-  Successive = ∀ x → Σ[ y ∈ U ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 ```
 
 ## 链的链
 
+给定偏序 (`U`, `≤`)
+
 ```agda
 module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
-  (≤-poset : isPoset _≤_) (hasUb : Def.AllChainHasUb _≤_) where
+  (≤-poset : isPoset _≤_) where
   open import CubicalExt.Logic.Classical
 ```
+
+链的链
 
 ```agda
   Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] isChain S
@@ -110,7 +164,9 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 
 ### 偏序
 
-```
+链的链上的偏序
+
+```agda
   _⪯_ : Rel Chain Chain u
   a ⪯ b = a .fst ⊆ b .fst
 ```
@@ -157,11 +213,15 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   allChainHasSup A isChainA = sup A isChainA , suphood A isChainA
 ```
 
+### 相继的
+
+--(hasUb : Def.AllChainHasUb _≤_)
+
 ## 构造矛盾
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
-  (≤-poset : isPoset _≤_) (hasSuc : Def.Successive _≤_) (hasSup : Def.AllChainHasSup _≤_) where
+  (≤-poset : isPoset _≤_) (hasSuc : successive _≤_) (hasSup : Def.AllChainHasSup _≤_) where
   open import CubicalExt.Logic.Classical
   open Def _≤_
 
@@ -270,5 +330,5 @@ module PartialOrder ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel 
 
   zorn : Zorn
   zorn ≤-poset hasUb = byContra λ noMax → Contra.false ⪯-poset {!   !} allChainHasSup
-    where open Chain ≤-poset hasUb
+    where open Chain ≤-poset
 ```
