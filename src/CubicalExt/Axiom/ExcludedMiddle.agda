@@ -4,6 +4,7 @@ module CubicalExt.Axiom.ExcludedMiddle where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropImplicitΠ)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁)
 open import Cubical.Relation.Nullary using (Dec)
 
 private variable
@@ -23,3 +24,6 @@ instance
 
   isPropImpliciΠn : ⦃ H : {x : A} → isPropImplicit (B x) ⦄ → isPropImplicit ({x : A} → B x)
   isPropImpliciΠn ⦃ H ⦄ = isPropImplicitΠ (λ _ _ _ → H) _ _
+
+  isPropImplicitPropTrunc : isPropImplicit ∥ A ∥₁
+  isPropImplicitPropTrunc = squash₁ _ _

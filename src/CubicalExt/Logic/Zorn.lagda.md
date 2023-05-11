@@ -148,7 +148,13 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
       (unresize x∈) (unresize y∈)
 
   suphood : (A : 𝒫 Chain ℓ) (isChainA : isChain A) → supremum A (sup A isChainA)
-  suphood A isChainA = {!   !}
+  suphood A isChainA = (λ { a a∈A x∈a₁ → resize ∣ a , x∈a₁ , a∈A ∣₁ }) ,
+    λ ub ubhood x∈sup → rec (∈-isProp (ub .fst) _)
+      (λ { (a , x∈a₁ , a∈A) → ubhood a a∈A x∈a₁ })
+      (unresize x∈sup)
+
+  allChainHasSup : AllChainHasSup
+  allChainHasSup A isChainA = sup A isChainA , suphood A isChainA
 ```
 
 ## 构造矛盾
@@ -253,4 +259,16 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 
   false : ⊥
   false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup
+```
+
+## 证明
+
+```agda
+module PartialOrder ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
+  open import CubicalExt.Logic.Classical
+  open Def _≤_
+
+  zorn : Zorn
+  zorn ≤-poset hasUb = byContra λ noMax → Contra.false ⪯-poset {!   !} allChainHasSup
+    where open Chain ≤-poset hasUb
 ```
