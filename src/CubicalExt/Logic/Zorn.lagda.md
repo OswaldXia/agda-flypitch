@@ -361,25 +361,25 @@ module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') {U : Type u} {_≤_ : Rel U U r} 
   open import CubicalExt.Logic.ClassicalChoice ac
   open Order _≤_
 
-  noMaximum→unbound : isPoset → ¬ (∃[ m ∈ U ] maximum m) → unbound
-  noMaximum→unbound ≤-poset noMax = {! H₁  !} where
-    --ac Uset (λ x → isSetΣ Uset (λ _ → {!   !})) H₁ where
+  noMaximum→unbound : isPoset → ¬ (∃[ m ∈ U ] maximum m) → ∥ unbound ∥₁
+  noMaximum→unbound ≤-poset noMax = ac Uset Σset H where
     Uset = ≤-poset .fst
-    ≤-po = ≤-poset .snd .fst
+    ≤-prop = ≤-poset .snd .fst
     instance
-      ≤-prop : ∀ {x y} → isPropImplicit (x ≤ y)
-      ≤-prop = ≤-po _ _ _ _
-      ≡-prop : ∀ {x y} → isPropImplicit (x ≡ y)
-      ≡-prop = Uset _ _ _ _
+      ≤-propImplicit : ∀ {x y} → isPropImplicit (x ≤ y)
+      ≤-propImplicit = ≤-prop _ _ _ _
+      ≡-propImplicit : ∀ {x y} → isPropImplicit (x ≡ y)
+      ≡-propImplicit = Uset _ _ _ _
     H₀ : ∀ x → ∃[ x' ∈ U ] ¬ (x ≤ x' → x ≡ x')
     H₀ x = ¬∀→∃¬ λ H → noMax ∣ x , H ∣₁
-    H₁ : ∀ x → ∃[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x')
-    H₁ x = rec squash₁ (λ { (x' , H) → ∣ x' , ¬→→∧ (x ≤ x') (x ≡ x') H ∣₁ }) (H₀ x)
+    H : ∀ x → ∃[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x')
+    H x = rec squash₁ (λ { (x' , H) → ∣ x' , ¬→→∧ (x ≤ x') (x ≡ x') H ∣₁ }) (H₀ x)
+    Σset : ∀ x → isSet (Σ[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x'))
+    Σset = λ _ → isSetΣ Uset λ _ → isProp→isSet $ isPropΣ (≤-prop _ _) λ _ → isPropΠ λ _ → isProp⊥
 
   zorn : Zorn
-  zorn ≤-poset hasUb = byContra λ noMax →
-    --rec isProp⊥
-    --(Contra.false ⪯-po ⪯-allChainHasSup ∘ ⪯-successvie ≤-poset hasUb)
-    Contra.false ⪯-po ⪯-allChainHasSup $ ⪯-successvie ≤-poset hasUb (noMaximum→unbound {!   !} noMax) --(noMaximum→unbound ≤-poset noMax)
+  zorn ≤-poset hasUb = byContra λ noMax → rec isProp⊥
+    (Contra.false ⪯-po ⪯-allChainHasSup ∘ ⪯-successvie ≤-poset hasUb)
+    (noMaximum→unbound ≤-poset noMax)
     where open Chain _≤_
 ```
