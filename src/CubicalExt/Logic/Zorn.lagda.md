@@ -12,6 +12,10 @@ zhihu-tags: Agda, 数理逻辑
 
 ## 前言
 
+佐恩引理是经典数学中最基础的定理之一. 然而, 作为直觉主义数学的前沿之一, 同伦类型论 (HoTT) 在经典领域的扩展并未获得太多研究关注. 本文旨在填补这一空白, 我们将在同伦类型论的框架下展示对佐恩引理这一经典定理的证明. 尽管本文的内容可以被视为 Agda 代码的注释, 我们仍然力求使其内容对于不熟悉 Agda 语言的读者也能理解其中的主要思路, 但前提是读者需要了解同伦类型论的基本概念.
+
+我们工作在无公理的 cubical 环境中, 而选择公理将作为参数引入. 这里说的 cubical 指立方类型论 (cubical type theory), 它是同伦类型论的一种实现.
+
 ```agda
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
@@ -19,13 +23,15 @@ zhihu-tags: Agda, 数理逻辑
 module CubicalExt.Logic.Zorn where
 ```
 
+首先, 我们需要导入 Cubical 标准库模块. 同伦类型论 (乃至其立方类型论实现) 以其对"相等"这一基础概念的复杂诠释而广为人知. 在某些情况下 (如单集的定义中), 我们将使用立方类型论的 `Id` 类型, 因其可以便捷地进行模式匹配. 然而, 在大部分情况下, 我们更倾向于使用路径 `Path` 类型. 本文在很大程度上依赖于 **命题截断 (propositional truncation)** 这一概念, 因此需要读者能对此有较为深入的理解.
+
 ```agda
 open import Cubical.Core.Id using (reflId)
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (_∧_; _∨_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism using (Iso)
 open import Cubical.Data.Empty as ⊥ using (⊥; isProp⊥)
-open import Cubical.Data.Sigma renaming (_×_ to infixr 3 _×_)
+open import Cubical.Data.Sigma using (∃-syntax; ΣPathP; PathPΣ)
 import Cubical.Data.Sum as ⊎
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
@@ -33,13 +39,17 @@ open import Cubical.Relation.Binary
 open BinaryRelation
 ```
 
+以下是我们按照标准库风格额外编写的前置模块. 这些模块主要涉及经典逻辑和集合论的基本概念. 我们预设读者对这些概念有深入的理解, 因此不会再逐一进行解释.
+
 ```agda
 open import CubicalExt.Axiom.Choice
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* hiding (U)
 open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
-open import CubicalExt.Functions.Logic using (∥_∥ₚ; inl; inr; _∨_; _∧_; ∨-elimˡ; ∨-elimʳ)
+open import CubicalExt.Functions.Logic using (∥_∥ₚ; _∧_; _∨_; inl; inr; ∨-elimˡ; ∨-elimʳ)
 ```
+
+如果在后续的内容中出现了以下列出的变量, 但没有提前进行声明, 请理解为它们已作为隐式参数被引入，并具备以下规定的类型.
 
 ```agda
 private variable
@@ -48,88 +58,110 @@ private variable
   A : 𝒫 U ℓ
 ```
 
+其中 `Level` 是宇宙等级, `𝒫 U ℓ` 表示 `U` 的位于 `ℓ` 宇宙的幂集. 在后文中我们将假设排中律, 这将导致命题宇宙坍塌到一层. 从而幂集将不再有宇宙等级的区分, 使其更接近于传统意义上的幂集.
+
 ## 序理论
+
+佐恩引理的表述需要序理论的基本概念. 我们将在本节中对这些概念进行简要的回顾. 给定类型 `U` 及其上的二元关系 `R`.
 
 ```agda
 module Order {U : Type u} (R : Rel U U r) where
 ```
 
-偏序
+### 偏序
+
+如果 `R` 取值到命题, 并且满足自反, 反对称和传递性, 则称 `R` 是偏序 (partial order).
 
 ```agda
   isPo : Type _
-  isPo = isPropValued R × isRefl R × isAntisym R × isTrans R
-
-  isPoset : Type _
-  isPoset = isSet U × isPo
+  isPo = isPropValued R ∧ isRefl R ∧ isAntisym R ∧ isTrans R
 ```
 
-无界
+如果 `R` 是偏序且 `U` 是集合, 则称 `U` 为偏序集.
+
+```agda
+  isPoset : Type _
+  isPoset = isSet U ∧ isPo
+```
+
+### 无界
+
+我们又用中缀符号 `≤` 表示 `R` 关系.
 
 ```agda
   private _≤_ = R
-
-  unbound : Type _
-  unbound = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y)
 ```
 
-后继的
+我们说 `U` 在 `R` 关系下是无界的, 当且仅当对于任意 `x : U` 都存在 `y : U` 严格大于 `x`.
+
+```agda
+  unbound : Type _
+  unbound = ∀ x → Σ[ y ∈ U ] x ≤ y ∧ ¬ x ≡ y
+```
+
+我们说 `U` 在 `R` 关系下是后继的, 当且仅当它是无界的, 且见证无界的那个 `y` 刚好比 `x` 大, 也就是说它们之间没有其他元素.
 
 ```agda
   successive : Type _
-  successive = ∀ x → Σ[ y ∈ _ ] x ≤ y × (¬ x ≡ y) × ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
+  successive = ∀ x → Σ[ y ∈ U ] x ≤ y ∧ (¬ x ≡ y) ∧ ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 ```
 
-考虑 `U` 的子集 `𝒫 U ℓ`
+### 链
 
-链
+现在, 考虑 `U` 的子集 `A`, 如果其中的任意两个元素都可以比较大小, 我们就说 `A` 是链, 也叫 `U` 的全序子集.
 
 ```agda
   isChain : 𝒫 U ℓ → Type _
   isChain A = ∀ x y → x ∈ A → y ∈ A → x ≤ y ∨ y ≤ x
 ```
 
-"某某是链"是命题
+注意 `∨` 是和类型 `⊎` 的命题截断, 从而保证了"某某是链"是一个命题. 后面要用到这一性质.
 
 ```agda
   isPropIsChain : isProp (isChain A)
   isPropIsChain = isPropΠ2 λ _ _ → isPropΠ2 λ _ _ → squash₁
 ```
 
-上界
-
-```agda
-  upperBound : 𝒫 U ℓ → U → Type _
-  upperBound A ub = ∀ x → x ∈ A → x ≤ ub
-```
-
-所有链都有上界
-
-```agda
-  allChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
-```
-
-最大元
+### 最大元
 
 ```agda
   maximum : U → Type _
   maximum m = ∀ x → m ≤ x → m ≡ x
 ```
 
-上确界
+### 上界
+
+给定 `A` 和 `ub : U`, 如果 `ub` 比 `A` 的任意元素都要大, 则称 `ub` 是 `A` 的上界. 注意上界不一定在 `A` 中.
+
+```agda
+  upperBound : 𝒫 U ℓ → U → Type _
+  upperBound A ub = ∀ x → x ∈ A → x ≤ ub
+```
+
+由以上定义, "所有链都有上界"可以表述如下.
+
+```agda
+  allChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
+```
+
+### 上确界
+
+给定 `A` 和 `sup : U`, 如果 `sup` 是 `A` 的上界, 且对于任意上界 `ub`, `sup` 都小于等于 `ub`, 则称 `sup` 是 `A` 的上确界. 注意上确界不一定在 `A` 中.
 
 ```agda
   supremum : 𝒫 U ℓ → U → Type _
-  supremum A sup = upperBound A sup × ∀ ub → upperBound A ub → sup ≤ ub
+  supremum A sup = upperBound A sup ∧ ∀ ub → upperBound A ub → sup ≤ ub
 ```
 
-所有链都有上确界
+由以上定义, "所有链都有上确界"可以表述如下.
 
 ```agda
   allChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
 ```
 
-给定偏序集 (`U`, `≤`), 如果 `U` 中的所有链都有上界, 那么 (`U`, `≤`) 中存在一个最大元.
+### 佐恩引理的表述
+
+佐恩引理是说, 对任意偏序集 `U`, 如果 `U` 中的所有链都有上界, 那么 `U` 中存在一个最大元.
 
 ```agda
   Zorn = isPoset → allChainHasUb → ∃[ m ∈ U ] maximum m
@@ -137,7 +169,7 @@ module Order {U : Type u} (R : Rel U U r) where
 
 ## 链的链
 
-给定偏序 (`U`, `≤`)
+给定偏序 `≤`.
 
 ```agda
 module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
@@ -183,7 +215,7 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 ```agda
   sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
-  sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst × a ∈ A) , squash₁) ,
+  sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst ∧ a ∈ A) , squash₁) ,
     λ x y x∈ y∈ → rec2 squash₁
       (λ{ (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
         (λ{ (⊎.inl a⪯b) → b .snd x y (a⪯b x∈a) y∈b
