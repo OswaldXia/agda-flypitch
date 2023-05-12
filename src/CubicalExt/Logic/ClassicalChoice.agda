@@ -24,7 +24,7 @@ acRel = AC→ACRel ac
 surjectionHasRightInverse : SurjectionHasRightInverse ℓ ℓ'
 surjectionHasRightInverse Aset Bset sur = acRel Bset Aset (λ _ _ → Bset _ _) sur
 
-em : EM ℓ
-em = diaconescu (λ _ _ → it) surjectionHasRightInverse
-
--- TODO : zorn
+instance
+  em : EM ℓ
+  em = diaconescu (λ _ _ → it) surjectionHasRightInverse
+open import CubicalExt.Logic.Classical ⦃ em ⦄ public

@@ -24,16 +24,17 @@ open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism using (Iso)
-open import Cubical.Data.Empty as ⊥ using (⊥)
+open import Cubical.Data.Empty as ⊥ using (⊥; isProp⊥)
 open import Cubical.Data.Sigma renaming (_×_ to infixr 3 _×_)
 import Cubical.Data.Sum as ⊎
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec; rec2; map)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; rec2; map)
 open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 open import Cubical.Relation.Binary
 open BinaryRelation
 ```
 
 ```agda
+open import CubicalExt.Axiom.Choice
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset* hiding (U)
 open import CubicalExt.Foundations.Function using (_∘_; _$_; it)
@@ -61,23 +62,6 @@ module Order {U : Type u} (R : Rel U U r) where
 
   isPoset : Type _
   isPoset = isSet U × isPo
-```
-
-预序
-
-```agda
-  isPro : Type _
-  isPro = isPropValued R × isRefl R × isTrans R
-
-  isProset : Type _
-  isProset = isSet U × isPro
-```
-
-偏序是预序
-
-```agda
-  isPo→isPro : isPo → isPro
-  isPo→isPro (isProp , isRefl , isAntisym , isTrans) = (isProp , isRefl , isTrans)
 ```
 
 无界
@@ -129,7 +113,7 @@ module Order {U : Type u} (R : Rel U U r) where
 
 ```agda
   maximum : U → Type _
-  maximum m = ∀ x → m ≤ x → x ≡ m
+  maximum m = ∀ x → m ≤ x → m ≡ x
 ```
 
 上确界
@@ -373,12 +357,29 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 ## 证明
 
 ```agda
-module PartialOrder ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
-  open import CubicalExt.Logic.Classical
+module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') {U : Type u} {_≤_ : Rel U U r} where
+  open import CubicalExt.Logic.ClassicalChoice ac
   open Order _≤_
 
+  noMaximum→unbound : isPoset → ¬ (∃[ m ∈ U ] maximum m) → unbound
+  noMaximum→unbound ≤-poset noMax = {! H₁  !} where
+    --ac Uset (λ x → isSetΣ Uset (λ _ → {!   !})) H₁ where
+    Uset = ≤-poset .fst
+    ≤-po = ≤-poset .snd .fst
+    instance
+      ≤-prop : ∀ {x y} → isPropImplicit (x ≤ y)
+      ≤-prop = ≤-po _ _ _ _
+      ≡-prop : ∀ {x y} → isPropImplicit (x ≡ y)
+      ≡-prop = Uset _ _ _ _
+    H₀ : ∀ x → ∃[ x' ∈ U ] ¬ (x ≤ x' → x ≡ x')
+    H₀ x = ¬∀→∃¬ λ H → noMax ∣ x , H ∣₁
+    H₁ : ∀ x → ∃[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x')
+    H₁ x = rec squash₁ (λ { (x' , H) → ∣ x' , ¬→→∧ (x ≤ x') (x ≡ x') H ∣₁ }) (H₀ x)
+
   zorn : Zorn
-  zorn ≤-poset hasUb = byContra λ noMax → Contra.false ⪯-po ⪯-allChainHasSup $
-    ⪯-successvie ≤-poset hasUb {!   !}
+  zorn ≤-poset hasUb = byContra λ noMax →
+    --rec isProp⊥
+    --(Contra.false ⪯-po ⪯-allChainHasSup ∘ ⪯-successvie ≤-poset hasUb)
+    Contra.false ⪯-po ⪯-allChainHasSup $ ⪯-successvie ≤-poset hasUb (noMaximum→unbound {!   !} noMax) --(noMaximum→unbound ≤-poset noMax)
     where open Chain _≤_
 ```
