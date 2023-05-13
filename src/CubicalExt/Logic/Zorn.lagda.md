@@ -23,7 +23,7 @@ zhihu-tags: Agda, 数理逻辑
 module CubicalExt.Logic.Zorn where
 ```
 
-首先, 我们需要导入 Cubical 标准库模块. 同伦类型论 (乃至其立方类型论实现) 以其对"相等"这一基础概念的复杂诠释而广为人知. 在某些情况下 (如单集的定义中), 我们将使用立方类型论的 `Id` 类型, 因其可以便捷地进行模式匹配. 然而, 在大部分情况下, 我们更倾向于使用路径 `Path` 类型. 本文在很大程度上依赖于 **命题截断 (propositional truncation)** 这一概念, 因此需要读者能对此有较为深入的理解.
+首先, 我们需要导入 Cubical 标准库模块. 同伦类型论 (乃至其立方类型论实现) 以其对"相等"这一基础概念的复杂诠释而广为人知. 在某些情况下 (如单集的定义中), 我们将使用立方类型论的 `Id` 类型, 因其可以便捷地进行模式匹配. 然而, 在大部分情况下, 我们更倾向于使用路径 `Path` 类型.
 
 ```agda
 open import Cubical.Core.Id using (reflId)
@@ -38,6 +38,8 @@ open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 open import Cubical.Relation.Binary
 open BinaryRelation
 ```
+
+本文在很大程度上依赖于 **命题截断 (propositional truncation)** 这一概念, 因此需要读者能对此有较为深入的理解. 我们 TODO
 
 以下是我们按照标准库风格额外编写的前置模块. 这些模块主要涉及经典逻辑和集合论的基本概念. 我们预设读者对这些概念有深入的理解, 因此不会再逐一进行解释.
 
@@ -92,7 +94,7 @@ module Order {U : Type u} (R : Rel U U r) where
   private _≤_ = R
 ```
 
-我们说 `U` 在 `R` 关系下是无界的, 当且仅当对于任意 `x : U` 都存在 `y : U` 严格大于 `x`.
+我们说 `U` 在 `R` 关系下是无界的, 当且仅当从任意 `x : U` 都能得到一个 `y : U` 严格大于 `x`.
 
 ```agda
   unbound : Type _
@@ -105,6 +107,17 @@ module Order {U : Type u} (R : Rel U U r) where
   successive : Type _
   successive = ∀ x → Σ[ y ∈ U ] x ≤ y ∧ (¬ x ≡ y) ∧ ∀ z → x ≤ z → z ≤ y → z ≡ x ∨ z ≡ y
 ```
+
+### 最大元
+
+对任意大于等于 `m` 的元素, 如果它其实都等于 `m`, 那么称 `m` 是 `U` 的最大元.
+
+```agda
+  maximum : U → Type _
+  maximum m = ∀ x → m ≤ x → m ≡ x
+```
+
+注意无界与存在最大元是不相容的.
 
 ### 链
 
@@ -122,13 +135,6 @@ module Order {U : Type u} (R : Rel U U r) where
   isPropIsChain = isPropΠ2 λ _ _ → isPropΠ2 λ _ _ → squash₁
 ```
 
-### 最大元
-
-```agda
-  maximum : U → Type _
-  maximum m = ∀ x → m ≤ x → m ≡ x
-```
-
 ### 上界
 
 给定 `A` 和 `ub : U`, 如果 `ub` 比 `A` 的任意元素都要大, 则称 `ub` 是 `A` 的上界. 注意上界不一定在 `A` 中.
@@ -138,7 +144,7 @@ module Order {U : Type u} (R : Rel U U r) where
   upperBound A ub = ∀ x → x ∈ A → x ≤ ub
 ```
 
-由以上定义, "所有链都有上界"可以表述如下.
+由以上定义, "所有链都可以找到上界"表述如下.
 
 ```agda
   allChainHasUb = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ ub ∈ U ] upperBound A ub
@@ -146,14 +152,14 @@ module Order {U : Type u} (R : Rel U U r) where
 
 ### 上确界
 
-给定 `A` 和 `sup : U`, 如果 `sup` 是 `A` 的上界, 且对于任意上界 `ub`, `sup` 都小于等于 `ub`, 则称 `sup` 是 `A` 的上确界. 注意上确界不一定在 `A` 中.
+给定 `A` 和 `sup : U`, 如果 `sup` 是 `A` 的最小上界, 则称 `sup` 是 `A` 的上确界. 注意上确界也不一定在 `A` 中.
 
 ```agda
   supremum : 𝒫 U ℓ → U → Type _
   supremum A sup = upperBound A sup ∧ ∀ ub → upperBound A ub → sup ≤ ub
 ```
 
-由以上定义, "所有链都有上确界"可以表述如下.
+由以上定义, "所有链都可以找到上确界"表述如下.
 
 ```agda
   allChainHasSup = ∀ {ℓ} (A : 𝒫 U ℓ) → isChain A → Σ[ sup ∈ U ] supremum A sup
@@ -161,11 +167,15 @@ module Order {U : Type u} (R : Rel U U r) where
 
 ### 佐恩引理的表述
 
-佐恩引理是说, 对任意偏序集 `U`, 如果 `U` 中的所有链都有上界, 那么 `U` 中存在一个最大元.
+经过以上的概念铺垫, 我们现在可以正式阐述佐恩引理. 佐恩引理是说: 对任意偏序集 `U`, 如果 `U` 中所有的链都能**找到**上界, 那么 `U` 中**存在**一个最大元.
 
 ```agda
   Zorn = isPoset → allChainHasUb → ∃[ m ∈ U ] maximum m
 ```
+
+需要注意的是, 我们仅将 `Σ` 的命题截断 `∃` 称为"*存在*", 而对于 `Σ`, 我们会用诸如"*找到*", "*取到*", "*得到*"等表述. 我们尽量避免使用"*有*"这种模糊的说法.
+
+当然, 佐恩引理的表述可以进一步强化为"对任意偏序集 `U`, 如果 `U` 中所有的链都**存在**上确界, 那么 `U` 中**存在**一个最大元". 只需要用命题截断的 `rec`, 就可以证明前者蕴含后者. 然而, 我们习惯避免在前提中使用截断, 等到需要时再用 `rec` 得到截断版本.
 
 ## 链的链
 
