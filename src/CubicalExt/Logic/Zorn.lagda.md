@@ -177,11 +177,11 @@ module Order {U : Type u} (R : Rel U U r) where
 
 当然, 佐恩引理的表述可以进一步强化为"对任意偏序集 `U`, 如果 `U` 中所有的链都**存在**上确界, 那么 `U` 中**存在**一个最大元". 只需要用命题截断的 `rec`, 就可以证明前者蕴含后者. 然而, 我们习惯避免在前提中使用截断, 等到需要时再用 `rec` 得到截断版本.
 
-佐恩引理的证明中反直觉的地方是我们并非直接考虑链本身, 而是考虑由所有链构成的集合中的链, 也就是说, 我们考虑链集的全序子集.
+佐恩引理的证明思路中反直觉的地方是我们并非直接考虑链本身, 而是考虑由所有链构成的集合在包含关系下构成的链.
 
-## 链的链
+## 链集的链
 
-给定偏序 `≤`.
+现在, 假设排中律, 并给定偏序 `≤`.
 
 ```agda
 module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) where
@@ -189,20 +189,30 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
   open module ≤ = Order _≤_
 ```
 
-链的链
+我们把 `U` 的子集 `A` 配备上链条件所得到的类型 `Chain` 叫做链集.
 
 ```agda
-  Chain = Σ[ S ∈ 𝒫 U ℓ-zero ] ≤.isChain S
+  Chain : Type _
+  Chain = Σ[ A ∈ 𝒫 U ℓ-zero ] ≤.isChain A
+```
+
+可以证明 `Chain` 是集合.
+
+```agda
+  _ : isSet Chain
+  _ = isSetΣ (isSetΠ λ _ → isSetHProp) λ _ → isProp→isSet isPropIsChain
 ```
 
 ### 偏序
 
-链的链上的偏序
+定义链集上的二元关系 `⪯` 为链之间的包含关系.
 
 ```agda
   _⪯_ : Rel Chain Chain u
   a ⪯ b = a .fst ⊆ b .fst
 ```
+
+由于集合的包含关系是偏序, 所以 `⪯` 也是偏序.
 
 ```agda
   ⪯-prop : isPropValued _⪯_
@@ -223,29 +233,52 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
   ⪯-po = ⪯-prop , ⪯-refl , ⪯-antisym , ⪯-trans
 ```
 
+现在我们有了两个偏序, 一个是 `U` 上的 `≤`, 一个是链集上的 `⪯`. 为避免混淆, 接下来我们会对相关概念加上 `≤` 或 `⪯` 前缀, 来指明该概念所涉及的偏序.
+
 ### 上确界
+
+现在考虑链集的链. 注意, 尽管链集中的每个元素都是 ≤-链, 但这里我们说的是由链集中的元素组成的 ⪯-链.
+
+对任意 ⪯-链 `A`, 我们可以找到其上确界, 只需取 `A` 中所有 ≤-链的并. 也就是说, 并作为一个集合, 其中的任意 `x`, 都需要存在一条 ≤-链 `a₁` 容纳它, 且 `a₁` 作为链集的一个元素 `a`, 必须在 `A` 中. 需要注意的是, `Chain` 的定义仅接受 `U` 的位于最低宇宙的子集, 为了使我们这里定义的并确实具有 `Chain` 类型, 需要将上述并 `Resize` 到最低宇宙. 由于我们假设了排中律, 这是可以做到的. 关于具体的方法, 读者可以点击代码中的 `Resize` 查看其定义.
 
 ```agda
   sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
-  sup A isChainA = Resize ∘ (λ x → (∃[ a ∈ Chain ] x ∈ a .fst ∧ a ∈ A) , squash₁) ,
+  sup A isChainA = Resize ∘ (λ x → (∃[ a@(a₁ , _ ) ∈ Chain ] x ∈ a₁ ∧ a ∈ A) , squash₁) ,
+```
+
+为了保证并具有 `Chain` 类型, 我们还需要说明它是一个 ≤-链. 根据定义, 并中的任意元素都在某个 ≤-链中, 且该 ≤-链又在 `A` 中. 由于 `A` 是 ⪯-链, 并中的任意两个元素都可以找到一个共同的 ≤-链容纳它, 因此它们可以比较大小, 这也就说明了并同样是 ≤-链.
+
+```agda
     λ x y x∈ y∈ → rec2 squash₁
       (λ{ (a , x∈a , a∈A) (b , y∈b , b∈A) → rec squash₁
         (λ{ (⊎.inl a⪯b) → b .snd x y (a⪯b x∈a) y∈b
           ; (⊎.inr b⪯a) → a .snd x y x∈a (b⪯a y∈b) })
         (isChainA a b a∈A b∈A)})
       (unresize x∈) (unresize y∈)
+```
 
+下面的代码证明上面说的并确实是上确界. 由集合论知识, 集族的并显然是 ⊆-序的上确界. 这里不再赘述.
+
+```agda
   suphood : (A : 𝒫 Chain ℓ) (isChainA : ⪯.isChain A) → ⪯.supremum A (sup A isChainA)
   suphood A isChainA = (λ { a a∈A x∈a₁ → resize ∣ a , x∈a₁ , a∈A ∣₁ }) ,
     λ ub ubhood x∈sup → rec (∈-isProp (ub .fst) _)
       (λ{ (a , x∈a₁ , a∈A) → ubhood a a∈A x∈a₁ })
       (unresize x∈sup)
+```
 
+至此, 我们证明了链集中的任意链都能找到上确界.
+
+```
   ⪯-allChainHasSup : ⪯.allChainHasSup
   ⪯-allChainHasSup A isChainA = sup A isChainA , suphood A isChainA
 ```
 
 ### 后继性
+
+接下来我们将证明一个关键的引理. 它的前两个前提与佐恩引理相同, 第三个前提则是对佐恩引理结论的否定, 我们将在最后一节使用选择公理来证明这一点. 最后, 我们将采用反证法来证明佐恩引理, 只需将下面引理的结论 "链集是 ⪯-后继的" 与上一小节所证明的事实结合起来找到矛盾即可.
+
+
 
 ```agda
   ⪯-successvie : ≤.isPoset → ≤.allChainHasUb → ≤.unbound → ⪯.successive
