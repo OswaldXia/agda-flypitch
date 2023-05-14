@@ -339,12 +339,14 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
       subst (ub' ∈_) (sym eq) $ resize $ inr reflId
 ```
 
-最后, 我们要说明 `a` 与 `a'` 之间没有其他元素. 假设有这样的元素 `b`, 我们说明 `b` 要么等于 `a`, 要么等于 `a'`. 将 `b` 分解为 `U` 的子集 `B` 以及它是 ≤-链的证据 `isChainB`. 现在, 用排中律讨论 `ub'` 是否在 `B` 中.
+最后, 我们要说明 `a` 与 `a'` 之间没有其他元素. 给定 `b` 在 `a` 与 `a'` 之间, 我们说明 `b` 要么等于 `a`, 要么等于 `a'`. 将 `b` 分解为 `U` 的子集 `B` 以及它是 ≤-链的证据 `isChainB`. 现在, 用排中律讨论 `ub'` 是否在 `B` 中.
 
 ```agda
     noMid : ∀ b → a ⪯ b → b ⪯ a' → b ≡ a ∨ b ≡ a'
     noMid b@(B , isChainB) A⊆B B⊆A' with em ⦃ ∈-isProp B ub' _ _ ⦄
 ```
+
+- 若 `ub' ∈ B`, 我们证 `b ≡ a'`, 只需证 `B ≡ A'`, 至于它们的 `isChain` 证据, 由于是命题, 必然相等. 我们用 `⊆` 的反自反性证明 `B ≡ A'`. 已知 `B ⊆ A'` 是前提, 只需证 `A' ⊆ B`. `A'` 中的元素要么是 `A` 中的元素, 要么是 `ub'`, 而 `A ⊆ B`, `ub' ∈ B`, 所以 `A' ⊆ B`.
 
 ```agda
     ... | yes ub'∈B = inr $ ΣPathP $ ⊆-antisym B A' B⊆A' A'⊆B , toPathP (≤.isPropIsChain _ isChainA')
@@ -354,6 +356,8 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
                 ; (⊎.inr reflId) → ub'∈B })
               (unresize x∈A')
 ```
+
+- 若 `ub' ∉ B`, 我们证 `b ≡ a`, 只需证 `B ≡ A`. 同样用 `⊆` 的反自反性, 已知 `A ⊆ B` 是前提, 只需证 `B ⊆ A`. 由于 `B ⊆ A'`, `A'` 只比 `A` 多了一个元素 `ub'`, 而 `ub' ∉ B`, 所以 `B ⊆ A`.
 
 ```agda
     ... | no  ub'∉B = inl $ ΣPathP $ ⊆-antisym B A B⊆A A⊆B , toPathP (≤.isPropIsChain _ isChainA)
