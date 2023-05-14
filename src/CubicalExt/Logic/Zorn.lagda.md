@@ -305,7 +305,7 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
     ub≢       = unbnd ub .snd. snd
 ```
 
-现在, 取 `A` 中元素与 `ub` 所组成的集合, 命名为 `A'`, 并 `Resize` 到最低宇宙.
+现在, 取 `A` 中元素与 `ub` 所组成的集合, 记作 `A ⨭ ub`, 命名为 `A'`, 并 `Resize` 到最低宇宙. 注意, 这里的 `⨭` 运算要求全集 `U` 是集合.
 
 ```agda
     open SetBased Uset using (_⨭_)
@@ -368,53 +368,91 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
               (unresize (B⊆A' x∈B))
 ```
 
+至此, 我们证明了某个序在一定条件下同时满足 "任意链都能取上确界" 与 "任意元素都取后继". 我们将证明, 这实际上是矛盾的.
+
 ## 构造矛盾
+
+假设排中律, 给定偏序 `≤`, 假设其下任意链都能取上确界, 且任意元素都取后继.
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   (≤-po : Order.isPo _≤_) (hasSup : Order.allChainHasSup _≤_) (hasSuc : Order.successive _≤_) where
   open import CubicalExt.Logic.Classical
   open Order _≤_
+```
 
+由前提, `≤` 取值到命题, 自反, 反对称且传递.
+
+```agda
   private
     ≤-prop    = ≤-po .fst
     ≤-refl    = ≤-po .snd .fst
     ≤-antisym = ≤-po .snd .snd .fst
     ≤-trans   = ≤-po .snd .snd .snd
-    variable
-      x y : U
     instance
-      ≤-propImplicit : isPropImplicit (x ≤ y)
+      ≤-propImplicit : {x y : U} → isPropImplicit (x ≤ y)
       ≤-propImplicit = ≤-prop _ _ _ _
+```
 
+以下构造在集合论中用序数上的超限递归实现, 在类型论中我们用归纳类型实现. 我们将定义 `U` 的一个谓词, 命名为 `Tower`. 我们会把它截断为 `U` 的子集, 命名为 `TowerSetℓ`, 然后再 `Resize` 到最低宇宙, 命名为 `TowerSet`.
+
+```agda
   data Tower : U → Type (ℓ-max (ℓ-suc ℓ-zero) (ℓ-max u r))
   TowerSetℓ : 𝒫 U _
   TowerSetℓ x = ∥ Tower x ∥ₚ
   TowerSet : 𝒫 U ℓ-zero
   TowerSet = Resize ∘ TowerSetℓ
+```
 
+现在归纳定义谓词 `Tower`:
+- 对任意 `x` 满足 `Tower`, `x` 的后继也满足 `Tower`.
+- 对任意 `U` 的子集 `A`, 如果它包含于 `TowerSetℓ`, 且是链, 那么它的上确界也满足 `Tower`.
+
+```agda
   data Tower where
     includeSuc : (x : U) → Tower x → Tower (hasSuc x .fst)
     includeSup : (A : 𝒫 U ℓ-zero) → (A ⊆ TowerSetℓ) → (isChainA : isChain A) →
       Tower (hasSup A isChainA .fst)
+```
 
+注意 `TowerSetℓ` 在 `Tower` 定义完成之前就被使用了. Agda 允许这种写法, 只要满足一定条件, 这里不展开.
+
+接下来, 我们将证明任意两个满足 `Tower` 的元素都可以比较大小, 命名为 `isChainTower`. 一旦其证明完成, 就可以立即证明 `TowerSetℓ` 是链, 乃至 `TowerSet` 是链.
+
+```agda
   isChainTower : ∀ x y → Tower x → Tower y → x ≤ y ∨ y ≤ x
   isChainTowerSetℓ : isChain TowerSetℓ
   isChainTowerSetℓ x y = rec2 squash₁ (isChainTower x y)
   isChainTowerSet : isChain TowerSet
   isChainTowerSet x y x∈ y∈ = isChainTowerSetℓ x y (unresize x∈) (unresize y∈)
+```
 
-  isChainTower' : ∀ x y → Tower x → y ∈ TowerSetℓ → x ≤ y ∨ y ≤ x
-  isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
-  isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
+该命题的证明需要复杂的递归, 为了使结构更清晰, 我们写成互递归 (mutual recursion).
 
+我们先证明结论的一个弱化版, 作为中间引理, 命名为 `almostChain`, 其证明会递归调用 `isChainTower`. 随后, 我们完成 `isChainTower` 的证明, 其中会递归调用 `almostChain`. Agda 会保证循环论证不会通过.
+
+现在, 给定满足 `Tower` 条件的 `y`. 将 `y` 的后继记作 `y'`.
+
+```agda
   module _ y (y∈ : Tower y) where
     private y' = hasSuc y .fst
+```
+
+`almostChain` 是说任意满足 `Tower` 条件的 `x` 要么小于等于 `y` 要么大于等于 `y'`.
+
+```agda
     almostChain : ∀ x → Tower x → x ≤ y ∨ y' ≤ x
+```
+
+
+
+```agda
     almostChain' : ∀ x → x ∈ TowerSetℓ → x ≤ y ∨ y' ≤ x
     almostChain' x ∣ x∈ ∣₁ = almostChain x x∈
     almostChain' x (squash₁ x∈₁ x∈₂ i) = squash₁ (almostChain' x x∈₁) (almostChain' x x∈₂) i
+```
 
+```agda
     almostChain x' (includeSuc x x∈) with isChainTower x' y (includeSuc x x∈) y∈
     ... | IH = rec2 squash₁
       (λ{ (⊎.inl x≤y) (⊎.inl x'≤y) → inl x'≤y
@@ -426,7 +464,9 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
       (almostChain x x∈) IH where
       x≤x'  = hasSuc x .snd .fst
       noMid = hasSuc x .snd .snd .snd
+```
 
+```agda
     almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
     ... | yes p = inl $ hasSup A isChainA .snd .snd y p
     ... | no ¬p = inr $ rec (≤-prop _ _)
@@ -435,12 +475,22 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
           (∨-elimʳ (≤-prop _ _) (almostChain' z (A⊆ z∈A)) ¬z≤y)
           (hasSup A isChainA .snd .fst z z∈A) })
       (¬∀→∃¬ ¬p)
+```
 
+```agda
+  isChainTower' : ∀ x y → Tower x → y ∈ TowerSetℓ → x ≤ y ∨ y ≤ x
+  isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
+  isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
+```
+
+```agda
   isChainTower x y' x∈ (includeSuc y y∈) = rec squash₁
     (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
       ; (⊎.inr y'≤x) → inr y'≤x })
     (almostChain y y∈ x x∈) where y≤y' = hasSuc y .snd .fst
+```
 
+```agda
   isChainTower x y x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
   ... | yes p = inr $ hasSup A isChainA .snd .snd x p
   ... | no ¬p = inl $ rec (≤-prop _ _)
@@ -449,7 +499,9 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
         (∨-elimˡ (≤-prop _ _) (isChainTower' x z x∈ (A⊆ z∈A)) ¬z≤x)
         (hasSup A isChainA .snd .fst z z∈A) })
     (¬∀→∃¬ ¬p)
+```
 
+```agda
   Σsup = hasSup TowerSet isChainTowerSet
   sup = Σsup .fst
   ubhood = Σsup .snd .fst
@@ -484,9 +536,9 @@ module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') {U : Type u} {_≤_ : Rel U U r} 
     Uset = ≤-poset .fst
     ≤-prop = ≤-poset .snd .fst
     instance
-      ≤-propImplicit : ∀ {x y} → isPropImplicit (x ≤ y)
+      ≤-propImplicit : {x y : U} → isPropImplicit (x ≤ y)
       ≤-propImplicit = ≤-prop _ _ _ _
-      ≡-propImplicit : ∀ {x y} → isPropImplicit (x ≡ y)
+      ≡-propImplicit : {x y : U} → isPropImplicit (x ≡ y)
       ≡-propImplicit = Uset _ _ _ _
     H₀ : ∀ x → ∃[ x' ∈ U ] ¬ (x ≤ x' → x ≡ x')
     H₀ x = ¬∀→∃¬ λ H → noMax ∣ x , H ∣₁
