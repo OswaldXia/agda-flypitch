@@ -239,7 +239,9 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 现在考虑链集的链. 注意, 尽管链集中的每个元素都是 ≤-链, 但这里我们说的是由链集中的元素组成的 ⪯-链.
 
-对任意 ⪯-链 `A`, 我们可以找到其上确界, 只需取 `A` 中所有 ≤-链的并. 也就是说, 并作为一个集合, 其中的任意 `x`, 都需要存在一条 ≤-链 `a₁` 容纳它, 且 `a₁` 作为链集的一个元素 `a`, 必须在 `A` 中. 需要注意的是, `Chain` 的定义仅接受 `U` 的位于最低宇宙的子集, 为了使我们这里定义的并确实具有 `Chain` 类型, 需要将上述并 `Resize` 到最低宇宙. 由于我们假设了排中律, 这是可以做到的. 关于具体的方法, 读者可以点击代码中的 `Resize` 查看其定义.
+对任意 ⪯-链 `A`, 我们可以找到其上确界, 只需取 `A` 中所有 ≤-链的并. 也就是说, 并作为一个集合, 其中的任意 `x`, 都需要存在一条 ≤-链 `a₁` 容纳它, 且 `a₁` 作为链集的一个元素 `a`, 必须在 `A` 中.
+
+需要注意的是, `Chain` 的定义仅接受 `U` 的位于最低宇宙的子集, 为了使我们这里定义的并确实具有 `Chain` 类型, 需要将上述并 `Resize` 到最低宇宙. 由于我们假设了排中律, 这是可以做到的. 关于具体的方法, 读者可以点击代码中的 `Resize` 查看其定义.
 
 ```agda
   sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
@@ -276,27 +278,43 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 ### 后继性
 
-接下来我们将证明一个关键的引理. 它的前两个前提与佐恩引理相同, 第三个前提则是对佐恩引理结论的否定, 我们将在最后一节使用选择公理来证明这一点. 最后, 我们将采用反证法来证明佐恩引理, 只需将下面引理的结论 "链集是 ⪯-后继的" 与上一小节所证明的事实结合起来找到矛盾即可.
+接下来我们将证明一个关键的引理. 它的前两个前提与佐恩引理相同, 第三个前提则是对佐恩引理结论的否定, 我们将在最后一节使用选择公理来证明这一点. 最后, 我们将采用反证法来证明佐恩引理, 只需将下面引理的结论与上一小节所证明的事实结合起来找到矛盾即可.
 
-
+先回到该引理的证明, 要找到给定的 `a : Chain` 的后继. 具体地, 有五个子目标: 给出后继 `a'`; 说明它小于等于 `a`; 说明它不等于 `a`; 说明 `a` 与 `a'` 之间没有其他元素.
 
 ```agda
   ⪯-successvie : ≤.isPoset → ≤.allChainHasUb → ≤.unbound → ⪯.successive
   ⪯-successvie (Uset , ≤-po) hasUb unbnd a@(A , isChainA) = a' , resize ∘ inl , a≢a' , noMid where
+```
 
+由前提, `≤` 自反, 反对称且传递.
+
+```agda
     ≤-refl    = ≤-po .snd .fst
     ≤-antisym = ≤-po .snd .snd .fst
     ≤-trans   = ≤-po .snd .snd .snd
+```
 
+将 `a` 分解为 `U` 的子集 `A` 以及它是 ≤-链的证据 `isChainA`. 由于 `A` 是 ≤-链, 由前提, 它有上界 `ub`. 又 `U` ≤-无界, 所以有比 `ub` 更大的 `ub'`.
+
+```agda
     ub        = hasUb A isChainA .fst
     ubhood    = hasUb A isChainA .snd
     ub'       = unbnd ub .fst
     ub≤       = unbnd ub .snd .fst
     ub≢       = unbnd ub .snd. snd
+```
 
+现在, 取 `A` 中元素与 `ub` 所组成的集合, 命名为 `A'`, 并 `Resize` 到最低宇宙.
+
+```agda
     open SetBased Uset using (_⨭_)
     A' = Resize ∘ (A ⨭ ub')
+```
 
+由于 `ub'` 比 `A` 中元素都大, 所以把它加进 `A` 后可以与 `A` 中所有元素比出大小, 所以 `A'` 也是 ≤-链.
+
+```agda
     isChainA' : ≤.isChain A'
     isChainA' x y x∈ y∈ = rec2 squash₁
       (λ{ (⊎.inl x∈A)    (⊎.inl y∈A)    → isChainA x y x∈A y∈A
@@ -304,21 +322,40 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
         ; (⊎.inr reflId) (⊎.inl y∈A)    → inr $ ≤-trans y ub x (ubhood y y∈A) ub≤
         ; (⊎.inr reflId) (⊎.inr reflId) → inl $ ≤-refl x })
       (unresize x∈) (unresize y∈)
+```
 
+`A'` 配备上它是 ≤-链的证据 `isChainA'` 得到 `a' : Chain`. 我们宣称 `a'` 就是所需后继. 显然 `A ⊆ A'`, 所以 `a ⪯ a'`.
+
+```agda
     a' = A' , isChainA'
+```
+
+由于 `ub'` 比 `A` 中所有元素都大, 所以它不在 `A` 中, 所以 `A` 与 `A'` 不同, 这就说明了 `a` 与 `a'` 不同.
+
+```agda
     a≢a' : ¬ a ≡ a'
     a≢a' eq = let eq = PathPΣ eq .fst in
       ub≢ $ ≤-antisym ub ub' ub≤ $ ubhood ub' $
       subst (ub' ∈_) (sym eq) $ resize $ inr reflId
+```
 
+最后, 我们要说明 `a` 与 `a'` 之间没有其他元素. 假设有这样的元素 `b`, 我们说明 `b` 要么等于 `a`, 要么等于 `a'`. 将 `b` 分解为 `U` 的子集 `B` 以及它是 ≤-链的证据 `isChainB`. 现在, 用排中律讨论 `ub'` 是否在 `B` 中.
+
+```agda
     noMid : ∀ b → a ⪯ b → b ⪯ a' → b ≡ a ∨ b ≡ a'
     noMid b@(B , isChainB) A⊆B B⊆A' with em ⦃ ∈-isProp B ub' _ _ ⦄
+```
+
+```agda
     ... | yes ub'∈B = inr $ ΣPathP $ ⊆-antisym B A' B⊆A' A'⊆B , toPathP (≤.isPropIsChain _ isChainA')
       where A'⊆B : A' ⊆ B
             A'⊆B x∈A' = rec (∈-isProp B _)
               (λ{ (⊎.inl x∈A)    → A⊆B x∈A
                 ; (⊎.inr reflId) → ub'∈B })
               (unresize x∈A')
+```
+
+```agda
     ... | no  ub'∉B = inl $ ΣPathP $ ⊆-antisym B A B⊆A A⊆B , toPathP (≤.isPropIsChain _ isChainA)
       where B⊆A : B ⊆ A
             B⊆A x∈B = rec (∈-isProp A _)
