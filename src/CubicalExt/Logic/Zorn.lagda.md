@@ -173,7 +173,7 @@ module Order {U : Type u} (R : Rel U U r) where
   Zorn = isPoset → allChainHasUb → ∃[ m ∈ U ] maximum m
 ```
 
-需要注意的是, 我们仅将 `Σ` 的命题截断 `∃` 称为*存在*, 而对于 `Σ`, 我们会用诸如*找到*, *取到*, *得到*等表述. 我们尽量避免使用 *有* 这种模糊的说法.
+需要注意的是, 我们仅将 `Σ` 的命题截断 `∃` 称为*存在*, 而对于 `Σ`, 我们会用诸如*找到*, *取到*, *得到*等表述. "存在"不一定能"取到", 但能"取到"则一定"存在". 我们尽量避免使用 *有* 这种模糊的说法.
 
 当然, 佐恩引理的表述可以进一步强化为"对任意偏序集 `U`, 如果 `U` 中所有的链都**存在**上确界, 那么 `U` 中**存在**一个最大元". 只需要用命题截断的 `rec`, 就可以证明前者蕴含后者. 然而, 我们习惯避免在前提中使用截断, 等到需要时再用 `rec` 得到截断版本.
 
@@ -372,7 +372,7 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 ## 构造矛盾
 
-假设排中律, 给定偏序 `≤`, 假设其下任意链都能取上确界, 且任意元素都取后继.
+假设排中律, 给定偏序 `≤`, 假设其任意链都能取上确界, 且任意元素都取后继.
 
 ```agda
 module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
@@ -394,7 +394,7 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
       ≤-propImplicit = ≤-prop _ _ _ _
 ```
 
-以下构造在集合论中用序数上的超限递归实现, 在类型论中我们用归纳类型实现. 我们将定义 `U` 的一个谓词, 命名为 `Tower`. 我们会把它截断为 `U` 的子集, 命名为 `TowerSetℓ`, 然后再 `Resize` 到最低宇宙, 命名为 `TowerSet`.
+记下来的构造在集合论中一般用序数上的超限递归实现, 在类型论中我们用归纳类型. 我们将定义 `U` 的一个谓词, 命名为 `Tower`. 我们会把它截断为 `U` 的子集, 命名为 `TowerSetℓ`, 然后再 `Resize` 到最低宇宙, 命名为 `TowerSet`.
 
 ```agda
   data Tower : U → Type (ℓ-max (ℓ-suc ℓ-zero) (ℓ-max u r))
@@ -405,6 +405,7 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 ```
 
 现在归纳定义谓词 `Tower`:
+
 - 对任意 `x` 满足 `Tower`, `x` 的后继也满足 `Tower`.
 - 对任意 `U` 的子集 `A`, 如果它包含于 `TowerSetℓ`, 且是链, 那么它的上确界也满足 `Tower`.
 
@@ -444,7 +445,7 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     almostChain : ∀ x → Tower x → x ≤ y ∨ y' ≤ x
 ```
 
-
+这里又需要一个互递归命题 `almostChain'`: 任意属于 `TowerSetℓ` 的 `x` 要么小于等于 `y` 要么大于等于 `y'`. 它会在后面 `almostChain` 的证明里调用, 但是我们先调用 `almostChain` 来证明它. 这个证明通过对高阶归纳类型 (HIT) 进行模式匹配完成, 具体的技术细节这里不展开.
 
 ```agda
     almostChain' : ∀ x → x ∈ TowerSetℓ → x ≤ y ∨ y' ≤ x
@@ -452,23 +453,54 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     almostChain' x (squash₁ x∈₁ x∈₂ i) = squash₁ (almostChain' x x∈₁) (almostChain' x x∈₂) i
 ```
 
+回到 `almostChain` 的证明. 由 `Tower` 的定义, 前提归纳为两种情况.
+
+- `x` (这里重命名为 `x'`) 其实是某个满足 `Tower` 的 `x` 的后继. 这种情况下我们递归调用 `isChainTower` 讨论 `x'` 与 `y` 的大小, 再递归调用 `almostChain` 讨论 `x` 与 `y` 的大小, 分三种情况.
+
 ```agda
     almostChain x' (includeSuc x x∈) with isChainTower x' y (includeSuc x x∈) y∈
     ... | IH = rec2 squash₁
+```
+
+  - `x ≤ y` 且 `x' ≤ y`. 取目标的左边即证.
+
+```agda
       (λ{ (⊎.inl x≤y) (⊎.inl x'≤y) → inl x'≤y
+```
+
+  - `x ≤ y` 且 `y ≤ x'`. 由于 `x'` 是 `x` 的后继, 它们之间的 `y` 要么等于 `x`, 这时目标的右边 `x ≤ x'` 成立; 要么 `y` 等于 `x'`, 这时目标的左边 `x ≤ x'` 成立.
+
+```agda
         ; (⊎.inl x≤y) (⊎.inr y≤x') → rec squash₁
           (λ{ (⊎.inl y≡x)  → inr $ subst (λ x → _ ≤ hasSuc x .fst) y≡x (≤-refl _)
             ; (⊎.inr y≡x') → inl $ subst (λ x → _ ≤ x) (sym y≡x') (≤-refl _) })
           (noMid y x≤y y≤x')
+```
+
+  - `y' ≤ x`. 这时由传递性有 `y' ≤ x'`, 即目标右边.
+
+```agda
         ; (⊎.inr y'≤x) _ → inr $ ≤-trans y' x x' y'≤x x≤x' })
       (almostChain x x∈) IH where
       x≤x'  = hasSuc x .snd .fst
       noMid = hasSuc x .snd .snd .snd
 ```
 
+- `x` 其实是 `TowerSetℓ` 的子集: 链 `A` 的上确界. 我们用排中律讨论 `y` 是不是 `A` 的上界.
+
 ```agda
     almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
+```
+
+  - `y` 是 `A` 的上界, 那么有 `x ≤ y`, 目标左边成立.
+
+```agda
     ... | yes p = inl $ hasSup A isChainA .snd .snd y p
+```
+
+  - `y` 不是 `A` 的上界, 那么有 `y` 与 `A` 的上确界 `x` 之间存在 (这里也用了排中律) 一个元素 `z` 满足 `y < z` 且 `z ≤ x`. 由传递性, `y' ≤ x`, 即目标右边成立. 注意这里需要调用 `almostChain'` 以使用 "`A` 是 `TowerSetℓ` 的子集" 这一前提.
+
+```agda
     ... | no ¬p = inr $ rec (≤-prop _ _)
       (λ{ (z , ¬ub) → let (z∈A , ¬z≤y) = ¬→→∧ (z ∈ A) ⦃ ∈-isProp _ _ _ _ ⦄ (z ≤ y) ¬ub in
         ≤-trans y' z x
@@ -477,18 +509,36 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
       (¬∀→∃¬ ¬p)
 ```
 
+至此 `almostChain` 证毕. 与 `almostChain'` 类似地, 我们模式匹配高阶归纳类型先证明了 `isChainTower'`.
+
 ```agda
   isChainTower' : ∀ x y → Tower x → y ∈ TowerSetℓ → x ≤ y ∨ y ≤ x
   isChainTower' x y x∈ ∣ y∈ ∣₁ = isChainTower x y x∈ y∈
   isChainTower' x y x∈ (squash₁ y∈₁ y∈₂ i) = squash₁ (isChainTower' x y x∈ y∈₁) (isChainTower' x y x∈ y∈₂) i
 ```
 
+回到 `isChainTower` 的证明. 由 `Tower` 的定义, 前提归纳为两种情况.
+
+- `y` (这里重命名为 `y'`) 其实是某个满足 `Tower` 的 `y` 的后继. 这种情况下我们递归调用 `almostChain`. 分两种情况.
+
 ```agda
   isChainTower x y' x∈ (includeSuc y y∈) = rec squash₁
+```
+
+  - `x ≤ y`. 由传递性, `x ≤ y'`, 即目标的左边成立.
+
+```agda
     (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
+```
+
+  - `y' ≤ x`. 目标的右边成立.
+
+```agda
       ; (⊎.inr y'≤x) → inr y'≤x })
     (almostChain y y∈ x x∈) where y≤y' = hasSuc y .snd .fst
 ```
+
+- `y` 其实是 `TowerSetℓ` 的子集: 链 `A` 的上确界. 这种情况与 `almostChain` 的相应情况相当类似, 只不过变量名字换了一下.
 
 ```agda
   isChainTower x y x∈ (includeSup A A⊆ isChainA) with em {P = upperBound A x}
