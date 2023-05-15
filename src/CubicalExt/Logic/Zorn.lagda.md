@@ -462,13 +462,15 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     ... | IH = rec2 squash₁
 ```
 
-  - `x ≤ y` 且 `x' ≤ y`. 取目标的左边即证.
+- 
+  + `x ≤ y` 且 `x' ≤ y`. 取目标的左边即证.
 
 ```agda
       (λ{ (⊎.inl x≤y) (⊎.inl x'≤y) → inl x'≤y
 ```
 
-  - `x ≤ y` 且 `y ≤ x'`. 由于 `x'` 是 `x` 的后继, 它们之间的 `y` 要么等于 `x`, 这时目标的右边 `x ≤ x'` 成立; 要么 `y` 等于 `x'`, 这时目标的左边 `x ≤ x'` 成立.
+- 
+  + `x ≤ y` 且 `y ≤ x'`. 由于 `x'` 是 `x` 的后继, 它们之间的 `y` 要么等于 `x`, 这时目标的右边 `x ≤ x'` 成立; 要么 `y` 等于 `x'`, 这时目标的左边 `x ≤ x'` 成立.
 
 ```agda
         ; (⊎.inl x≤y) (⊎.inr y≤x') → rec squash₁
@@ -477,7 +479,8 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
           (noMid y x≤y y≤x')
 ```
 
-  - `y' ≤ x`. 这时由传递性有 `y' ≤ x'`, 即目标右边.
+- 
+  + `y' ≤ x`. 这时由传递性有 `y' ≤ x'`, 即目标右边.
 
 ```agda
         ; (⊎.inr y'≤x) _ → inr $ ≤-trans y' x x' y'≤x x≤x' })
@@ -492,13 +495,15 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     almostChain x (includeSup A A⊆ isChainA) with em {P = upperBound A y}
 ```
 
-  - `y` 是 `A` 的上界, 那么有 `x ≤ y`, 目标左边成立.
+- 
+  + `y` 是 `A` 的上界, 那么有 `x ≤ y`, 目标左边成立.
 
 ```agda
     ... | yes p = inl $ hasSup A isChainA .snd .snd y p
 ```
 
-  - `y` 不是 `A` 的上界, 那么有 `y` 与 `A` 的上确界 `x` 之间存在 (这里也用了排中律) 一个元素 `z` 满足 `y < z` 且 `z ≤ x`. 由传递性, `y' ≤ x`, 即目标右边成立. 注意这里需要调用 `almostChain'` 以使用 "`A` 是 `TowerSetℓ` 的子集" 这一前提.
+- 
+  + `y` 不是 `A` 的上界, 那么有 `y` 与 `A` 的上确界 `x` 之间存在 (这里也用了排中律) 一个元素 `z` 满足 `y < z` 且 `z ≤ x`. 由传递性, `y' ≤ x`, 即目标右边成立. 注意这里需要调用 `almostChain'` 以使用 "`A` 是 `TowerSetℓ` 的子集" 这一前提.
 
 ```agda
     ... | no ¬p = inr $ rec (≤-prop _ _)
@@ -525,13 +530,15 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   isChainTower x y' x∈ (includeSuc y y∈) = rec squash₁
 ```
 
-  - `x ≤ y`. 由传递性, `x ≤ y'`, 即目标的左边成立.
+- 
+  + `x ≤ y`. 由传递性, `x ≤ y'`, 即目标的左边成立.
 
 ```agda
     (λ{ (⊎.inl x≤y)  → inl (≤-trans x y y' x≤y y≤y')
 ```
 
-  - `y' ≤ x`. 目标的右边成立.
+- 
+  + `y' ≤ x`. 目标的右边成立.
 
 ```agda
       ; (⊎.inr y'≤x) → inr y'≤x })
