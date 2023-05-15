@@ -12,7 +12,7 @@ zhihu-tags: Agda, 数理逻辑
 
 ## 前言
 
-佐恩引理是经典数学中最基础的定理之一. 然而, 作为直觉主义数学的前沿之一, 同伦类型论 (HoTT) 在经典领域的扩展并未获得太多研究关注. 本文旨在填补这一空白, 我们将在同伦类型论的框架下展示对佐恩引理这一经典定理的证明. 尽管本文的内容可以被视为 Agda 代码的注释, 我们仍然力求使其内容对于不熟悉 Agda 语言的读者也能理解其中的主要思路, 但前提是读者需要了解同伦类型论的基本概念.
+佐恩引理是经典数学中最基础的定理之一. 然而, 作为直觉主义数学的前沿之一, 同伦类型论 (HoTT) 在经典领域的扩展并未获得太多研究关注. 本文旨在填补这一空白, 我们将在同伦类型论的框架下展示对佐恩引理这一经典定理的证明. 尽管本文的内容可以被视为 Agda 代码的注释, 我们仍然力求使其内容对于不熟悉 Agda 语言的读者也能理解其中的主要思路, 但前提是读者需要了解同伦类型论的基本概念. 例如我们会涉及到 **命题截断 (propositional truncation)** 和 **命题宇宙调整** (propositional resizing) 等概念, 需要读者对它们有一些基本了解.
 
 我们工作在无公理的 cubical 环境中, 而选择公理将作为参数引入. 这里说的 cubical 指立方类型论 (cubical type theory), 它是同伦类型论的一种实现.
 
@@ -38,8 +38,6 @@ open import Cubical.Relation.Nullary using (¬_; Dec; yes; no)
 open import Cubical.Relation.Binary
 open BinaryRelation
 ```
-
-本文在很大程度上依赖于 **命题截断 (propositional truncation)** 这一概念, 因此需要读者能对此有较为深入的理解. 我们 TODO
 
 以下是我们按照标准库风格额外编写的前置模块. 这些模块主要涉及经典逻辑和集合论的基本概念. 我们预设读者对这些概念有深入的理解, 因此不会再逐一进行解释.
 
@@ -239,16 +237,20 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
 
 现在考虑链集的链. 注意, 尽管链集中的每个元素都是 ≤-链, 但这里我们说的是由链集中的元素组成的 ⪯-链.
 
-对任意 ⪯-链 `A`, 我们可以找到其上确界, 只需取 `A` 中所有 ≤-链的并. 也就是说, 并作为一个集合, 其中的任意 `x`, 都需要存在一条 ≤-链 `a₁` 容纳它, 且 `a₁` 作为链集的一个元素 `a`, 必须在 `A` 中.
+对任意 ⪯-链 `A`, 我们可以找到其上确界, 只需取 `A` 中所有 ≤-链的"并". 也就是说, 并作为一个集合, 其中的任意 `x`, 都需要存在一条 ≤-链 `a₁` 容纳它, 且 `a₁` 作为链集的一个元素 `a`, 必须在 `A` 中.
 
-需要注意的是, `Chain` 的定义仅接受 `U` 的位于最低宇宙的子集, 为了使我们这里定义的并确实具有 `Chain` 类型, 需要将上述并 `Resize` 到最低宇宙. 由于我们假设了排中律, 这是可以做到的. 关于具体的方法, 读者可以点击代码中的 `Resize` 查看其定义.
+需要注意的是, `Chain` 的定义仅接受 `U` 的位于最低宇宙的子集, 为了使我们这里定义的并确实具有 `Chain` 类型, 需要将上述"并"**调整** (`Resize`) 到最低宇宙. 由于我们假设了排中律, 这是可以做到的. 关于具体的方法, 读者可以点击代码中的 `Resize` 查看其定义.
+
+关于**命题宇宙调整** (propositional resizing), 以下摘自 GPT4:
+
+> 在类型论中，propositional resizing 是一个复杂的概念，涉及到如何处理命题的“大小”。这主要在同伦类型论（Homotopy Type Theory, HoTT）中出现。在类型论中，我们可以把命题看作类型，证明看作这些类型的元素。但是，不同的命题可能对应不同"大小"的类型。例如，存在性命题可能需要一个大的类型（比如，所有的自然数），而其他命题可能只需要一个小的类型（比如，真或假）。propositional resizing 就是允许我们在不改变命题的逻辑含义的情况下，改变它所对应的类型的大小。具体来说，如果我们有一个命题 P 对应的类型在一个大的类型中，而我们希望在一个小的类型中使用它，那么我们就可以使用 propositional resizing 来“缩小”它。在实际应用中，propositional resizing 能够帮助我们更灵活地处理命题和证明，特别是在处理那些涉及到无穷集合的问题时。
 
 ```agda
   sup : (A : 𝒫 Chain ℓ) → ⪯.isChain A → Chain
   sup A isChainA = Resize ∘ (λ x → (∃[ a@(a₁ , _ ) ∈ Chain ] x ∈ a₁ ∧ a ∈ A) , squash₁) ,
 ```
 
-为了保证并具有 `Chain` 类型, 我们还需要说明它是一个 ≤-链. 根据定义, 并中的任意元素都在某个 ≤-链中, 且该 ≤-链又在 `A` 中. 由于 `A` 是 ⪯-链, 并中的任意两个元素都可以找到一个共同的 ≤-链容纳它, 因此它们可以比较大小, 这也就说明了并同样是 ≤-链.
+为了保证"并"具有 `Chain` 类型, 我们还需要说明它是一个 ≤-链. 根据定义, "并"中的任意元素都在某个 ≤-链中, 且该 ≤-链又在 `A` 中. 由于 `A` 是 ⪯-链, "并"中的任意两个元素都可以找到一个共同的 ≤-链容纳它, 因此它们可以比较大小, 这也就说明了"并"同样是 ≤-链.
 
 ```agda
     λ x y x∈ y∈ → rec2 squash₁
@@ -259,7 +261,7 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
       (unresize x∈) (unresize y∈)
 ```
 
-下面的代码证明上面说的并确实是上确界. 由集合论知识, 集族的并显然是 ⊆-序的上确界. 这里不再赘述.
+下面的代码证明上面说的"并"确实是上确界. 由集合论知识, 集族的并显然是 ⊆-序的上确界. 这里不再赘述.
 
 ```agda
   suphood : (A : 𝒫 Chain ℓ) (isChainA : ⪯.isChain A) → ⪯.supremum A (sup A isChainA)
@@ -305,7 +307,7 @@ module Chain ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} (_≤_ : Rel U U r) 
     ub≢       = unbnd ub .snd. snd
 ```
 
-现在, 取 `A` 中元素与 `ub` 所组成的集合, 记作 `A ⨭ ub`, 命名为 `A'`, 并 `Resize` 到最低宇宙. 注意, 这里的 `⨭` 运算要求全集 `U` 是集合.
+现在, 取 `A` 中元素与 `ub` 所组成的集合, 记作 `A ⨭ ub`, 命名为 `A'`, 并调整到最低宇宙. 注意, 这里的 `⨭` 运算要求全集 `U` 是集合.
 
 ```agda
     open SetBased Uset using (_⨭_)
@@ -394,7 +396,9 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
       ≤-propImplicit = ≤-prop _ _ _ _
 ```
 
-记下来的构造在集合论中一般用序数上的超限递归实现, 在类型论中我们用归纳类型. 我们将定义 `U` 的一个谓词, 命名为 `Tower`. 我们会把它截断为 `U` 的子集, 命名为 `TowerSetℓ`, 然后再 `Resize` 到最低宇宙, 命名为 `TowerSet`.
+### 归纳构造"塔"
+
+接下来的构造在集合论中一般用序数上的超限递归实现, 在类型论中我们用归纳类型. 我们将定义 `U` 的一个谓词, 命名为 `Tower`. 我们会把它截断为 `U` 的子集, 命名为 `TowerSetℓ`, 然后再调整到最低宇宙, 命名为 `TowerSet`.
 
 ```agda
   data Tower : U → Type (ℓ-max (ℓ-suc ℓ-zero) (ℓ-max u r))
@@ -417,6 +421,8 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
 ```
 
 注意 `TowerSetℓ` 在 `Tower` 定义完成之前就被使用了. Agda 允许这种写法, 只要满足一定条件, 这里不展开.
+
+### "塔"也是链
 
 接下来, 我们将证明任意两个满足 `Tower` 的元素都可以比较大小, 命名为 `isChainTower`. 一旦其证明完成, 就可以立即证明 `TowerSetℓ` 是链, 乃至 `TowerSet` 是链.
 
@@ -526,6 +532,10 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
     (¬∀→∃¬ ¬p)
 ```
 
+### 矛盾
+
+证明了 `TowerSet` 是链之后, 构造矛盾就非常简单了. 由前提, `TowerSet` 可以取到上确界 `sup`, 且 `sup` 可以取到后继 `suc`.
+
 ```agda
   Σsup = hasSup TowerSet isChainTowerSet
   sup = Σsup .fst
@@ -535,43 +545,86 @@ module Contra ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {U : Type u} {_≤_ : Rel U U r}
   suc = Σsuc .fst
   sup≤suc = Σsuc .snd .fst
   sup≢suc = Σsuc .snd .snd .fst
-
-  sup∈Tower : Tower sup
-  sup∈Tower = includeSup TowerSet unresize isChainTowerSet
-
-  suc∈TowerSet : suc ∈ TowerSet
-  suc∈TowerSet = resize $ map (includeSuc sup) ∣ sup∈Tower ∣₁
-
-  suc≤sup : suc ≤ sup
-  suc≤sup = ubhood suc suc∈TowerSet
-
-  false : ⊥
-  false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup
 ```
 
-## 证明
+按 `Tower` 的定义, `sup` 也满足它. 这里命题宇宙调整 (propositional resizing) 起了关键作用.
+
+```agda
+  sup∈Tower : Tower sup
+  sup∈Tower = includeSup TowerSet unresize isChainTowerSet
+```
+
+这样, 按 `TowerSet` 的定义, `suc` 也在 `TowerSet` 里.
+
+```agda
+  suc∈TowerSet : suc ∈ TowerSet
+  suc∈TowerSet = resize $ map (includeSuc sup) ∣ sup∈Tower ∣₁
+```
+
+但是 `suc` 是 `sup` 的后继, 与 `sup` 是 `TowerSet` 的上确界矛盾.
+
+```agda
+  false : ⊥
+  false = sup≢suc $ ≤-antisym _ _ sup≤suc suc≤sup where
+    suc≤sup : suc ≤ sup
+    suc≤sup = ubhood suc suc∈TowerSet
+```
+
+## 选择公理
+
+我们将假设如下形式的选择公理:
+
+> 非空集合的笛卡尔积非空
+
+在同伦类型论中表述为 (省略隐参) :
+
+`((x : A) → ∥ B x ∥₁) → ∥ (x : A) → B x ∥₁`
+
+其中 `A` 和每个 `B x` 都是集合.
+
+## 佐恩引理的证明
+
+假设选择公理, 给定 `U` 上的二元关系 `≤`.
 
 ```agda
 module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') {U : Type u} {_≤_ : Rel U U r} where
   open import CubicalExt.Logic.ClassicalChoice ac
   open Order _≤_
+```
 
+假设 `U` 是偏序集, 且不存在最大元, 我们证明 "`U` 无界" 的命题截断 `∥ unbound ∥₁` 成立. 不难发现, 目标具有适用于选择公理的形式. 选择公理要求 `U` 是集合, 且 `U` 配备上无界条件也是集合, 这些显然成立. 现在只需证对任意 `x` **存在** `y` 严格大于它.
+
+```agda
   noMaximum→unbound : isPoset → ¬ (∃[ m ∈ U ] maximum m) → ∥ unbound ∥₁
   noMaximum→unbound ≤-poset noMax = ac Uset Σset H where
     Uset = ≤-poset .fst
     ≤-prop = ≤-poset .snd .fst
+    Σset : ∀ x → isSet (Σ[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x'))
+    Σset = λ _ → isSetΣ Uset λ _ → isProp→isSet $ isPropΣ (≤-prop _ _) λ _ → isPropΠ λ _ → isProp⊥
+```
+
+注意 `≤` 和 `U` 上的 `≡` 都是命题. 这说明接下来证明涉及这些关系的目标时使用排中律是合法的.
+
+```agda
     instance
       ≤-propImplicit : {x y : U} → isPropImplicit (x ≤ y)
       ≤-propImplicit = ≤-prop _ _ _ _
       ≡-propImplicit : {x y : U} → isPropImplicit (x ≡ y)
       ≡-propImplicit = Uset _ _ _ _
+```
+
+不存在最大元说明对任意 `x` 存在 `x'` 满足 `¬ (x ≤ x' → x ≡ x')`. 用排中律将这部分转化成 `x ≤ x' ∧ ¬ x ≡ x'` 就证明了 `x'` 严格大于 `x`.
+
+```agda
     H₀ : ∀ x → ∃[ x' ∈ U ] ¬ (x ≤ x' → x ≡ x')
     H₀ x = ¬∀→∃¬ λ H → noMax ∣ x , H ∣₁
     H : ∀ x → ∃[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x')
     H x = rec squash₁ (λ { (x' , H) → ∣ x' , ¬→→∧ (x ≤ x') (x ≡ x') H ∣₁ }) (H₀ x)
-    Σset : ∀ x → isSet (Σ[ x' ∈ U ] (x ≤ x' ∧ ¬ x ≡ x'))
-    Σset = λ _ → isSetΣ Uset λ _ → isProp→isSet $ isPropΣ (≤-prop _ _) λ _ → isPropΠ λ _ → isProp⊥
+```
 
+最后佐恩引理的证明就非常简单了. 用反证法, 假设 `U` 没有最大元, 由上一条引理有 `∥ unbound ∥₁`. 这时只需 `rec` 到 `⊥`, 所以可以去掉截断, 拿到完整的 `unbound`. 这正好是 `⪯-successvie` 的前提, 于是我们可以证明链集的任意链都能取上界且链集是后继的. 由"塔"的构造我们知道这是矛盾的.
+
+```agda
   zorn : Zorn
   zorn ≤-poset hasUb = byContra λ noMax → rec isProp⊥
     (Contra.false ⪯-po ⪯-allChainHasSup ∘ ⪯-successvie ≤-poset hasUb)
