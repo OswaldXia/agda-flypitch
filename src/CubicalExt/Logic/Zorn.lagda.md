@@ -1,6 +1,7 @@
 ---
 title: Agda佐恩引理
 zhihu-tags: Agda, 数理逻辑
+zhihu-url: https://zhuanlan.zhihu.com/p/629641633
 ---
 
 # Agda佐恩引理
