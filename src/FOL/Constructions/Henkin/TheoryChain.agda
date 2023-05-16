@@ -23,7 +23,7 @@ open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; rec)
 
 open import StdlibExt.Data.Nat hiding (_/_)
 open import Function using (_$_)
-open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp; _∪_; ⋃_; _⟦_⟧; replacement-syntax)
+open import CubicalExt.Foundations.Powerset* using (_∈_; ∈-isProp; _∪_; ⋃ᵢ_; _⟦_⟧; replacement-syntax)
 
 theoryStep : Theory ℒ → Theory $ languageStep ℒ
 theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Formula ℒ 1 ｝
@@ -38,7 +38,7 @@ theoryStep {ℒ} Γ = theoryMorph Γ ∪ ｛ witnessStatement φ ∣ φ ∈ Form
   where open LHom.OnBounded (languageCanonicalMorph n)
 
 ∞-theory : Theory ℒ → Theory $ ∞-language ℒ
-∞-theory T = ⋃ (λ n → [ n ]→∞-theory T)
+∞-theory T = ⋃ᵢ (λ n → [ n ]→∞-theory T)
 
 module _ {ℒ : Language} where
   open import Tools.DirectedDiagram using (Cocone)
