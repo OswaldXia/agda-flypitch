@@ -6,6 +6,7 @@ import FOL.Bounded.Syntactics as Bounded
 import FOL.PropertiesOfTheory as Theory
 module FOL.Constructions.Completion {T : Bounded.Theory ℒ} (ConT : Theory.Con ℒ T) where
 
+open import FOL.Bounded.Base ℒ
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.PropertiesOfTheory.Base ℒ
 
@@ -14,8 +15,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Functions.Logic using (inl; inr)
-open import Cubical.Data.Sigma using (∃-syntax; ΣPathP) renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec)
+open import Cubical.Data.Sigma using (∃-syntax; ΣPathP; PathPΣ) renaming (_×_ to infixr 3 _×_)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec)
 open import Cubical.Relation.Binary
 open BinaryRelation
 
@@ -23,6 +24,9 @@ open import CubicalExt.Axiom.Choice
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset*
 open import CubicalExt.Logic.Zorn
+
+open import FOL.Bounded.Lemmas.Sethood ℒ
+open SetBased isSetSentence using (_⨭_)
 
 private variable
   ℓ ℓ' : Level
@@ -56,7 +60,7 @@ _⪯_ e₁ e₂ = e₁ .fst ⊆ e₂ .fst
 
 open Order _⪯_
 
-module UB ⦃ em : ∀ {ℓ} → EM ℓ ⦄ (A : 𝒫 Extension ℓ) (isChainA : isChain A) where
+module UB ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {A : 𝒫 Extension ℓ} (isChainA : isChain A) where
   open import CubicalExt.Logic.Classical
 
   ub : Theory
@@ -71,7 +75,25 @@ module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') where
   hasUb : allChainHasUb
   hasUb A isChainA = (ub , ConUb , inl) , λ e e∈A x∈e₁ →
     inr $ resize ∣ e .fst , x∈e₁ , ∣ e , e∈A , reflId ∣₁ ∣₁
-    where open UB A isChainA
+    where open UB isChainA
 
-  existsMaximalExtension : ∃[ emax ∈ Extension ] ∀ (e : Extension) → emax ⪯ e → emax ≡ e
+  maximalExtension = Σ[ max ∈ Extension ] maximum max
+
+  maximalExtensionMaximal : (((S , _) , _) : maximalExtension) → maximal S
+  maximalExtensionMaximal (E@(S , (_ , T⊆S)) , maximum) φ con⨭ = φ∈S where
+    E' : Extension
+    E' = S ⨭ φ , con⨭ , inl ∘ T⊆S
+    E≡E' = maximum E' inl
+    S≡S' = PathPΣ E≡E' .fst
+    φ∈S = subst (_ ∈_) (sym S≡S') (inr reflId)
+
+  maximalExtensionComplete : (((S , _) , _) : maximalExtension) → complete S
+  maximalExtensionComplete = {!   !}
+
+  existsMaximalExtension : ∥ maximalExtension ∥₁
   existsMaximalExtension = zorn ac ⪯-poset hasUb
+
+  existsCompleteExtension : ∃[ S ∈ Theory ] complete S
+  existsCompleteExtension = rec squash₁
+    (λ { m@((S , _) , _) → ∣ S , maximalExtensionComplete m ∣₁ })
+    existsMaximalExtension

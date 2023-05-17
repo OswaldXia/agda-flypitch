@@ -99,3 +99,6 @@ discreteFormula (∀' φ₁) (∀' φ₂) with discreteFormula φ₁ φ₂
 
 isSetFormula : isSet (Formulaₗ n l)
 isSetFormula = DiscreteEq→isSet discreteFormula
+
+isSetSentence : isSet Sentence
+isSetSentence = isSetFormula

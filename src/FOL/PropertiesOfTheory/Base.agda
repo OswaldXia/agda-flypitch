@@ -14,12 +14,15 @@ open Structure using (nonempty)
 
 open import Cubical.Foundations.Prelude hiding (~_)
 open import Cubical.Foundations.HLevels using (isPropΠ; isPropΣ)
-open import CubicalExt.Foundations.Powerset* using (_∈_)
+open import CubicalExt.Foundations.Powerset*
 open import CubicalExt.Functions.Logic using (_∨_)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; squash₁)
 open import Cubical.Relation.Nullary using (¬_; isProp¬)
 open import Function using (_$_)
+
+open import FOL.Bounded.Lemmas.Sethood ℒ
+open SetBased isSetSentence using (_⨭_)
 
 -- 理论的一致性
 
@@ -34,6 +37,11 @@ isPropCon = isProp¬ _
 
 isProp¬Con : ∀ {T} → isProp (¬Con T)
 isProp¬Con = squash₁
+
+-- 理论的极大性
+
+maximal : Theory → Type (ℓ-suc u)
+maximal T = ∀ φ → Con (T ⨭ φ) → φ ∈ T
 
 -- 理论的完全性
 
