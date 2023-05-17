@@ -3,7 +3,7 @@
 module CubicalExt.Functions.Logic where
 
 open import Cubical.Foundations.Prelude hiding (_∨_; _∧_; ~_)
-open import Cubical.Foundations.HLevels using (hProp)
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ)
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Functions.Logic hiding (⊤; ⊥; ¬_)
   renaming (_⊔′_ to infixr 3 _∨_; _⊓′_ to infixr 3 _∧_) public
@@ -33,3 +33,13 @@ private variable
 
 ¬∨-demorgen : ¬ (A ∨ B) → (¬ A) ∧ (¬ B)
 ¬∨-demorgen ¬∨ = ¬∨ ∘ inl , ¬∨ ∘ inr
+
+¬∧¬-demorgen : (¬ A) ∧ (¬ B) → ¬ (A ∨ B)
+¬∧¬-demorgen (¬a , ¬b) = rec ⊥.isProp⊥
+  (λ { (⊎.inl a) → ¬a a
+     ; (⊎.inr b) → ¬b b })
+
+¬∨¬-demorgen : (¬ A) ∨ (¬ B) → ¬ (A ∧ B)
+¬∨¬-demorgen = rec (isPropΠ (λ _ → ⊥.isProp⊥))
+  λ { (⊎.inl ¬a) (a , b) → ¬a a
+    ; (⊎.inr ¬b) (a , b) → ¬b b }

@@ -17,6 +17,7 @@ open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude hiding (~_; _∨_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_; _$_)
+import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma using (∃-syntax; ΣPathP; PathPΣ) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; rec2)
 open import Cubical.Relation.Nullary using (Dec; yes; no)
@@ -35,8 +36,8 @@ open SetBased isSetSentence using (_⨭_)
 private variable
   ℓ ℓ' : Level
 
-extensible : ∀ φ → Con (T ⨭ φ) ∨ Con (T ⨭ ~ φ)
-extensible φ = byContra λ ¬∨ → let (H₁ , H₂) = ¬∨-demorgen ¬∨ in ConT $ rec2 squash₁
+extensible : ∀ S φ → Con S → Con (S ⨭ φ) ∨ Con (S ⨭ ~ φ)
+extensible S φ ConS = byContra λ ¬∨ → let (H₁ , H₂) = ¬∨-demorgen ¬∨ in ConS $ rec2 squash₁
   (λ T⨭φ⊢⊥ T⨭~φ⊢⊥ → ∣ ⇒-elim (⇒-intro $ bound⊢ T⨭φ⊢⊥) (⊥-elim $ bound⊢ T⨭~φ⊢⊥) ∣₁)
   (byContra H₁) (byContra H₂)
 
@@ -93,12 +94,10 @@ maximalExtensionMaximal (E@(S , (_ , T⊆S)) , maximum) φ con⨭ = φ∈S where
   φ∈S = subst (_ ∈_) (sym S≡S') (inr reflId)
 
 maximalExtensionComplete : (((S , _) , _) : maximalExtension) → complete S
-maximalExtensionComplete m@((S , _) , _) φ with em ⦃ ∈-isProp S φ _ _ ⦄
-... | yes φ∈S = inl φ∈S
-... | no  φ∉S = inr $ byContra ⦃ ∈-isProp S (~ φ) _ _ ⦄ λ ~φ∉S →
-  {!   !}
-  --φ∉S $ maximalExtensionMaximal m φ λ S⨭φ⊢⊥ → ~φ∉S {!   !}
-  --⇒-intro $ bound⊢ S⨭φ⊢⊥
+maximalExtensionComplete m@((S , (ConS , _)) , _) φ = rec squash₁
+  (λ { (⊎.inl ConS⨭φ)  → inl $ maximalExtensionMaximal m φ     ConS⨭φ
+     ; (⊎.inr ConS⨭~φ) → inr $ maximalExtensionMaximal m (~ φ) ConS⨭~φ })
+  (extensible S φ ConS)
 
 existsMaximalExtension : ∥ maximalExtension ∥₁
 existsMaximalExtension = zorn ac ⪯-poset hasUb
