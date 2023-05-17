@@ -8,17 +8,17 @@ import FOL.PropertiesOfTheory as Theory
 module FOL.Constructions.Completion (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ')
   {T : Bounded.Theory ℒ} (ConT : Theory.Con ℒ T) where
 
-open import FOL.Syntactics ℒ using (⇒-intro)
 open import FOL.Bounded.Base ℒ hiding (_∨_)
 open import FOL.Bounded.Syntactics ℒ
 open import FOL.PropertiesOfTheory.Base ℒ
+open import FOL.Syntactics ℒ using (⊥-elim; ⇒-intro; ⇒-elim)
 
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude hiding (~_; _∨_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Data.Sigma using (∃-syntax; ΣPathP; PathPΣ) renaming (_×_ to infixr 3 _×_)
-open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; rec2)
 open import Cubical.Relation.Nullary using (Dec; yes; no)
 open import Cubical.Relation.Binary
 open BinaryRelation
@@ -34,15 +34,11 @@ open SetBased isSetSentence using (_⨭_)
 
 private variable
   ℓ ℓ' : Level
-  S : Theory
-
-instance
-  isPropImplicitCon : isPropImplicit (Con S)
-  isPropImplicitCon = isPropCon _ _
 
 extensible : ∀ φ → Con (T ⨭ φ) ∨ Con (T ⨭ ~ φ)
-extensible φ = byContra λ ¬∨ → let (H₁ , H₂) = ¬∨-demorgen ¬∨ in
-  {! byContra {A = Con (T ⨭ φ)} ⦃ isPropImplicitCon ⦄  !}
+extensible φ = byContra λ ¬∨ → let (H₁ , H₂) = ¬∨-demorgen ¬∨ in ConT $ rec2 squash₁
+  (λ T⨭φ⊢⊥ T⨭~φ⊢⊥ → ∣ ⇒-elim (⇒-intro $ bound⊢ T⨭φ⊢⊥) (⊥-elim $ bound⊢ T⨭~φ⊢⊥) ∣₁)
+  (byContra H₁) (byContra H₂)
 
 Extension : Type _
 Extension = Σ[ S ∈ Theory ] Con S × T ⊆ S
