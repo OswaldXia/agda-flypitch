@@ -32,7 +32,7 @@ module InconsistencyConsequence {v} where
   ¬Con→Completeness T⊢⊥ _ = map exfalso T⊢⊥
 
 Model→Con : Model {v} T → Con T
-Model→Con (ℳ , a , ℳ⊨T) T⊢⊥ = [ ℳ ]⊭⊥ $ soundness ∣ T⊢⊥ ∣₁ ℳ a ℳ⊨T
+Model→Con (ℳ , a , ℳ⊨T) T⊦⊥ = [ ℳ ]⊭⊥ $ soundness T⊦⊥ ℳ a ℳ⊨T
 
 Con→Model : Con T → Model T
 Con→Model {T} con = theModel , modelNonempty , modelComplete con

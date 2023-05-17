@@ -27,7 +27,7 @@ open SetBased isSetSentence using (_⨭_)
 -- 理论的一致性
 
 Con : Theory → Type (ℓ-suc u)
-Con T = ¬ T ⊢ ⊥
+Con T = ¬ T ⊦ ⊥
 
 isPropCon : ∀ {T} → isProp (Con T)
 isPropCon = isProp¬ _

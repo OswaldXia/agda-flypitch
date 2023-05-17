@@ -3,12 +3,12 @@
 open import CubicalExt.Axiom.ExcludedMiddle
 module CubicalExt.Logic.Classical ⦃ em : ∀ {ℓ} → EM ℓ ⦄ where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (_∨_; _∧_)
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Foundations.HLevels using (hProp)
 open import Cubical.Foundations.Isomorphism using (Iso; iso; _Iso⟨_⟩_; _∎Iso; invIso)
 open import Cubical.Foundations.Structure using (⟨_⟩)
-open import CubicalExt.Functions.Logic using (_∧_; ⊤; ⊥)
+open import CubicalExt.Functions.Logic using (_∨_; inl; inr; _∧_; ⊤; ⊥)
 open import CubicalExt.Functions.Logic.Iff using (hPropExt; →:_←:_)
 open import Cubical.Data.Bool using (Bool; true; false)
 open import Cubical.Data.Unit using (tt*)
@@ -84,6 +84,12 @@ module _ (A : Type ℓ) ⦃ Aprop : isPropImplicit A ⦄ (B : Type ℓ') ⦃ Bpr
 
   ¬→→∧ : ¬ (A → B) → A ∧ ¬ B
   ¬→→∧ ¬→ = (byContra λ ¬a → ¬→ λ a → ⊥.rec $ ¬a a) , (λ b → ¬→ λ _ → b)
+
+  ¬∧-demorgen : ¬ (A ∧ B) → (¬ A) ∨ (¬ B)
+  ¬∧-demorgen ¬∧ with em {P = A} | em {P = B}
+  ... | yes a | yes b = ⊥.rec $ ¬∧ (a , b)
+  ... | yes a | no ¬b = inr ¬b
+  ... | no ¬a | _     = inl ¬a
 
 module _ ⦃ Pprop : {x : A} → isPropImplicit (B x) ⦄ where
 

@@ -97,7 +97,7 @@ module _ where
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
 termModelCompleteGuarded ⊥ [] _ =
-  →: rec (isProp-⊨ˢ termModel ⊥) (lift ∘ con)
+  →: rec (isProp-⊨ˢ termModel ⊥) (lift ∘ con ∘ ∣_∣₁)
   ←: λ ()
 termModelCompleteGuarded (rel R) xs _ = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ Pre.realize-appsᵣ-iff [] (rel R) _ ⟩
@@ -129,7 +129,7 @@ termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
       $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
       $ map₁ ∀-elim ⊦)
   ←: (λ ⊨ → byContra λ ¬⊦∀ → rec2 isProp⊥
-    (λ (c , wit) ¬⊢ → rec isProp⊥ (con ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
+    (λ (c , wit) ¬⊢ → rec isProp⊥ (con ∘ ∣_∣₁ ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
       $ from (termModelCompleteGuarded (φ [≔ const c ]) [] guard)
       $ from (⊨[≔]↔ φ (const c)) (⊨ _))
     (enough $ ~ φ) (~-intro ¬⊦∀))
