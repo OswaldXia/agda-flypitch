@@ -79,6 +79,8 @@ module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') where
 
   maximalExtension = Σ[ max ∈ Extension ] maximum max
 
+  --maximalExtension
+
   maximalExtensionMaximal : (((S , _) , _) : maximalExtension) → maximal S
   maximalExtensionMaximal (E@(S , (_ , T⊆S)) , maximum) φ con⨭ = φ∈S where
     E' : Extension
@@ -88,7 +90,8 @@ module _ (ac : ∀ {ℓ ℓ'} → AC ℓ ℓ') where
     φ∈S = subst (_ ∈_) (sym S≡S') (inr reflId)
 
   maximalExtensionComplete : (((S , _) , _) : maximalExtension) → complete S
-  maximalExtensionComplete = {!   !}
+  maximalExtensionComplete ((S , (conS , _)) , _) = {!   !}
+    --with em ⦃ ∈-isProp S φ _ _ ⦄
 
   existsMaximalExtension : ∥ maximalExtension ∥₁
   existsMaximalExtension = zorn ac ⪯-poset hasUb

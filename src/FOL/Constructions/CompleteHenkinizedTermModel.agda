@@ -27,8 +27,10 @@ modelNonempty : Structure.nonempty theModel
 modelNonempty = reductNonempty $ TermModel.nonempty $ ∞-theory-hasEnoughConstants T
 
 modelComplete : Con T → theModel ⊨ᵀ T
-modelComplete con = reduct⊨ᵀ T λ φ φ∈T' → termModelWellDefined φ {!   !}
-  where H₁ : complete (∞-theory T)
-        H₁ = {!   !}
-        H₂ = ∞-theory-hasEnoughConstants T
-        open import FOL.Constructions.TermModel.Properties H₁ H₂
+modelComplete conT = reduct⊨ᵀ T λ φ φ∈T' → termModelWellDefined φ {!   !}
+  where con : Con (∞-theory T)
+        con = {!   !}
+        compl : complete (∞-theory T)
+        compl = {!   !}
+        enough = ∞-theory-hasEnoughConstants T
+        open import FOL.Constructions.TermModel.Properties con compl enough

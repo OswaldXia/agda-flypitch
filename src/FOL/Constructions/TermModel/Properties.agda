@@ -4,9 +4,9 @@
 open import FOL.Language
 open import CubicalExt.Axiom.ExcludedMiddle
 open import FOL.Bounded.Syntactics using (Theory)
-open import FOL.PropertiesOfTheory using (complete; hasEnoughConstants)
+open import FOL.PropertiesOfTheory using (Con; complete; hasEnoughConstants)
 module FOL.Constructions.TermModel.Properties ⦃ em : ∀ {ℓ} → EM ℓ ⦄ {ℒ : Language {u}} {T : Theory ℒ}
-  (H₁ : complete ℒ T) (H₂ : hasEnoughConstants ℒ T) where
+  (con : Con ℒ T) (compl : complete ℒ T) (enough : hasEnoughConstants ℒ T) where
 open import CubicalExt.Logic.Classical using (byContra)
 open Language ℒ
 
@@ -17,7 +17,7 @@ open import FOL.Structure.Base using (Structure)
 open Structure termModel using (Domain; relMap)
 
 open import FOL.PropertiesOfTheory ℒ
-open Complete H₁ using (⇒-intro; ~-intro)
+open Complete compl using (⇒-intro; ~-intro)
 
 module Free where
   open import FOL.Base ℒ public
@@ -97,7 +97,7 @@ module _ where
 termModelCompleteGuarded : (φ : Sentenceₗ l) (xs : Vec ClosedTerm l) →
   count∀ φ < n → T ⊦ appsᵣ φ xs ↔ termModel ⊨ˢ appsᵣ φ xs
 termModelCompleteGuarded ⊥ [] _ =
-  →: rec (isProp-⊨ˢ termModel ⊥) (lift ∘ H₁ .fst)
+  →: rec (isProp-⊨ˢ termModel ⊥) (lift ∘ con)
   ←: λ ()
 termModelCompleteGuarded (rel R) xs _ = hPropExt⁻ $ sym $
   termModel ⊨ˢ appsᵣ (rel R) xs , isProp-⊨ˢ _ _ ≡⟨ hPropExt $ Pre.realize-appsᵣ-iff [] (rel R) _ ⟩
@@ -129,10 +129,10 @@ termModelCompleteGuarded {_} {suc n} (∀' φ) [] H =
       $ substEq (_ Free.⊦_) (symEq (unbound-subst φ t))
       $ map₁ ∀-elim ⊦)
   ←: (λ ⊨ → byContra λ ¬⊦∀ → rec2 isProp⊥
-    (λ (c , wit) ¬⊢ → rec isProp⊥ (fst H₁ ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
+    (λ (c , wit) ¬⊢ → rec isProp⊥ (con ∘ ⇒-elim (⇒-elim wit (~∀→∃~ ¬⊢)))
       $ from (termModelCompleteGuarded (φ [≔ const c ]) [] guard)
       $ from (⊨[≔]↔ φ (const c)) (⊨ _))
-    (H₂ $ ~ φ) (~-intro ¬⊦∀))
+    (enough $ ~ φ) (~-intro ¬⊦∀))
   where guard : ∀ {t} → count∀ (φ [≔ t ]) < n
         guard = substEq (_< n) (symEq (count∀OfSubst _ _)) (<-pred H)
         open OpenedRealizer termModel using (isPropRealize)
@@ -148,4 +148,4 @@ termModelWellDefined φ φ∈T = to (termModelComplete φ []) ∣ axiom φ∈T �
 open Implication (ℓ-suc u) using (_⊨_)
 completeness : (φ : Sentence) → T ⊨ φ → T ⊦ φ
 completeness φ T⊨φ = from (termModelComplete φ []) $
-  T⊨φ termModel (nonempty H₂) termModelWellDefined
+  T⊨φ termModel (nonempty enough) termModelWellDefined

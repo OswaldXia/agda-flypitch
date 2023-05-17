@@ -24,7 +24,7 @@ module Complete {T} (compl : complete T) where
     (λ{ (inl  φ₁∈T) → map (⇒I ∘ weakening1) $ H $ map axiom ∣ φ₁∈T ∣₁
       ; (inr ~φ₁∈T) → map (⇒I ∘ ⊥-elim ∘ weakening1) $
         map2 ⇒-elim (map (weakening1 ∘ axiom) ∣ ~φ₁∈T ∣₁) ∣ axiom1 ∣₁ })
-    (compl .snd φ₁)
+    (compl φ₁)
 
   ~-intro : ∀ {φ} → ¬ T ⊦ φ → T ⊦ ~ φ
   ~-intro ¬⊦ = ⇒-intro λ ⊦ → ⊥.rec $ ¬⊦ ⊦

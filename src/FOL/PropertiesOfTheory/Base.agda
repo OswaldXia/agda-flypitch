@@ -13,7 +13,7 @@ open Language ℒ using (Constant)
 open Structure using (nonempty)
 
 open import Cubical.Foundations.Prelude hiding (~_)
-open import Cubical.Foundations.HLevels using (isPropΠ; isPropΣ)
+open import Cubical.Foundations.HLevels
 open import CubicalExt.Foundations.Powerset*
 open import CubicalExt.Functions.Logic using (_∨_)
 open import Cubical.Data.Sigma using (∃-syntax) renaming (_×_ to infixr 3 _×_)
@@ -43,13 +43,16 @@ isProp¬Con = squash₁
 maximal : Theory → Type (ℓ-suc u)
 maximal T = ∀ φ → Con (T ⨭ φ) → φ ∈ T
 
+isPropMaximal : ∀ {T} → isProp (maximal T)
+isPropMaximal = isPropΠ2 λ _ _ → ∈-isProp _ _
+
 -- 理论的完全性
 
-complete : Theory → Type (ℓ-suc u)
-complete T = Con T × ∀ φ → φ ∈ T ∨ ~ φ ∈ T
+complete : Theory → Type u
+complete T = ∀ φ → φ ∈ T ∨ ~ φ ∈ T
 
 isPropComplete : ∀ {T} → isProp (complete T)
-isPropComplete = isPropΣ isPropCon λ _ → isPropΠ λ _ → squash₁
+isPropComplete = isPropΠ λ _ → squash₁
 
 -- 有足够常元的理论
 
