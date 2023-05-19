@@ -133,10 +133,21 @@ A ∩ B = λ x → (x ∈ A , ∈-isProp A x) ⊓ (x ∈ B , ∈-isProp B x)
 ⋃_ : 𝒫 (𝒫 X ℓ) ℓ' → 𝒫 X _
 (⋃ 𝒜) x = (∃[ A ∈ _ ] (x ∈ A) × (A ∈ 𝒜)) , squash₁
 
+⋃∅≡∅ : ⋃ (∅* {X = 𝒫 X ℓ} {ℓ'}) ≡ ∅*
+⋃∅≡∅ = ⊆-extensionality _ _ $ (rec (∈-isProp _ _) λ ()) , λ ()
+
+private variable
+  A B : 𝒫 X ℓ
+  f : X → Y
+  x : X
+
 -- Image set
 
 _⟦_⟧ : (X → Y) → 𝒫 X ℓ → 𝒫 Y _
 f ⟦ A ⟧ = λ y → (∃[ x ∈ _ ] (x ∈ A) × (y ≡ⁱᵈ f x)) , squash₁
+
+f⟦∅⟧≡∅ : f ⟦ ∅* {ℓ = ℓ} ⟧ ≡ ∅*
+f⟦∅⟧≡∅ = ⊆-extensionality _ _ $ (rec (∈-isProp _ _) λ ()) , λ ()
 
 -- Replacement
 
@@ -144,11 +155,6 @@ replacement-syntax : (X : Type ℓ) {Y : Type ℓ'} → (X → Y) → 𝒫 Y _
 replacement-syntax X f = f ⟦ U {X = X} ⟧
 
 syntax replacement-syntax A (λ x → B) = ｛ B ∣ x ∈ A ｝
-
-private variable
-  A B : 𝒫 X ℓ
-  f : X → Y
-  x : X
 
 ⟦⟧⊆⟦⟧ : A ⊆ B → f ⟦ A ⟧ ⊆ f ⟦ B ⟧
 ⟦⟧⊆⟦⟧ A⊆B = rec (∈-isProp _ _)

@@ -15,8 +15,10 @@ open import FOL.Syntactics ℒ using (⊥-elim; ⇒-intro; ⇒-elim)
 
 open import Cubical.Core.Id using (reflId)
 open import Cubical.Foundations.Prelude hiding (~_; _∨_)
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_; _$_)
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure using (⟨_⟩)
+import Cubical.Data.Empty as ⊥
 import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma using (∃-syntax; ΣPathP; PathPΣ) renaming (_×_ to infixr 3 _×_)
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁; rec; rec2)
@@ -26,7 +28,7 @@ open BinaryRelation
 
 open import CubicalExt.Axiom.ExcludedMiddle
 open import CubicalExt.Foundations.Powerset*
-open import CubicalExt.Functions.Logic
+open import CubicalExt.Functions.Logic hiding (⊥)
 open import CubicalExt.Logic.ClassicalChoice ac
 open import CubicalExt.Logic.Zorn
 
@@ -76,7 +78,18 @@ module UB {A : 𝒫 Extension ℓ} (isChainA : isChain A) where
   ub = T ∪ (Resize ∘ ⋃ (fst ⟦ A ⟧))
 
   ConUb : Con ub
-  ConUb = {!   !}
+  ConUb ub⊦⊥ with em {P = A ≡ ∅*} ⦃ {!   !} ⦄ --isSet𝒫 A ∅* _ _
+  ... | yes A≡∅ = ConT (subst (_⊦ ⊥) ub≡T ub⊦⊥) where
+    ⋃fst⟦A⟧≡∅ = ⋃ (fst ⟦ A ⟧) ≡⟨ cong (λ x → ⋃ (fst ⟦ x ⟧)) A≡∅ ⟩
+      ⋃ (fst ⟦ ∅* ⟧)          ≡⟨ cong ⋃_ f⟦∅⟧≡∅ ⟩
+      ⋃ ∅*                    ≡⟨ ⋃∅≡∅ ⟩
+      ∅* ∎
+    ub⊆T : ub ⊆ T
+    ub⊆T {x} = rec (∈-isProp _ _)
+      λ { (⊎.inl x∈T) → x∈T
+        ; (⊎.inr x∈⋃) → ⊥.rec* $ subst (λ P → ⟨ P x ⟩) ⋃fst⟦A⟧≡∅ (unresize x∈⋃) }
+    ub≡T = ⊆-extensionality ub T (ub⊆T , inl)
+  ... | no A≢∅ = {!   !}
 
 hasUb : allChainHasUb
 hasUb A isChainA = (ub , ConUb , inl) , λ e e∈A x∈e₁ →
@@ -106,3 +119,4 @@ existsConsistentCompleteExtension : ∃[ S ∈ Theory ] Con S × complete S
 existsConsistentCompleteExtension = rec squash₁
   (λ { m@((S , (conS , _)) , _) → ∣ S , conS , maximalExtensionComplete m ∣₁ })
   existsMaximalExtension
+ 

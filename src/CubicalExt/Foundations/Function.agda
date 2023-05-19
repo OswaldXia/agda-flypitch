@@ -12,6 +12,13 @@ private variable
   B : A → Type ℓ
   C : (x : A) → B x → Type ℓ
 
+------------------------------------------------------------------------
+-- Some simple functions
+
+id : A → A
+id x = x
+
+------------------------------------------------------------------------
 -- Converting between implicit and explicit function spaces.
 
 _$- : ((x : A) → B x) → ({x : A} → B x)
@@ -30,6 +37,7 @@ f $-- = f _ _
 λ-- f = λ x y → f
 {-# INLINE λ-- #-}
 
+------------------------------------------------------------------------
 -- Construct an element of the given type by instance search.
 
 it : {A : Type ℓ} → ⦃ A ⦄ → A

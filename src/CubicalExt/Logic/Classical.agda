@@ -56,17 +56,18 @@ impredicativity : Iso (hProp ℓ) (hProp ℓ-zero)
 impredicativity {ℓ} = hProp ℓ Iso⟨ hPropIsoBool ℓ ⟩ Bool
   Iso⟨ invIso $ hPropIsoBool ℓ-zero ⟩ hProp ℓ-zero ∎Iso
 
-Resize : hProp ℓ → hProp ℓ-zero
-Resize = impredicativity .Iso.fun
+abstract
+  Resize : hProp ℓ → hProp ℓ-zero
+  Resize = impredicativity .Iso.fun
 
-resize : ⟨ P ⟩ → ⟨ Resize P ⟩
-resize {P = P} p with em ⦃ P .snd _ _ ⦄
-... | yes _ = tt*
-... | no ¬p = lift $ ¬p p
+  resize : ⟨ P ⟩ → ⟨ Resize P ⟩
+  resize {P = P} p with em ⦃ P .snd _ _ ⦄
+  ... | yes _ = tt*
+  ... | no ¬p = lift $ ¬p p
 
-unresize : ⟨ Resize P ⟩ → ⟨ P ⟩
-unresize {P = P} _ with em ⦃ P .snd _ _ ⦄
-... | yes p = p
+  unresize : ⟨ Resize P ⟩ → ⟨ P ⟩
+  unresize {P = P} _ with em ⦃ P .snd _ _ ⦄
+  ... | yes p = p
 
 module _ ⦃ Aprop : isPropImplicit A ⦄ where
 
