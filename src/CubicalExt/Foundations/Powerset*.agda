@@ -14,11 +14,11 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence using (hPropExt)
 open import Cubical.Foundations.Function
+open import Cubical.Functions.Logic hiding (¬_)
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import Cubical.Data.Unit using (Unit*; isPropUnit*)
 open import Cubical.Data.Sigma
 import Cubical.Data.Sum as ⊎
-open import Cubical.Functions.Logic hiding (¬_)
 open import Cubical.Relation.Nullary using (¬_)
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁; squash₁; rec)
 
@@ -187,8 +187,8 @@ module SetBased (Xset : isSet X) where
       }
 
 module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
-  open SetBased Xset renaming (｛_｝ to ｛_｝₁; _⟦｛_｝⟧ to _⟦｛_｝⟧₁; _⨭_ to _⨭₁_)
-  open SetBased Yset renaming (｛_｝ to ｛_｝₂; _⟦｛_｝⟧ to _⟦｛_｝⟧₂; _⨭_ to _⨭₂_)
+  open SetBased Xset using () renaming (｛_｝ to ｛_｝₁; _⟦｛_｝⟧ to _⟦｛_｝⟧₁; _⨭_ to _⨭₁_) public
+  open SetBased Yset using () renaming (｛_｝ to ｛_｝₂; _⟦｛_｝⟧ to _⟦｛_｝⟧₂; _⨭_ to _⨭₂_) public
 
   ⟦｛｝⟧⊆ : f ⟦｛ x ｝⟧₁ ⊆ ｛ f x ｝₂
   ⟦｛｝⟧⊆ = rec (∈-isProp _ _) λ { (x , reflId , reflId) → reflId }
@@ -214,3 +214,6 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
           y∈f
       ; (⊎.inr reflId) → ∣ _ , inr reflId , reflId ∣₁
       }
+
+  ⟦⨭⟧≡ : f ⟦ A ⨭₁ x ⟧ ≡ f ⟦ A ⟧ ⨭₂ f x
+  ⟦⨭⟧≡ = ⊆-extensionality _ _ $ ⟦⨭⟧⊆ , ⊆⟦⨭⟧
