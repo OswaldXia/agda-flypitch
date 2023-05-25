@@ -34,10 +34,10 @@ module _ (Xset : isSet X) where
   Finite : Type (ℓ-suc ℓ)
   Finite = Σ[ A ∈ 𝒫 X ℓ ] finite A
 
-  module _ (discrete : Discrete X) where
+  module _ (discrete : Discrete X) (x : X) where
     finite→Dec∈ : finite A → Dec (x ∈ A)
     finite→Dec∈ fin∅ = no λ ()
-    finite→Dec∈ {x = x} (fin⨭ y A y∉A finA) with finite→Dec∈ {x = x} finA
+    finite→Dec∈ (fin⨭ y A y∉A finA) with finite→Dec∈ finA
     ... | yes x∈A = yes $ inl x∈A
     ... | no  x∉A with discrete x y
     ... | yes x≡y = yes $ inr $ pathToId $ sym $ x≡y
@@ -79,7 +79,8 @@ module _ (Xset : isSet X) {a@(A , finA) : Finite Xset}
     finC : finite Zset C
     finC with finA
     ... | fin∅ = fin∅
-    ... | fin⨭ x A x∉A finA = {!   !}
+    ... | fin⨭ x A x∉A finA = {!    !}
+    --with finite→Dec∈ Yset ? (f x) finB
     a' : Finite Xset
     a' = map emb $ C , finC
     A' = fst a'
