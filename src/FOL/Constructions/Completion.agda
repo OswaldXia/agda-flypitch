@@ -119,4 +119,3 @@ existsConsistentCompleteExtension : ∃[ S ∈ Theory ] Con S × complete S
 existsConsistentCompleteExtension = rec squash₁
   (λ { m@((S , (conS , _)) , _) → ∣ S , conS , maximalExtensionComplete m ∣₁ })
   existsMaximalExtension
- 

@@ -6,7 +6,7 @@
 module CubicalExt.Foundations.Powerset* where
 
 open import Cubical.Core.Id renaming (_≡_ to _≡ⁱᵈ_)
-open import CubicalExt.Foundations.Id using (path≡Id-termLevel)
+open import CubicalExt.Foundations.Id using (path≡Id-termLevel; idToPath; pathToId; ap)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -217,3 +217,21 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
 
   ⟦⨭⟧≡ : f ⟦ A ⨭₁ x ⟧ ≡ f ⟦ A ⟧ ⨭₂ f x
   ⟦⨭⟧≡ = ⊆-extensionality _ _ $ ⟦⨭⟧⊆ , ⊆⟦⨭⟧
+
+module _ {X Y : Type ℓ} (Xset : isSet X) (Yset : isSet Y)
+  {f : X → Y} (inj : ∀ x y → f x ≡ f y → x ≡ y)
+  (A : 𝒫 Y ℓ) (x : X) where
+  open SetBased2 Xset Yset
+
+  ⨭∘⊆ : (A ⨭₂ f x) ∘ f ⊆ (A ∘ f) ⨭₁ x
+  ⨭∘⊆ = rec (∈-isProp _ _)
+    λ { (⊎.inl fx∈A) → inl fx∈A
+      ; (⊎.inr fx≡fy) → inr $ pathToId $ inj _ _ $ idToPath fx≡fy }
+
+  ⊆⨭∘ : (A ∘ f) ⨭₁ x ⊆ (A ⨭₂ f x) ∘ f
+  ⊆⨭∘ = rec (∈-isProp _ _)
+    λ { (⊎.inl fx∈A) → inl fx∈A
+      ; (⊎.inr reflId) → inr $ ap f reflId }
+
+  ⨭∘≡ : (A ⨭₂ f x) ∘ f ≡ (A ∘ f) ⨭₁ x
+  ⨭∘≡ = ⊆-extensionality _ _ $ ⨭∘⊆ , ⊆⨭∘
