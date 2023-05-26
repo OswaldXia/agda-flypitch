@@ -149,6 +149,11 @@ f ⟦ A ⟧ = λ y → (∃[ x ∈ _ ] (x ∈ A) × (y ≡ⁱᵈ f x)) , squash�
 f⟦∅⟧≡∅ : f ⟦ ∅* {ℓ = ℓ} ⟧ ≡ ∅*
 f⟦∅⟧≡∅ = ⊆-extensionality _ _ $ (rec (∈-isProp _ _) λ ()) , λ ()
 
+-- Preimage
+
+_⁻¹⟦_⟧ : (Y → X) → 𝒫 X ℓ → 𝒫 Y _
+f ⁻¹⟦ A ⟧ = A ∘ f
+
 -- Replacement
 
 replacement-syntax : (X : Type ℓ) {Y : Type ℓ'} → (X → Y) → 𝒫 Y _
@@ -218,20 +223,22 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
   ⟦⨭⟧≡ : f ⟦ A ⨭₁ x ⟧ ≡ f ⟦ A ⟧ ⨭₂ f x
   ⟦⨭⟧≡ = ⊆-extensionality _ _ $ ⟦⨭⟧⊆ , ⊆⟦⨭⟧
 
-module _ {X Y : Type ℓ} (Xset : isSet X) (Yset : isSet Y)
-  {f : X → Y} (inj : ∀ x y → f x ≡ f y → x ≡ y)
-  (A : 𝒫 Y ℓ) (x : X) where
-  open SetBased2 Xset Yset
+module Preimage {X Y : Type ℓ} (Xset : isSet X) (Yset : isSet Y) where
+  open SetBased2 Xset Yset public
 
-  ⨭∘⊆ : (A ⨭₂ f x) ∘ f ⊆ (A ∘ f) ⨭₁ x
-  ⨭∘⊆ = rec (∈-isProp _ _)
-    λ { (⊎.inl fx∈A) → inl fx∈A
-      ; (⊎.inr fx≡fy) → inr $ pathToId $ inj _ _ $ idToPath fx≡fy }
+  module _ {f : X → Y} (A : 𝒫 Y ℓ) (x : X) where
 
-  ⊆⨭∘ : (A ∘ f) ⨭₁ x ⊆ (A ⨭₂ f x) ∘ f
-  ⊆⨭∘ = rec (∈-isProp _ _)
-    λ { (⊎.inl fx∈A) → inl fx∈A
-      ; (⊎.inr reflId) → inr $ ap f reflId }
+    ⊆⁻¹⟦⨭⟧ : f ⁻¹⟦ A ⟧ ⨭₁ x ⊆ f ⁻¹⟦ A ⨭₂ f x ⟧
+    ⊆⁻¹⟦⨭⟧ = rec (∈-isProp _ _)
+      λ { (⊎.inl fx∈A) → inl fx∈A
+        ; (⊎.inr reflId) → inr $ ap f reflId }
 
-  ⨭∘≡ : (A ⨭₂ f x) ∘ f ≡ (A ∘ f) ⨭₁ x
-  ⨭∘≡ = ⊆-extensionality _ _ $ ⨭∘⊆ , ⊆⨭∘
+    module _ (inj : ∀ x y → f x ≡ f y → x ≡ y) where
+
+      ⁻¹⟦⨭⟧⊆ : f ⁻¹⟦ A ⨭₂ f x ⟧ ⊆ f ⁻¹⟦ A ⟧ ⨭₁ x
+      ⁻¹⟦⨭⟧⊆ = rec (∈-isProp _ _)
+        λ { (⊎.inl fx∈A) → inl fx∈A
+          ; (⊎.inr fx≡fy) → inr $ pathToId $ inj _ _ $ idToPath fx≡fy }
+
+      ⁻¹⟦⨭⟧≡ : f ⁻¹⟦ A ⨭₂ f x ⟧ ≡ f ⁻¹⟦ A ⟧ ⨭₁ x
+      ⁻¹⟦⨭⟧≡ = ⊆-extensionality _ _ $ ⁻¹⟦⨭⟧⊆ , ⊆⁻¹⟦⨭⟧

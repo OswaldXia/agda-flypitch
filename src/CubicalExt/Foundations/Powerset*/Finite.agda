@@ -61,31 +61,39 @@ module Embdding (Xset : isSet X) (Yset : isSet Y) ((f , emb) : X ↪ Y) where
   map (.∅* , fin∅) = ∅* , fin∅
   map (.(A ⨭₁ x) , fin⨭ x A x∉A finA) = f ⟦ A ⟧ ⨭₂ f x , fin⨭ _ _ (fx∉f⟦A⟧ x∉A) (finiteImage finA)
 
-module _ (Xset : isSet X) {a@(A , finA) : Finite Xset}
-         (Yset : isSet Y) {b@(B , finB) : Finite Yset} where
+module _ (Xset : isSet X)
+         (Yset : isSet Y) (discreteY : Discrete Y)
+         {a@(A , finA) : Finite Xset}
+         {b@(B , finB) : Finite Yset} where
 
-  existsDomOfSubImg : B ⊆ f ⟦ A ⟧ → ∃[ a'@(A' , _) ∈ Finite Xset ] A' ⊆ A × f ⟦ A' ⟧ ≡ B
-  existsDomOfSubImg {f = f} B⊆f⟦A⟧ = ∣ a' , A'⊆A , f⟦A'⟧≡B ∣₁ where
+  DomOfSubImg : B ⊆ f ⟦ A ⟧ → Σ[ a'@(A' , _) ∈ Finite Xset ] A' ⊆ A × f ⟦ A' ⟧ ≡ B
+  DomOfSubImg {f = f} B⊆f⟦A⟧ = a' , A'⊆A , f⟦A'⟧≡B where
     Z : Type _
     Z = Σ[ x ∈ X ] f x ∈ B
     abstract
       Zset : isSet Z
       Zset = isSetΣ Xset λ _ → isProp→isSet $ ∈-isProp _ _
-    emb : Z ↪ X
-    emb = fst , λ _ _ → isEmbeddingFstΣProp λ _ → ∈-isProp _ _
-    open Embdding Zset Xset
-    C : 𝒫 Z ℓ
-    C = A ∘ fst
-    finC : finite Zset C
-    finC with finA
-    ... | fin∅ = fin∅
-    ... | fin⨭ x A x∉A finA = {!    !}
-    --with finite→Dec∈ Yset ? (f x) finB
+    Emb : Z ↪ X
+    Emb = fst , λ _ _ → isEmbeddingFstΣProp λ _ → ∈-isProp _ _
+    open Embdding Zset Xset Emb
+    A⁻¹ : 𝒫 Z ℓ
+    A⁻¹ = fst ⁻¹⟦ A ⟧
+    finA⁻¹ : finite Zset A⁻¹
+    finA⁻¹ = helper finA where
+      helper : ∀ {A} → finite Xset A → finite Zset (fst ⁻¹⟦ A ⟧)
+      helper fin∅ = fin∅
+      helper (fin⨭ x A x∉A finA) with finite→Dec∈ Yset discreteY (f x) finB
+      ... | yes fx∈B = subst (finite Zset) (sym eq) $ fin⨭ z (fst ⁻¹⟦ A ⟧) x∉A (helper finA) where
+        z = x , fx∈B
+        open Preimage Zset Xset
+        eq : fst ⁻¹⟦ A ⨭₂ x ⟧ ≡ fst ⁻¹⟦ A ⟧ ⨭₁ z
+        eq = ⁻¹⟦⨭⟧≡ A z $ isEmbedding→Inj $ snd Emb
+      ... | no fx∉B = {!   !}
     a' : Finite Xset
-    a' = map emb $ C , finC
+    a' = map $ A⁻¹ , finA⁻¹
     A' = fst a'
     A'⊆A : A' ⊆ A
-    A'⊆A x∈A' with finC
+    A'⊆A x∈A' with finA⁻¹
     ... | fuck = {! fuck  !}
     f⟦A'⟧⊆B : f ⟦ A' ⟧ ⊆ B
     f⟦A'⟧⊆B {y} = rec (∈-isProp _ _) λ { (x , x∈A' , reflId) → {!    !} }
