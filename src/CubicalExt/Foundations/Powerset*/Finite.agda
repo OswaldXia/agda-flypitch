@@ -75,26 +75,29 @@ module _ (Xset : isSet X)
       Zset = isSetΣ Xset λ _ → isProp→isSet $ ∈-isProp _ _
     Emb : Z ↪ X
     Emb = fst , λ _ _ → isEmbeddingFstΣProp λ _ → ∈-isProp _ _
+    inj = isEmbedding→Inj $ snd Emb
     open Embdding Zset Xset Emb
     A⁻¹ : 𝒫 Z ℓ
     A⁻¹ = fst ⁻¹⟦ A ⟧
     finA⁻¹ : finite Zset A⁻¹
     finA⁻¹ = helper finA where
+      open Preimage Zset Xset
       helper : ∀ {A} → finite Xset A → finite Zset (fst ⁻¹⟦ A ⟧)
       helper fin∅ = fin∅
       helper (fin⨭ x A x∉A finA) with finite→Dec∈ Yset discreteY (f x) finB
-      ... | yes fx∈B = subst (finite Zset) (sym eq) $ fin⨭ z (fst ⁻¹⟦ A ⟧) x∉A (helper finA) where
+      ... | yes fx∈B = subst (finite Zset) (sym eq) $ fin⨭ z (fst ⁻¹⟦ A ⟧) x∉A $ helper finA where
         z = x , fx∈B
-        open Preimage Zset Xset
         eq : fst ⁻¹⟦ A ⨭₂ x ⟧ ≡ fst ⁻¹⟦ A ⟧ ⨭₁ z
-        eq = ⁻¹⟦⨭⟧≡ A z $ isEmbedding→Inj $ snd Emb
-      ... | no fx∉B = {!   !}
+        eq = ⁻¹⟦⨭⟧≡ inj
+      ... | no fx∉B = subst (finite Zset) (sym eq) $ helper finA where
+        eq : fst ⁻¹⟦ A ⨭₂ x ⟧ ≡ fst ⁻¹⟦ A ⟧
+        eq = ⁻¹⟦⨭⟧≡' inj $ λ (x , fx∈B) eq → fx∉B $ subst (λ x → f x ∈ B) eq fx∈B
     a' : Finite Xset
     a' = map $ A⁻¹ , finA⁻¹
     A' = fst a'
     A'⊆A : A' ⊆ A
     A'⊆A x∈A' with finA⁻¹
-    ... | fuck = {! fuck  !}
+    ... | foo = {! foo  !}
     f⟦A'⟧⊆B : f ⟦ A' ⟧ ⊆ B
     f⟦A'⟧⊆B {y} = rec (∈-isProp _ _) λ { (x , x∈A' , reflId) → {!    !} }
     B⊆f⟦A'⟧ : B ⊆ f ⟦ A' ⟧

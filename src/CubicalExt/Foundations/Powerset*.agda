@@ -15,7 +15,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence using (hPropExt)
 open import Cubical.Foundations.Function
 open import Cubical.Functions.Logic hiding (¬_)
-open import Cubical.Data.Empty using (⊥*; isProp⊥*)
+open import Cubical.Data.Empty as ⊥ using (⊥*; isProp⊥*)
 open import Cubical.Data.Unit using (Unit*; isPropUnit*)
 open import Cubical.Data.Sigma
 import Cubical.Data.Sum as ⊎
@@ -225,15 +225,13 @@ module SetBased2 (Xset : isSet X) (Yset : isSet Y) where
 
 module Preimage {X Y : Type ℓ} (Xset : isSet X) (Yset : isSet Y) where
   open SetBased2 Xset Yset public
+  module _ {f : X → Y} (inj : ∀ x y → f x ≡ f y → x ≡ y) where
 
-  module _ {f : X → Y} (A : 𝒫 Y ℓ) (x : X) where
-
-    ⊆⁻¹⟦⨭⟧ : f ⁻¹⟦ A ⟧ ⨭₁ x ⊆ f ⁻¹⟦ A ⨭₂ f x ⟧
-    ⊆⁻¹⟦⨭⟧ = rec (∈-isProp _ _)
-      λ { (⊎.inl fx∈A) → inl fx∈A
-        ; (⊎.inr reflId) → inr $ ap f reflId }
-
-    module _ (inj : ∀ x y → f x ≡ f y → x ≡ y) where
+    module _ {A : 𝒫 Y ℓ} {x : X} where
+      ⊆⁻¹⟦⨭⟧ : f ⁻¹⟦ A ⟧ ⨭₁ x ⊆ f ⁻¹⟦ A ⨭₂ f x ⟧
+      ⊆⁻¹⟦⨭⟧ = rec (∈-isProp _ _)
+        λ { (⊎.inl fx∈A) → inl fx∈A
+          ; (⊎.inr reflId) → inr $ ap f reflId }
 
       ⁻¹⟦⨭⟧⊆ : f ⁻¹⟦ A ⨭₂ f x ⟧ ⊆ f ⁻¹⟦ A ⟧ ⨭₁ x
       ⁻¹⟦⨭⟧⊆ = rec (∈-isProp _ _)
@@ -242,3 +240,11 @@ module Preimage {X Y : Type ℓ} (Xset : isSet X) (Yset : isSet Y) where
 
       ⁻¹⟦⨭⟧≡ : f ⁻¹⟦ A ⨭₂ f x ⟧ ≡ f ⁻¹⟦ A ⟧ ⨭₁ x
       ⁻¹⟦⨭⟧≡ = ⊆-extensionality _ _ $ ⁻¹⟦⨭⟧⊆ , ⊆⁻¹⟦⨭⟧
+
+    module _ {A : 𝒫 Y ℓ} {y : Y} (∀¬ : ∀ x → ¬ f x ≡ y) where
+      ⁻¹⟦⨭⟧≡' : f ⁻¹⟦ A ⨭₂ y ⟧ ≡ f ⁻¹⟦ A ⟧
+      ⁻¹⟦⨭⟧≡' = ⊆-extensionality _ _ $ helper , inl where
+        helper : f ⁻¹⟦ A ⨭₂ y ⟧ ⊆ f ⁻¹⟦ A ⟧
+        helper {x} = rec (∈-isProp _ _)
+          λ { (⊎.inl fx∈A) → fx∈A
+            ; (⊎.inr reflId) → ⊥.rec $ ∀¬ x refl }
