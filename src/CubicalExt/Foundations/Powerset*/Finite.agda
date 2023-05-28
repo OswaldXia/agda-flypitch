@@ -34,6 +34,8 @@ module _ (Xset : isSet X) where
   Finite : Type (ℓ-suc ℓ)
   Finite = Σ[ A ∈ 𝒫 X ℓ ] finite A
 
+  --TODO : needs fin-rec or fin-elim
+
   module _ (discrete : Discrete X) (x : X) where
     finite→Dec∈ : finite A → Dec (x ∈ A)
     finite→Dec∈ fin∅ = no λ ()
@@ -95,9 +97,9 @@ module _ (Xset : isSet X)
     a' : Finite Xset
     a' = map $ A⁻¹ , finA⁻¹
     A' = fst a'
+    open SetBased Xset using (_⨭_)
     A'⊆A : A' ⊆ A
-    A'⊆A x∈A' with finA⁻¹
-    ... | foo = {! foo  !}
+    A'⊆A x∈A' = {!   !}
     f⟦A'⟧⊆B : f ⟦ A' ⟧ ⊆ B
     f⟦A'⟧⊆B {y} = rec (∈-isProp _ _) λ { (x , x∈A' , reflId) → {!    !} }
     B⊆f⟦A'⟧ : B ⊆ f ⟦ A' ⟧
