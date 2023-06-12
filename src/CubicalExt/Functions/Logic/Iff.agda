@@ -4,7 +4,7 @@ module CubicalExt.Functions.Logic.Iff where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΣ)
+open import Cubical.Foundations.HLevels using (hProp; isProp→; isPropΣ)
 open import Cubical.Foundations.Isomorphism using (iso; isoToEquiv; isoToPath)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Functions.Logic using (∥_∥ₚ; ⇒∶_⇐∶_)
@@ -113,12 +113,12 @@ _ ↔∎ = ↔-refl
 
 unquoteDecl iffIsoΣ = declareRecordIsoΣ iffIsoΣ (quote _↔_)
 
-isPropIff : isProp (∥ A ∥₁ ↔ ∥ B ∥₁)
-isPropIff = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
-  isPropΣ (isPropΠ (λ _ → squash₁)) λ _ → isPropΠ (λ _ → squash₁)
+isPropIff : isProp A → isProp B → isProp (A ↔ B)
+isPropIff propA propB = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
+  isPropΣ (isProp→ propB) λ _ → isProp→ propA
 
 ∥∥-↔ : ∥ A ↔ B ∥₁ → ∥ A ∥₁ ↔ ∥ B ∥₁
-∥∥-↔ = rec isPropIff λ iff →
+∥∥-↔ = rec (isPropIff squash₁ squash₁) λ iff →
   →: rec squash₁ (λ x → ∣ to   iff x ∣₁)
   ←: rec squash₁ (λ x → ∣ from iff x ∣₁)
 

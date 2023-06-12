@@ -4,8 +4,7 @@ module CubicalExt.StdlibBridge.Vec where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
-open import Cubical.Foundations.Isomorphism using (Iso; iso; isoToEquiv)
-open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Foundations.Isomorphism using (Iso; iso; isoToPath)
 open import Cubical.Data.Nat using (ℕ)
 
 open import Data.Vec as Stdlib
@@ -34,8 +33,5 @@ Stdlib→Cubical→Stdlib (x ∷ xs) = cong (x ∷_) (Stdlib→Cubical→Stdlib 
 CubicalIsoStdlib : (n : ℕ) → Iso (Cubical.Vec A n) (Stdlib.Vec A n)
 CubicalIsoStdlib n = iso Cubical→Stdlib Stblib→Cubical Stdlib→Cubical→Stdlib Cubical→Stdlib→Cubical
 
-Cubical≃Stdlib : (n : ℕ) → Cubical.Vec A n ≃ Stdlib.Vec A n
-Cubical≃Stdlib n = isoToEquiv (CubicalIsoStdlib n)
-
 vecBridge : (n : ℕ) → Cubical.Vec A n ≡ Stdlib.Vec A n
-vecBridge n = ua (Cubical≃Stdlib n)
+vecBridge n = isoToPath (CubicalIsoStdlib n)
