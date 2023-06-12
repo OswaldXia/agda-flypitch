@@ -44,31 +44,34 @@ semiDecidable P = ∃[ fₛ ∈ _ ] semiDecide fₛ P
 enumerate : (ℕ → Maybe A) → (A → Type ℓ) → Type _
 enumerate fₑ B = ∀ a → B a ↔ (∃[ n ∈ ℕ ] fₑ n ≡ just a)
 
-enumeratable : (A → Type ℓ) → Type _
-enumeratable P = ∃[ fₑ ∈ _ ] enumerate fₑ P
+enumerable : (A → Type ℓ) → Type _
+enumerable P = ∃[ fₑ ∈ _ ] enumerate fₑ P
 
 isSetBool : isSet Bool
 isSetBool = subst isSet boolBridge Cubical.isSetBool
 
+isPredicate : (A → Type ℓ) → Type _
+isPredicate B = ∀ x → isProp (B x)
+
 isPropReflects : isProp P → isProp (reflects b P)
 isPropReflects Pprop = isPropIff Pprop (isSetBool _ _)
 
-isPropDecide : (∀ x → isProp (B x)) → isProp (decide f B)
-isPropDecide Bprop = isPropΠ λ _ → isPropReflects (Bprop _)
+isPropDecide : isPredicate B → isProp (decide f B)
+isPropDecide pred = isPropΠ λ _ → isPropReflects (pred _)
 
 isPropDecidable : isProp (decidable B)
 isPropDecidable = squash₁
 
-isPropSemiDecide : (∀ x → isProp (B x)) → isProp (semiDecide fₛ B)
-isPropSemiDecide Bprop = isPropΠ (λ _ → isPropIff (Bprop _) squash₁)
+isPropSemiDecide : isPredicate B → isProp (semiDecide fₛ B)
+isPropSemiDecide pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
 
 isPropSemiDecidable : isProp (semiDecidable B)
 isPropSemiDecidable = squash₁
 
-isPropEnumerate : (∀ x → isProp (B x)) → isProp (enumerate fₑ B)
-isPropEnumerate Bprop = isPropΠ (λ _ → isPropIff (Bprop _) squash₁)
+isPropEnumerate : isPredicate B → isProp (enumerate fₑ B)
+isPropEnumerate pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
 
-isPropEnumeratable : isProp (enumeratable B)
+isPropEnumeratable : isProp (enumerable B)
 isPropEnumeratable = squash₁
 
 discrete : Type ℓ → Type _
@@ -95,3 +98,4 @@ discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
   ≡ᵇ→≡ {suc n} {zero} H with pathToEq H
   ... | ()
   ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
+ 
