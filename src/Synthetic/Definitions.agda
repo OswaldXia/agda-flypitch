@@ -29,19 +29,19 @@ decide : (A → Bool) → (A → Type ℓ) → Type _
 decide f B = ∀ a → reflects (f a) (B a)
 
 decidable : (A → Type ℓ) → Type _
-decidable P = ∃[ f ∈ _ ] decide f P
+decidable P = ∃ _ λ f → decide f P
 
 semiDecide : (A → ℕ → Bool) → (A → Type ℓ) → Type _
-semiDecide fₛ B = ∀ a → B a ↔ (∃[ n ∈ ℕ ] fₛ a n ≡ true)
+semiDecide fₛ B = ∀ a → B a ↔ ∃ _ λ n → fₛ a n ≡ true
 
 semiDecidable : (A → Type ℓ) → Type _
-semiDecidable P = ∃[ fₛ ∈ _ ] semiDecide fₛ P
+semiDecidable P = ∃ _ λ fₛ → semiDecide fₛ P
 
 enumerate : (ℕ → Maybe A) → (A → Type ℓ) → Type _
-enumerate fₑ B = ∀ a → B a ↔ (∃[ n ∈ ℕ ] fₑ n ≡ just a)
+enumerate fₑ B = ∀ a → B a ↔ ∃ _ λ n → fₑ n ≡ just a
 
 enumerable : (A → Type ℓ) → Type _
-enumerable P = ∃[ fₑ ∈ _ ] enumerate fₑ P
+enumerable P = ∃ _ λ fₑ → enumerate fₑ P
 
 discrete : Type ℓ → Type _
 discrete A = decidable {A = A × A} λ (a , b) → a ≡ b

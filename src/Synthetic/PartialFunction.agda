@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Maybe
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+open import CubicalExt.Logic.ConstructiveEpsilon
 
 private variable
   ℓ : Level
@@ -16,9 +17,9 @@ record part (A : Type) : Type where
     f : ℕ → Maybe A
     deterministic : ∀ n m a b → f n ≡ just a → f m ≡ just b → a ≡ b
   _▻_ : A → Type
-  _▻_ a = ∃[ k ∈ ℕ ] f k ≡ just a
+  _▻_ a = ∃ _ λ k → f k ≡ just a
 
 open part using (_▻_) public
 
-totalise : (aₚ : part A) → (∃[ a ∈ A ] aₚ ▻ a) → Σ[ a ∈ A ] aₚ ▻ a
-totalise aₚ = {!   !}
+totalise : (aₚ : part A) → ∃ _ (aₚ ▻_) → Σ _ (aₚ ▻_)
+totalise aₚ = let H = {!   !} in {!  !}
