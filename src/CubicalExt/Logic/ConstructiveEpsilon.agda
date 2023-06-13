@@ -28,7 +28,8 @@ module _ {ℓ} {A : ℕ → Type ℓ} (Aset : ∀ n → isSet (A n)) (Adec : ∀
   search n (step↓ wₛ)  | no ¬p = search (suc n) wₛ
 
   search≡ : ∀ {n} (w w' : <witness n) → search n w ≡ search n w'
-  search≡ {n} w w' with Adec n | w | w'
+  search≡ {n} w w' with
+       Adec n | w         | w'
   ... | yes p | _         | _         = refl
   ... | no ¬p | witness p | _         = ⊥.rec (¬p p)
   ... | no ¬p | _         | witness p = ⊥.rec (¬p p)

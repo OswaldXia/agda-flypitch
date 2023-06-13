@@ -80,9 +80,11 @@ semiDec→sep B₁ B₂ disjoint = map2 λ { (f₁ , H₁) (f₂ , H₂) →
     f : A → ℕ → Maybe Bool
     f x n = if (f₁ x n) then just true else (if f₂ x n then just false else nothing)
     proper : {n m : ℕ} {a b : Bool} (x : A) → f x n ≡ just a → f x m ≡ just b → a ≡ b
-    proper {n} {m} x p q with f₁ x n | f₂ x n | f₁ x m | f₂ x m
-    ... | false | false | _     | _ = ⊥.rec (¬nothing≡just p)
-    ... | false | true  | true  | _ = {!   !}
-    ... | false | true  | false | false = ⊥.rec (¬nothing≡just q)
-    ... | false | true  | false | true = {!   !}
-    ... | true  | b     | c     | d = {!   !}
+    proper {n} {m} x p q with
+         f₁ x n | f₂ x n | f₁ x m | f₂ x m
+    ... | false | false  | _      | _     = ⊥.rec (¬nothing≡just p)
+    ... | _     | _      | false  | false = ⊥.rec (¬nothing≡just q)
+    ... | false | true   | true   | _     = {!   !}
+    ... | true  | _      | false  | true  = {!   !}
+    ... | false | true   | false  | true  = {!   !}
+    ... | true  | _      | true   | _     = {!   !}
