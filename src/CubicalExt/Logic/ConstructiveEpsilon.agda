@@ -3,42 +3,15 @@
 module CubicalExt.Logic.ConstructiveEpsilon where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation as ₁
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Relation.Nullary
+open SetElim
 
-module PropTarget {ℓ} {P : ℕ → Type ℓ} (Pprop : ∀ n → isProp (P n)) where
-
-  Q : ℕ → Type ℓ
-  Q n = P n × ∀ m → P m → n ≤ m
-
-  Qprop : ∀ n → isProp (Q n)
-  Qprop n = isProp× (Pprop n) (isPropΠ λ _ → isProp→ isProp≤)
-
-  isSetΣQ : isSet (Σ ℕ Q)
-  isSetΣQ = isSetΣ isSetℕ (λ n → isProp→isSet (Qprop n))
-
-  ∃Q→ΣQ : ∃ ℕ Q → Σ ℕ Q
-  ∃Q→ΣQ = rec→Set isSetΣQ (idfun _)
-    λ { (n , Pn , Hn) (m , Pm , Hm) → ΣPathP (≤-antisym (Hn m Pm) (Hm n Pn) , isProp→PathP (λ _ → Qprop _) _ _) }
-
-  ΣP→ΣQ : Σ ℕ P → Σ ℕ Q
-  ΣP→ΣQ (n , Pn) = {!   !}
-
-  ΣQ→ΣP : Σ ℕ Q → Σ ℕ P
-  ΣQ→ΣP (n , Pn , _) = n , Pn
-
-  ε : ∃ ℕ P → Σ ℕ P
-  ε = ΣQ→ΣP ∘ ∃Q→ΣQ ∘ (map ΣP→ΣQ)
-
-module SetTarget {ℓ} {A : ℕ → Type ℓ} (Aset : ∀ n → isSet (A n)) (Adec : ∀ n → Dec (A n)) where
-  open SetElim
+module _ {ℓ} {A : ℕ → Type ℓ} (Aset : ∀ n → isSet (A n)) (Adec : ∀ n → Dec (A n)) where
 
   data <witness : ℕ → Type ℓ where
     witness : ∀ {n} → A n → <witness n
