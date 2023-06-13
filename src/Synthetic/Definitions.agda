@@ -6,14 +6,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Data.Bool
+open import Cubical.Data.Nat
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Functions.Logic.Iff
-
-open import Data.Nat
-open import Data.Bool
-open import Cubical.Data.Bool
 
 private variable
   ℓ : Level

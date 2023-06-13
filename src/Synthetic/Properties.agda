@@ -6,13 +6,12 @@ open import Synthetic.Definitions
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Data.Equality using (pathToEq) renaming (refl to reflEq)
+open import Cubical.Data.Bool using (Bool; true; false)
+open import Data.Nat using (ℕ; zero; suc; _≡ᵇ_)
 open import Cubical.Data.Maybe as ⁇
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Functions.Logic.Iff
-
-open import Data.Nat using (ℕ; zero; suc; _≡ᵇ_)
-open import Data.Bool using (Bool; true; false)
 
 private variable
   ℓ : Level
