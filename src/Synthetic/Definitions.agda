@@ -6,16 +6,14 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Data.Equality using (pathToEq) renaming (refl to reflEq)
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Functions.Logic.Iff
-open import CubicalExt.StdlibBridge.Bool
 
 open import Data.Nat
 open import Data.Bool
-import Cubical.Data.Bool as Cubical
+open import Cubical.Data.Bool
 
 private variable
   ℓ : Level
@@ -47,8 +45,8 @@ enumerate fₑ B = ∀ a → B a ↔ (∃[ n ∈ ℕ ] fₑ n ≡ just a)
 enumerable : (A → Type ℓ) → Type _
 enumerable P = ∃[ fₑ ∈ _ ] enumerate fₑ P
 
-isSetBool : isSet Bool
-isSetBool = subst isSet boolBridge Cubical.isSetBool
+discrete : Type ℓ → Type _
+discrete A = decidable {A = A × A} λ (a , b) → a ≡ b
 
 isPredicate : (A → Type ℓ) → Type _
 isPredicate B = ∀ x → isProp (B x)
@@ -74,28 +72,5 @@ isPropEnumerate pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
 isPropEnumeratable : isProp (enumerable B)
 isPropEnumeratable = squash₁
 
-discrete : Type ℓ → Type _
-discrete A = decidable {A = A × A} λ (a , b) → a ≡ b
-
 isPropDiscrete : isProp (discrete A)
 isPropDiscrete = isPropDecidable
-
-discreteℕ : discrete ℕ
-discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
-                 , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)
-  where
-  ≡→≡ᵇ : {n m : ℕ} → n ≡ m → (n ≡ᵇ m) ≡ true
-  ≡→≡ᵇ {n} path with pathToEq path
-  ... | reflEq = ≡ᵇ-refl n where
-    ≡ᵇ-refl : (n : ℕ) → (n ≡ᵇ n) ≡ true
-    ≡ᵇ-refl zero = refl
-    ≡ᵇ-refl (suc n) = ≡ᵇ-refl n
-
-  ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
-  ≡ᵇ→≡ {zero} {zero} _ = refl
-  ≡ᵇ→≡ {zero} {suc m} H with pathToEq H
-  ... | ()
-  ≡ᵇ→≡ {suc n} {zero} H with pathToEq H
-  ... | ()
-  ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
- 
