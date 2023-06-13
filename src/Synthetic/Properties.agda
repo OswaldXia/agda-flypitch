@@ -14,8 +14,8 @@ open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Functions.Logic.Iff
 
 private variable
-  ℓ : Level
-  A : Type ℓ
+  ℓ ℓ' : Level
+  A A' : Type ℓ
 
 discreteℕ : discrete ℕ
 discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
@@ -57,3 +57,9 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (d , Hd) (fₑ , Hₑ) �
     ≟→≡ a (just x) H = cong just $ sym $ Hd _ .from H
     fₛ : A → ℕ → Bool
     fₛ a n = a ≟ fₑ n
+
+decReduction : (B : A → Type ℓ) (B' : A' → Type ℓ') → B ⪯ B' → decidable B' → decidable B
+decReduction B B' = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
+  B x             ↔⟨ Hᵣ x ⟩
+  B' (fᵣ x)       ↔⟨ Hd (fᵣ x) ⟩
+  d (fᵣ x) ≡ true ↔∎ }

@@ -14,13 +14,14 @@ open import Cubical.HITs.PropositionalTruncation
 open import CubicalExt.Functions.Logic.Iff
 
 private variable
-  ℓ : Level
-  A P : Type ℓ
-  B : A → Type ℓ
+  ℓ ℓ' : Level
+  A A' P : Type ℓ
+  B B' : A → Type ℓ
   b : Bool
   f : A → Bool
   fₛ : A → ℕ → Bool
   fₑ : ℕ → Maybe A
+  fᵣ : A → A'
 
 reflects : Bool → Type ℓ → Type _
 reflects b P = P ↔ b ≡ true
@@ -45,6 +46,12 @@ enumerable P = ∃ _ λ fₑ → enumerate fₑ P
 
 discrete : Type ℓ → Type _
 discrete A = decidable {A = A × A} λ (a , b) → a ≡ b
+
+reduct : (fᵣ : A → A') (B : A → Type ℓ) → (B' : A' → Type ℓ') → Type _
+reduct fᵣ B B' = ∀ x → B x ↔ B' (fᵣ x)
+
+_⪯_ : (A → Type ℓ) → (A' → Type ℓ') → Type _
+B ⪯ B' = ∃ _ λ fᵣ → reduct fᵣ B B'
 
 isPredicate : (A → Type ℓ) → Type _
 isPredicate B = ∀ x → isProp (B x)
@@ -72,3 +79,6 @@ isPropEnumeratable = squash₁
 
 isPropDiscrete : isProp (discrete A)
 isPropDiscrete = isPropDecidable
+
+isProp⪯ : isProp (B ⪯ B')
+isProp⪯ = squash₁
