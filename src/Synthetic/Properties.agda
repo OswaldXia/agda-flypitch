@@ -68,23 +68,23 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (d , Hd) (fₑ , Hₑ) �
 
 semiDec→sep : (B₁ : A → Type ℓ) (B₂ : A → Type ℓ') → (∀ x → B₁ x → B₂ x → ⊥) →
   semiDecidable B₁ → semiDecidable B₂ → separatable B₁ B₂
-semiDec→sep B₁ B₂ disjoint = map2 λ { (f₁ , H₁) (f₂ , H₂) →
-  let open Lemma f₁ f₂ H₁ H₂ in
-    (λ x → record { f = f x ; proper = proper x })
+semiDec→sep B₁ B₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
+  let open Lemma f g Hf Hg in
+    (λ x → record { f = fₚ x ; proper = proper x })
   , (λ x → {!   !})
   , (λ x → {!   !}) }
   where
   module Lemma {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'}
-    (f₁ f₂ : A → ℕ → Bool) (H₁ : semiDecide f₁ B₁) (H₂ : semiDecide f₂ B₂)
+    (f g : A → ℕ → Bool) (Hf : semiDecide f B₁) (Hg : semiDecide g B₂)
     where
-    f : A → ℕ → Maybe Bool
-    f x n = if (f₁ x n) then just true else (if f₂ x n then just false else nothing)
-    proper : {n m : ℕ} {a b : Bool} (x : A) → f x n ≡ just a → f x m ≡ just b → a ≡ b
+    fₚ : A → ℕ → Maybe Bool
+    fₚ x n = if (f x n) then just true else (if g x n then just false else nothing)
+    proper : {n m : ℕ} {a b : Bool} (x : A) → fₚ x n ≡ just a → fₚ x m ≡ just b → a ≡ b
     proper {n} {m} x p q with
-         f₁ x n | f₂ x n | f₁ x m | f₂ x m
-    ... | false | false  | _      | _     = ⊥.rec (¬nothing≡just p)
-    ... | _     | _      | false  | false = ⊥.rec (¬nothing≡just q)
-    ... | false | true   | true   | _     = {!   !}
-    ... | true  | _      | false  | true  = {!   !}
-    ... | false | true   | false  | true  = {!   !}
-    ... | true  | _      | true   | _     = {!   !}
+         f x n in α | g x n in β | f x m in γ | g x m in δ
+    ... | false     | false      | _          | _         = ⊥.rec (¬nothing≡just p)
+    ... | _         | _          | false      | false     = ⊥.rec (¬nothing≡just q)
+    ... | false     | true       | true       | _         = {!   !}
+    ... | true      | _          | false      | true      = {!   !}
+    ... | false     | true       | false      | true      = {!   !}
+    ... | true      | _          | true       | _         = {!   !}
