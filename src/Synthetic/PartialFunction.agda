@@ -28,20 +28,21 @@ record part (A : Type) : Type where
   functional Aset = rec2 (Aset _ _)
     (λ { (_ , Hn) (_ , Hm) → proper Hn Hm })
 
-  totalise : isSet A → ∃ _ eval → Σ _ eval
-  totalise Aset aₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
-    swapEval : ∃ _ eval → ∃ _ λ k → Σ _ λ x → f k ≡ just x
-    swapEval = ∥₁.rec squash₁ λ (a , ea) → map (λ (n , H) → n , a , H) ea
-    Σ[a] : ℕ → Type
-    Σ[a] n = Σ _ λ a → f n ≡ just a
-    isSetΣ[a] : ∀ n → isSet (Σ[a] n)
-    isSetΣ[a] _ = isSetΣ Aset λ _ → isProp→isSet (isOfHLevelMaybe 0 (λ _ _ → Aset _ _) _ _)
-    DecΣ[a] : ∀ n → Dec (Σ[a] n)
-    DecΣ[a] n with f n
-    ... | nothing = no λ (_ , H) → ⊥.rec (¬nothing≡just H)
-    ... | just a = yes (a , refl)
-    σ : Σ _ Σ[a]
-    σ = ε isSetΣ[a] DecΣ[a] (swapEval aₚ)
+  opaque
+    totalise : isSet A → ∃ _ eval → Σ _ eval
+    totalise Aset aₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
+      swapEval : ∃ _ eval → ∃ _ λ k → Σ _ λ x → f k ≡ just x
+      swapEval = ∥₁.rec squash₁ λ (a , ea) → map (λ (n , H) → n , a , H) ea
+      Σ[a] : ℕ → Type
+      Σ[a] n = Σ _ λ a → f n ≡ just a
+      isSetΣ[a] : ∀ n → isSet (Σ[a] n)
+      isSetΣ[a] _ = isSetΣ Aset λ _ → isProp→isSet (isOfHLevelMaybe 0 (λ _ _ → Aset _ _) _ _)
+      DecΣ[a] : ∀ n → Dec (Σ[a] n)
+      DecΣ[a] n with f n
+      ... | nothing = no λ (_ , H) → ⊥.rec (¬nothing≡just H)
+      ... | just a = yes (a , refl)
+      σ : Σ _ Σ[a]
+      σ = ε isSetΣ[a] DecΣ[a] (swapEval aₚ)
 
 _▻_ : part A → A → Type
 aᵖ ▻ a = part.eval aᵖ a
@@ -49,8 +50,8 @@ aᵖ ▻ a = part.eval aᵖ a
 total : (f : A → part B) → Type _
 total f = ∀ x → ∃ _ (f x ▻_)
 
-totalise : (f : A → part B) → total f → isSet B → A → B
-totalise f H Bset x = part.totalise (f x) Bset (H x) .fst
+totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x ▻_))
+totalise f H Bset x = part.totalise (f x) Bset (H x)
 
 partialise : (A → B) → A → part B
 partialise f x = record { f = λ _ → just (f x) ; proper = λ p q → just-inj _ _ ((sym p) ∙ q) }

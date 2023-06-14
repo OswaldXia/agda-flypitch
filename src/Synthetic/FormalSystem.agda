@@ -9,9 +9,10 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Bool
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
+open import Cubical.Data.Equality using (eqToPath)
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import CubicalExt.Functions.Logic.Iff
 
@@ -64,6 +65,20 @@ module _ (S : FormalSystem Sentence ¬_) where
         aux φ (inl ⊢φ)  = true  , Hₚ .fst φ .to ⊢φ
         aux φ (inr ⊢¬φ) = false , Hₚ .snd φ .to ⊢¬φ
       f : Sentence → Bool
-      f = totalise fₚ fₚ-total isSetBool
-      H : decide (totalise fₚ fₚ-total isSetBool) (⊢_)
-      H φ = {!   !}
+      f = fst ∘ totalise fₚ fₚ-total isSetBool
+      fₚ▻ : (φ : Sentence) → fₚ φ ▻ f φ
+      fₚ▻ = snd ∘ totalise fₚ fₚ-total isSetBool
+      H : decide f (⊢_)
+      H φ with f φ in α
+      ... | true  = →: (λ _ → refl)
+                    ←: (λ _ → Hₚ .fst φ .from ▻true)
+        where
+        ▻true : fₚ φ ▻ true
+        ▻true = subst (fₚ φ ▻_) (eqToPath α) (fₚ▻ φ)
+      ... | false = →: (λ ⊢φ → part.functional (fₚ φ) isSetBool ▻false (▻true ⊢φ))
+                    ←: (λ H → ⊥.rec $ false≢true H)
+        where
+        ▻true : ⊢ φ → fₚ φ ▻ true
+        ▻true = Hₚ .fst φ .to
+        ▻false : fₚ φ ▻ false
+        ▻false = subst (fₚ φ ▻_) (eqToPath α) (fₚ▻ φ)
