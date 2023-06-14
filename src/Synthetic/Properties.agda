@@ -19,12 +19,19 @@ open import CubicalExt.Functions.Logic.Iff
 private variable
   ℓ ℓ' : Level
   A A' : Type ℓ
+  B B' : A → Type ℓ
 
-decReduction : (B : A → Type ℓ) (B' : A' → Type ℓ') → B ⪯ B' → decidable B' → decidable B
-decReduction B B' = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
+decReduction : B ⪯ B' → decidable B' → decidable B
+decReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
   B x             ↔⟨ Hᵣ x ⟩
   B' (fᵣ x)       ↔⟨ Hd (fᵣ x) ⟩
   d (fᵣ x) ≡ true ↔∎ }
+
+semiDecReduction : B ⪯ B' → semiDecidable B' → semiDecidable B
+semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
+  B x             ↔⟨ Hᵣ x ⟩
+  B' (fᵣ x)       ↔⟨ Hd (fᵣ x) ⟩
+  ∃ ℕ (λ n → d (fᵣ x) n ≡ true) ↔∎ }
 
 discreteℕ : discrete ℕ
 discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
