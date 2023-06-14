@@ -44,7 +44,7 @@ enumerable : (A → Type ℓ) → Type _
 enumerable B = ∃ _ (_enumerates B)
 
 _separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
-fₚ separates B₁ and B₂ = (∀ x → B₁ x ↔ fₚ x ▻ true) × (∀ x → B₂ x ↔ fₚ x ▻ false)
+fₚ separates B₁ and B₂ = (∀ x → B₁ x ↔ fₚ x ≐ true) × (∀ x → B₂ x ↔ fₚ x ≐ false)
 
 separatable : (A → Type ℓ) → (A → Type ℓ') → Type _
 separatable B₁ B₂ = ∃ _ (_separates B₁ and B₂)

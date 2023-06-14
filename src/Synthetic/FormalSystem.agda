@@ -46,27 +46,27 @@ record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (
     module Lemma (fₚ : Sentence → part Bool) (Hₚ : fₚ separates ⊢_ and (⊢_ ∘ ¬_)) where
       fₚ-total : total fₚ
       fₚ-total φ = ∥₁.map (aux φ) (compl φ) where
-        aux : ∀ φ → (⊢ φ) ⊎ (⊢ ¬ φ) → Σ _ (fₚ φ ▻_)
+        aux : ∀ φ → (⊢ φ) ⊎ (⊢ ¬ φ) → Σ _ (fₚ φ ≐_)
         aux φ (inl ⊢φ)  = true  , Hₚ .fst φ .to ⊢φ
         aux φ (inr ⊢¬φ) = false , Hₚ .snd φ .to ⊢¬φ
       f : Sentence → Bool
       f = fst ∘ totalise fₚ fₚ-total isSetBool
-      fₚ▻ : (φ : Sentence) → fₚ φ ▻ f φ
-      fₚ▻ = snd ∘ totalise fₚ fₚ-total isSetBool
+      fₚ≐ : (φ : Sentence) → fₚ φ ≐ f φ
+      fₚ≐ = snd ∘ totalise fₚ fₚ-total isSetBool
       H : f decides ⊢_
       H φ with f φ in α
       ... | true  = →: (λ _ → refl)
-                    ←: (λ _ → Hₚ .fst φ .from ▻true)
+                    ←: (λ _ → Hₚ .fst φ .from ≐true)
         where
-        ▻true : fₚ φ ▻ true
-        ▻true = subst (fₚ φ ▻_) (eqToPath α) (fₚ▻ φ)
-      ... | false = →: (λ ⊢φ → part.functional (fₚ φ) isSetBool ▻false (▻true ⊢φ))
+        ≐true : fₚ φ ≐ true
+        ≐true = subst (fₚ φ ≐_) (eqToPath α) (fₚ≐ φ)
+      ... | false = →: (λ ⊢φ → part.functional (fₚ φ) isSetBool ≐false (≐true ⊢φ))
                     ←: (λ H → ⊥.rec $ false≢true H)
         where
-        ▻true : ⊢ φ → fₚ φ ▻ true
-        ▻true = Hₚ .fst φ .to
-        ▻false : fₚ φ ▻ false
-        ▻false = subst (fₚ φ ▻_) (eqToPath α) (fₚ▻ φ)
+        ≐true : ⊢ φ → fₚ φ ≐ true
+        ≐true = Hₚ .fst φ .to
+        ≐false : fₚ φ ≐ false
+        ≐false = subst (fₚ φ ≐_) (eqToPath α) (fₚ≐ φ)
 
 open FormalSystem using (complete; independent; complete→⊢-dec) public
 

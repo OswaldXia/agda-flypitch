@@ -97,15 +97,15 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
     ... | true      | _          | true       | _         = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
     separator : A → part Bool
     separator x = record { f = fₚ x ; proper = proper x }
-    H₁ : ∀ x → B₁ x → separator x ▻ true
+    H₁ : ∀ x → B₁ x → separator x ≐ true
     H₁ x B₁x = map (λ (n , H) → n , subst (λ x → (if x then _ else _) ≡ _) (sym H) refl) (Hf x .to B₁x)
-    H₂ : ∀ x → B₂ x → separator x ▻ false
+    H₂ : ∀ x → B₂ x → separator x ≐ false
     H₂ x B₂x = map (λ (n , H) → n , aux n H) (Hg x .to B₂x) where
       aux : ∀ n → g x n ≡ true → fₚ x n ≡ just false
       aux n H with f x n in α
       ... | false = subst (λ x → (if x then _ else _) ≡ _) (sym H) refl
       ... | true = ⊥.rec $ disjoint x (Hf x .from ∣ n , eqToPath α ∣₁) B₂x
-    H₃ : ∀ x → separator x ▻ true → B₁ x
+    H₃ : ∀ x → separator x ≐ true → B₁ x
     H₃ x = ∥₁.rec (predB₁ x) λ (n , H) → Hf x .from ∣ n , aux n H ∣₁ where
       aux : ∀ n → fₚ x n ≡ just true → f x n ≡ true
       aux n H with
@@ -113,7 +113,7 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
       ... | true  | _       = refl
       ... | false | true    = ⊥.rec $ false≢true (just-inj _ _ H)
       ... | false | false   = ⊥.rec $ ¬nothing≡just H
-    H₄ : ∀ x → separator x ▻ false → B₂ x
+    H₄ : ∀ x → separator x ≐ false → B₂ x
     H₄ x = ∥₁.rec (predB₂ x) λ (n , H) → Hg x .from ∣ n , aux n H ∣₁ where
       aux : ∀ n → fₚ x n ≡ just false → g x n ≡ true
       aux n H with

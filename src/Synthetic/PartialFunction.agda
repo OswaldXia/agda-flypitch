@@ -44,13 +44,19 @@ record part (A : Type) : Type where
       σ : Σ _ Σ[x]
       σ = ε isSetΣ[x] DecΣ[x] (swapEval xₚ)
 
-_▻_ : part A → A → Type
-aᵖ ▻ x = part.eval aᵖ x
+_≐_ : part A → A → Type
+xᵖ ≐ x = part.eval xᵖ x
+
+_⦦ : part A → Type
+xᵖ ⦦ = ∃ _ (xᵖ ≐_)
+
+_⦧ : part A → Type
+xᵖ ⦧ = ¬ ∃ _ (xᵖ ≐_)
 
 total : (f : A → part B) → Type _
-total f = ∀ x → ∃ _ (f x ▻_)
+total f = ∀ x → f x ⦦
 
-totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x ▻_))
+totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x ≐_))
 totalise f H Bset x = part.totalise (f x) Bset (H x)
 
 partialise : (A → B) → A → part B
