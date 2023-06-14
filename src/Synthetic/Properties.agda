@@ -53,7 +53,7 @@ discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
 enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
 enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , Hₑ) →
   let open Lemma fᵈ Hᵈ fₑ Hₑ in
-  ∣_∣₁ $ fₛ , λ x → ↔-trans (Hₑ x) $
+  ∣_∣₁ $ fᵈ⁻ , λ x → ↔-trans (Hₑ x) $
     →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ x))
     ←: map (λ (n , H) → n , ≟→≡ x (fₑ n) H) }
   where
@@ -68,8 +68,8 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , H�
     ≟→≡ : ∀ x x? → x ≟ x? ≡ true → x? ≡ just x
     ≟→≡ x nothing H = ⊥.rec $ false≢true H
     ≟→≡ x (just _) H = cong just $ sym $ Hᵈ _ .from H
-    fₛ : A → ℕ → Bool
-    fₛ x n = x ≟ fₑ n
+    fᵈ⁻ : A → ℕ → Bool
+    fᵈ⁻ x n = x ≟ fₑ n
 
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
   isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥) →

@@ -20,9 +20,9 @@ private variable
   B B' B₁ B₂ : A → Type ℓ
   b : Bool
   fᵈ : A → Bool
-  fₛ : A → ℕ → Bool
-  fₑ : ℕ → Maybe A
+  fᵈ⁻ : A → ℕ → Bool
   fₚ : A → part Bool
+  fₑ : ℕ → Maybe A
   fᵣ : A → A'
 
 _decides_ : (A → Bool) → (A → Type ℓ) → Type _
@@ -32,22 +32,28 @@ decidable : (A → Type ℓ) → Type _
 decidable B = ∃ _ (_decides B)
 
 _semiDecides_ : (A → ℕ → Bool) → (A → Type ℓ) → Type _
-fₛ semiDecides B = ∀ x → B x ↔ ∃ _ λ n → fₛ x n ≡ true
+fᵈ⁻ semiDecides B = ∀ x → B x ↔ ∃ _ λ n → fᵈ⁻ x n ≡ true
 
 semiDecidable : (A → Type ℓ) → Type _
 semiDecidable B = ∃ _ (_semiDecides B)
+
+_partialDecides_ : (A → part Bool) → (A → Type ℓ) → Type _
+fₚ partialDecides B = ∀ x → B x ↔ fₚ x ≐ true
+
+partialDecidable : (A → Type ℓ) → Type _
+partialDecidable B = ∃ _ (_partialDecides B)
+
+_separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
+fₚ separates B₁ and B₂ = fₚ partialDecides B₁ × fₚ partialDecides B₂
+
+separatable : (A → Type ℓ) → (A → Type ℓ') → Type _
+separatable B₁ B₂ = ∃ _ (_separates B₁ and B₂)
 
 _enumerates_ : (ℕ → Maybe A) → (A → Type ℓ) → Type _
 fₑ enumerates B = ∀ x → B x ↔ ∃ _ λ n → fₑ n ≡ just x
 
 enumerable : (A → Type ℓ) → Type _
 enumerable B = ∃ _ (_enumerates B)
-
-_separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
-fₚ separates B₁ and B₂ = (∀ x → B₁ x ↔ fₚ x ≐ true) × (∀ x → B₂ x ↔ fₚ x ≐ false)
-
-separatable : (A → Type ℓ) → (A → Type ℓ') → Type _
-separatable B₁ B₂ = ∃ _ (_separates B₁ and B₂)
 
 discrete : Type ℓ → Type _
 discrete A = decidable {A = A × A} λ (x , y) → x ≡ y
@@ -67,7 +73,7 @@ isPropDecides pred = isPropΠ λ _ → isPropIff (pred _) (isSetBool _ _)
 isPropDecidable : isProp (decidable B)
 isPropDecidable = squash₁
 
-isPropSemiDecides : isPredicate B → isProp (fₛ semiDecides B)
+isPropSemiDecides : isPredicate B → isProp (fᵈ⁻ semiDecides B)
 isPropSemiDecides pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
 
 isPropSemiDecidable : isProp (semiDecidable B)
@@ -78,6 +84,12 @@ isPropEnumerates pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
 
 isPropEnumeratable : isProp (enumerable B)
 isPropEnumeratable = squash₁
+
+isPropPartialDecides : isPredicate B → isProp (fₚ partialDecides B)
+isPropPartialDecides pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
+
+isPropPartialDecidable : isProp (partialDecidable B)
+isPropPartialDecidable = squash₁
 
 isPropSeparates : isPredicate B₁ → isPredicate B₂ → isProp (fₚ separates B₁ and B₂)
 isPropSeparates pred₁ pred₂ = isProp×

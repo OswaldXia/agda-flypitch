@@ -47,14 +47,14 @@ record part (A : Type) : Type where
 _≐_ : part A → A → Type
 xᵖ ≐ x = part.eval xᵖ x
 
-_⦦ : part A → Type
-xᵖ ⦦ = ∃ _ (xᵖ ≐_)
+converging : part A → Type
+converging xᵖ = ∃ _ (xᵖ ≐_)
 
-_⦧ : part A → Type
-xᵖ ⦧ = ¬ ∃ _ (xᵖ ≐_)
+diverging : part A → Type
+diverging xᵖ = ∀ x → ¬ xᵖ ≐ x
 
 total : (f : A → part B) → Type _
-total f = ∀ x → f x ⦦
+total f = ∀ x → converging (f x)
 
 totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x ≐_))
 totalise f H Bset x = part.totalise (f x) Bset (H x)
