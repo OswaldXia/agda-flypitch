@@ -22,16 +22,16 @@ private variable
   B B' : A → Type ℓ
 
 decReduction : B ⪯ B' → decidable B' → decidable B
-decReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
+decReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → fᵈ ∘ fᵣ , λ x →
   B x             ↔⟨ Hᵣ x ⟩
-  B' (fᵣ x)       ↔⟨ Hd (fᵣ x) ⟩
-  d (fᵣ x) ≡ true ↔∎ }
+  B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
+  fᵈ (fᵣ x) ≡ true ↔∎ }
 
 semiDecReduction : B ⪯ B' → semiDecidable B' → semiDecidable B
-semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (d , Hd) → d ∘ fᵣ , λ x →
+semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → fᵈ ∘ fᵣ , λ x →
   B x             ↔⟨ Hᵣ x ⟩
-  B' (fᵣ x)       ↔⟨ Hd (fᵣ x) ⟩
-  ∃ ℕ (λ n → d (fᵣ x) n ≡ true) ↔∎ }
+  B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
+  ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true) ↔∎ }
 
 discreteℕ : discrete ℕ
 discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
@@ -51,25 +51,25 @@ discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
   ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
 
 enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
-enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (d , Hd) (fₑ , Hₑ) →
-  let open Lemma d Hd fₑ Hₑ in
-  ∣_∣₁ $ fₛ , λ a → ↔-trans (Hₑ a) $
-    →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ a))
-    ←: map (λ (n , H) → n , ≟→≡ a (fₑ n) H) }
+enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , Hₑ) →
+  let open Lemma fᵈ Hᵈ fₑ Hₑ in
+  ∣_∣₁ $ fₛ , λ x → ↔-trans (Hₑ x) $
+    →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ x))
+    ←: map (λ (n , H) → n , ≟→≡ x (fₑ n) H) }
   where
   module Lemma {B : A → Type ℓ}
-    (d : A × A → Bool) (Hd : d decides (λ (a , b) → a ≡ b))
+    (fᵈ : A × A → Bool) (Hᵈ : fᵈ decides (λ (x , y) → x ≡ y))
     (fₑ : ℕ → Maybe A) (Hₑ : fₑ enumerates B)
     where
     _≟_ : A → Maybe A → Bool
-    _≟_ a = ⁇.rec false (λ b → d (a , b))
-    ≡→≟ : ∀ a → a ≟ just a ≡ true
-    ≡→≟ a = Hd _ .to refl
-    ≟→≡ : ∀ a a? → a ≟ a? ≡ true → a? ≡ just a
-    ≟→≡ a nothing H = ⊥.rec $ false≢true H
-    ≟→≡ a (just x) H = cong just $ sym $ Hd _ .from H
+    _≟_ x = ⁇.rec false (λ y → fᵈ (x , y))
+    ≡→≟ : ∀ x → x ≟ just x ≡ true
+    ≡→≟ x = Hᵈ _ .to refl
+    ≟→≡ : ∀ x x? → x ≟ x? ≡ true → x? ≡ just x
+    ≟→≡ x nothing H = ⊥.rec $ false≢true H
+    ≟→≡ x (just _) H = cong just $ sym $ Hᵈ _ .from H
     fₛ : A → ℕ → Bool
-    fₛ a n = a ≟ fₑ n
+    fₛ x n = x ≟ fₑ n
 
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
   isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥) →

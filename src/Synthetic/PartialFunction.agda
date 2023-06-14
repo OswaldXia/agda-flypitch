@@ -19,33 +19,33 @@ private variable
 record part (A : Type) : Type where
   field
     f : ℕ → Maybe A
-    proper : ∀ {n m a b} → f n ≡ just a → f m ≡ just b → a ≡ b
+    proper : ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
 
   eval : A → Type
-  eval a = ∃ _ λ k → f k ≡ just a
+  eval x = ∃ _ λ k → f k ≡ just x
 
-  functional : isSet A → ∀ {a b} → eval a → eval b → a ≡ b
+  functional : isSet A → ∀ {x y} → eval x → eval y → x ≡ y
   functional Aset = rec2 (Aset _ _)
     (λ { (_ , Hn) (_ , Hm) → proper Hn Hm })
 
   opaque
     totalise : isSet A → ∃ _ eval → Σ _ eval
-    totalise Aset aₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
+    totalise Aset xₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
       swapEval : ∃ _ eval → ∃ _ λ k → Σ _ λ x → f k ≡ just x
-      swapEval = ∥₁.rec squash₁ λ (a , ea) → map (λ (n , H) → n , a , H) ea
-      Σ[a] : ℕ → Type
-      Σ[a] n = Σ _ λ a → f n ≡ just a
-      isSetΣ[a] : ∀ n → isSet (Σ[a] n)
-      isSetΣ[a] _ = isSetΣ Aset λ _ → isProp→isSet (isOfHLevelMaybe 0 (λ _ _ → Aset _ _) _ _)
-      DecΣ[a] : ∀ n → Dec (Σ[a] n)
-      DecΣ[a] n with f n
+      swapEval = ∥₁.rec squash₁ λ (x , ea) → map (λ (n , H) → n , x , H) ea
+      Σ[x] : ℕ → Type
+      Σ[x] n = Σ _ λ x → f n ≡ just x
+      isSetΣ[x] : ∀ n → isSet (Σ[x] n)
+      isSetΣ[x] _ = isSetΣ Aset λ _ → isProp→isSet (isOfHLevelMaybe 0 (λ _ _ → Aset _ _) _ _)
+      DecΣ[x] : ∀ n → Dec (Σ[x] n)
+      DecΣ[x] n with f n
       ... | nothing = no λ (_ , H) → ⊥.rec (¬nothing≡just H)
-      ... | just a = yes (a , refl)
-      σ : Σ _ Σ[a]
-      σ = ε isSetΣ[a] DecΣ[a] (swapEval aₚ)
+      ... | just x = yes (x , refl)
+      σ : Σ _ Σ[x]
+      σ = ε isSetΣ[x] DecΣ[x] (swapEval xₚ)
 
 _▻_ : part A → A → Type
-aᵖ ▻ a = part.eval aᵖ a
+aᵖ ▻ x = part.eval aᵖ x
 
 total : (f : A → part B) → Type _
 total f = ∀ x → ∃ _ (f x ▻_)
