@@ -6,13 +6,14 @@ open import Synthetic.PartialFunction
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Data.Equality using (pathToEq) renaming (refl to reflEq)
 open import Data.Nat using (ℕ; zero; suc; _≡ᵇ_)
 open import Data.Bool using (Bool; true; false; if_then_else_)
+open import Cubical.Data.Bool using (true≢false; false≢true)
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Maybe as ⁇
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Data.Equality using (pathToEq; eqToPath) renaming (refl to reflEq)
+open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import CubicalExt.Functions.Logic.Iff
 
 private variable
@@ -38,10 +39,8 @@ discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
 
   ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
   ≡ᵇ→≡ {zero} {zero} _ = refl
-  ≡ᵇ→≡ {zero} {suc m} H with pathToEq H
-  ... | ()
-  ≡ᵇ→≡ {suc n} {zero} H with pathToEq H
-  ... | ()
+  ≡ᵇ→≡ {zero} {suc m} H = ⊥.rec $ false≢true H
+  ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
   ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
 
 enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
@@ -60,21 +59,20 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (d , Hd) (fₑ , Hₑ) �
     ≡→≟ : ∀ a → a ≟ just a ≡ true
     ≡→≟ a = Hd _ .to refl
     ≟→≡ : ∀ a a? → a ≟ a? ≡ true → a? ≡ just a
-    ≟→≡ a nothing H with pathToEq H
-    ... | ()
+    ≟→≡ a nothing H = ⊥.rec $ false≢true H
     ≟→≡ a (just x) H = cong just $ sym $ Hd _ .from H
     fₛ : A → ℕ → Bool
     fₛ a n = a ≟ fₑ n
 
-semiDec→sep : (B₁ : A → Type ℓ) (B₂ : A → Type ℓ') → (∀ x → B₁ x → B₂ x → ⊥) →
+semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
+  isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥) →
   semiDecidable B₁ → semiDecidable B₂ → separatable B₁ B₂
-semiDec→sep B₁ B₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
-  let open Lemma f g Hf Hg in
-    (λ x → record { f = fₚ x ; proper = proper x })
-  , (λ x → {!   !})
-  , (λ x → {!   !}) }
+semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
+  let open Lemma predB₁ predB₂ disjoint f g Hf Hg in
+  separator , (λ x → →: H₁ x ←: H₃ x), (λ x → →: H₂ x ←: H₄ x) }
   where
   module Lemma {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'}
+    (predB₁ : isPredicate B₁) (predB₂ : isPredicate B₂) (disjoint : ∀ x → B₁ x → B₂ x → ⊥)
     (f g : A → ℕ → Bool) (Hf : semiDecide f B₁) (Hg : semiDecide g B₂)
     where
     fₚ : A → ℕ → Maybe Bool
@@ -82,9 +80,37 @@ semiDec→sep B₁ B₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
     proper : {n m : ℕ} {a b : Bool} (x : A) → fₚ x n ≡ just a → fₚ x m ≡ just b → a ≡ b
     proper {n} {m} x p q with
          f x n in α | g x n in β | f x m in γ | g x m in δ
-    ... | false     | false      | _          | _         = ⊥.rec (¬nothing≡just p)
-    ... | _         | _          | false      | false     = ⊥.rec (¬nothing≡just q)
-    ... | false     | true       | true       | _         = {!   !}
-    ... | true      | _          | false      | true      = {!   !}
-    ... | false     | true       | false      | true      = {!   !}
-    ... | true      | _          | true       | _         = {!   !}
+    ... | false     | false      | _          | _         = ⊥.rec $ ¬nothing≡just p
+    ... | _         | _          | false      | false     = ⊥.rec $ ¬nothing≡just q
+    ... | false     | true       | true       | _         = ⊥.rec $ disjoint x (Hf x .from ∣ m , eqToPath γ ∣₁)
+                                                                               (Hg x .from ∣ n , eqToPath β ∣₁)
+    ... | true      | _          | false      | true      = ⊥.rec $ disjoint x (Hf x .from ∣ n , eqToPath α ∣₁)
+                                                                               (Hg x .from ∣ m , eqToPath δ ∣₁)
+    ... | false     | true       | false      | true      = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
+    ... | true      | _          | true       | _         = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
+    separator : A → part Bool
+    separator x = record { f = fₚ x ; proper = proper x }
+    H₁ : ∀ x → B₁ x → separator x ▻ true
+    H₁ x B₁x = map (λ (n , H) → n , subst (λ x → (if x then _ else _) ≡ _) (sym H) refl) (Hf x .to B₁x)
+    H₂ : ∀ x → B₂ x → separator x ▻ false
+    H₂ x B₂x = map (λ (n , H) → n , aux n H) (Hg x .to B₂x) where
+      aux : ∀ n → g x n ≡ true → fₚ x n ≡ just false
+      aux n H with f x n in α
+      ... | false = subst (λ x → (if x then _ else _) ≡ _) (sym H) refl
+      ... | true = ⊥.rec $ disjoint x (Hf x .from ∣ n , eqToPath α ∣₁) B₂x
+    H₃ : ∀ x → separator x ▻ true → B₁ x
+    H₃ x = ∥₁.rec (predB₁ x) λ (n , H) → Hf x .from ∣ n , aux n H ∣₁ where
+      aux : ∀ n → fₚ x n ≡ just true → f x n ≡ true
+      aux n H with
+            f x n | g x n
+      ... | true  | _       = refl
+      ... | false | true    = ⊥.rec $ false≢true (just-inj _ _ H)
+      ... | false | false   = ⊥.rec $ ¬nothing≡just H
+    H₄ : ∀ x → separator x ▻ false → B₂ x
+    H₄ x = ∥₁.rec (predB₂ x) λ (n , H) → Hg x .from ∣ n , aux n H ∣₁ where
+      aux : ∀ n → fₚ x n ≡ just false → g x n ≡ true
+      aux n H with
+            g x n | f x n
+      ... | true  | _       = refl
+      ... | false | true    = ⊥.rec $ true≢false (just-inj _ _ H)
+      ... | false | false   = ⊥.rec $ ¬nothing≡just H

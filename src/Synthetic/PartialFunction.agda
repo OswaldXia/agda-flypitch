@@ -9,7 +9,7 @@ open import Cubical.Data.Maybe
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
-open import Cubical.HITs.PropositionalTruncation as HL1
+open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import CubicalExt.Logic.ConstructiveEpsilon
 
 private variable
@@ -31,7 +31,7 @@ record part (A : Type) : Type where
   totalise : isSet A → ∃ _ eval → Σ _ eval
   totalise Aset aₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
     swapEval : ∃ _ eval → ∃ _ λ k → Σ _ λ x → f k ≡ just x
-    swapEval = HL1.rec squash₁ λ (a , ea) → map (λ (n , H) → n , a , H) ea
+    swapEval = ∥₁.rec squash₁ λ (a , ea) → map (λ (n , H) → n , a , H) ea
     Σ[a] : ℕ → Type
     Σ[a] n = Σ _ λ a → f n ≡ just a
     isSetΣ[a] : ∀ n → isSet (Σ[a] n)
