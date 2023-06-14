@@ -1,4 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Synthetic.FormalSystem {ℓ} where
 open import Synthetic.Definitions
@@ -26,18 +27,18 @@ record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (
   ⊬_ : Sentence → Type
   ⊬_ φ = ⊢ φ → ⊥
 
+  complete : Type _
+  complete = ∀ φ → ∥ (⊢ φ) ⊎ (⊢ ¬ φ) ∥₁
+
+  independent : Type _
+  independent = ∀ φ → (⊬ φ) × (⊬ ¬ φ)
+
   ⊢¬-semiDec : semiDecidable (⊢_ ∘ ¬_)
   ⊢¬-semiDec = semiDecReduction ∣ ¬_ , (λ _ → ↔-refl) ∣₁ ⊢-semiDec
 
   ⊢-⊢¬-sep : separatable (⊢_) (⊢_ ∘ ¬_)
   ⊢-⊢¬-sep = semiDec→sep ⊢-isPred (λ _ → ⊢-isPred _)
     consistent ⊢-semiDec ⊢¬-semiDec
-
-  complete : Type _
-  complete = ∀ φ → ∥ (⊢ φ) ⊎ (⊢ ¬ φ) ∥₁
-
-  independent : Type _
-  independent = ∀ φ → (⊬ φ) × (⊬ ¬ φ)
 
   complete→⊢-dec : complete → decidable (⊢_)
   complete→⊢-dec compl = flip ∥₁.map ⊢-⊢¬-sep
@@ -66,6 +67,8 @@ record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (
         ▻true = Hₚ .fst φ .to
         ▻false : fₚ φ ▻ false
         ▻false = subst (fₚ φ ▻_) (eqToPath α) (fₚ▻ φ)
+
+open FormalSystem using (complete; independent; complete→⊢-dec) public
 
 private variable
   Sentence : Type ℓ
@@ -99,9 +102,11 @@ private variable
 represent→sound : S represents N → S soundFor N
 represent→sound = ∥₁.map λ (fᵣ , H) → fᵣ , λ n → H n .from
 
-⊢-dec→repN→decN : S₁ ⊑ S₂ → decidable (S₁ ⊢_) →
+⊢-dec→repN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) →
   (∃ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-⊢-dec→repN→decN ext = map2 λ { (fᵈ , Hᵈ) (fᵣ , H₁ , H₂) →
-  fᵈ ∘ fᵣ , λ x → {!   !} }
+⊢-dec→repN→decN ext = map2 λ { (fᵈ , Hᵈ) (fᵣ , H₁ , H₂) → fᵈ ∘ fᵣ ,
+  λ n → →: (λ H → Hᵈ _ .to $ ext _ $ H₁ _ .to H) ←: λ H → H₂ n $ Hᵈ _ .from H }
 
---com→repN→decN
+com→repN→decN : S₁ ⊑ S₂ → complete S₂ →
+  (∃ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
+com→repN→decN {S₂ = S₂} ext compl = ⊢-dec→repN→decN ext (complete→⊢-dec S₂ compl)
