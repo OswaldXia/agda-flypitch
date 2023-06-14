@@ -58,7 +58,7 @@ module _ (S : FormalSystem Sentence ¬_) where
   complete→⊢-dec : complete → decidable (⊢_)
   complete→⊢-dec compl = flip ∥₁.map ⊢-⊢¬-sep
     λ { (fₚ , Hₚ) → let open Lemma fₚ Hₚ in f , H } where
-    module Lemma (fₚ : Sentence → part Bool) (Hₚ : separate fₚ (⊢_) (⊢_ ∘ ¬_)) where
+    module Lemma (fₚ : Sentence → part Bool) (Hₚ : fₚ separates ⊢_ and (⊢_ ∘ ¬_)) where
       fₚ-total : total fₚ
       fₚ-total φ = ∥₁.map (aux φ) (compl φ) where
         aux : ∀ φ → (⊢ φ) ⊎ (⊢ ¬ φ) → Σ _ (fₚ φ ▻_)
@@ -68,7 +68,7 @@ module _ (S : FormalSystem Sentence ¬_) where
       f = fst ∘ totalise fₚ fₚ-total isSetBool
       fₚ▻ : (φ : Sentence) → fₚ φ ▻ f φ
       fₚ▻ = snd ∘ totalise fₚ fₚ-total isSetBool
-      H : decide f (⊢_)
+      H : f decides ⊢_
       H φ with f φ in α
       ... | true  = →: (λ _ → refl)
                     ←: (λ _ → Hₚ .fst φ .from ▻true)

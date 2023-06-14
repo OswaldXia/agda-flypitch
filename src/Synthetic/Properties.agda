@@ -58,8 +58,8 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (d , Hd) (fₑ , Hₑ) �
     ←: map (λ (n , H) → n , ≟→≡ a (fₑ n) H) }
   where
   module Lemma {B : A → Type ℓ}
-    (d : A × A → Bool) (Hd : decide d (λ (a , b) → a ≡ b))
-    (fₑ : ℕ → Maybe A) (Hₑ : enumerate fₑ B)
+    (d : A × A → Bool) (Hd : d decides (λ (a , b) → a ≡ b))
+    (fₑ : ℕ → Maybe A) (Hₑ : fₑ enumerates B)
     where
     _≟_ : A → Maybe A → Bool
     _≟_ a = ⁇.rec false (λ b → d (a , b))
@@ -80,7 +80,7 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
   where
   module Lemma {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'}
     (predB₁ : isPredicate B₁) (predB₂ : isPredicate B₂) (disjoint : ∀ x → B₁ x → B₂ x → ⊥)
-    (f g : A → ℕ → Bool) (Hf : semiDecide f B₁) (Hg : semiDecide g B₂)
+    (f g : A → ℕ → Bool) (Hf : f semiDecides B₁) (Hg : g semiDecides B₂)
     where
     fₚ : A → ℕ → Maybe Bool
     fₚ x n = if (f x n) then just true else (if g x n then just false else nothing)
