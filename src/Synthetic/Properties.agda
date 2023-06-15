@@ -33,22 +33,10 @@ semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → f
   B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true) ↔∎ }
 
-discreteℕ : discrete ℕ
-discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
-                 , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)
-  where
-  ≡→≡ᵇ : {n m : ℕ} → n ≡ m → (n ≡ᵇ m) ≡ true
-  ≡→≡ᵇ {n} path with pathToEq path
-  ... | reflEq = ≡ᵇ-refl n where
-    ≡ᵇ-refl : (n : ℕ) → (n ≡ᵇ n) ≡ true
-    ≡ᵇ-refl zero = refl
-    ≡ᵇ-refl (suc n) = ≡ᵇ-refl n
-
-  ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
-  ≡ᵇ→≡ {zero} {zero} _ = refl
-  ≡ᵇ→≡ {zero} {suc m} H = ⊥.rec $ false≢true H
-  ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
-  ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
+dec→pDec : isPredicate B → Σ (A → Bool) (_decides B) → Σ (A → part Bool) (_partialDecides B)
+dec→pDec predB (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ H₁ H₂ → just-inj _ _ $ (sym H₁) ∙ H₂) ,
+  λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
+        ←: ∥₁.rec (predB _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)
 
 enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
 enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , Hₑ) →
@@ -121,3 +109,20 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
       ... | true  | _       = refl
       ... | false | true    = ⊥.rec $ true≢false (just-inj _ _ H)
       ... | false | false   = ⊥.rec $ ¬nothing≡just H
+
+discreteℕ : discrete ℕ
+discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
+                 , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)
+  where
+  ≡→≡ᵇ : {n m : ℕ} → n ≡ m → (n ≡ᵇ m) ≡ true
+  ≡→≡ᵇ {n} path with pathToEq path
+  ... | reflEq = ≡ᵇ-refl n where
+    ≡ᵇ-refl : (n : ℕ) → (n ≡ᵇ n) ≡ true
+    ≡ᵇ-refl zero = refl
+    ≡ᵇ-refl (suc n) = ≡ᵇ-refl n
+
+  ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
+  ≡ᵇ→≡ {zero} {zero} _ = refl
+  ≡ᵇ→≡ {zero} {suc m} H = ⊥.rec $ false≢true H
+  ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
+  ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)

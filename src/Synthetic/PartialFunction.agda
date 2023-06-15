@@ -3,7 +3,9 @@
 module Synthetic.PartialFunction where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Maybe
 open import Cubical.Data.Nat
@@ -46,13 +48,13 @@ record part (A : Type) : Type where
       σ = ε isSetΣ[x] DecΣ[x] (swapEval xₚ)
 
 _≐_ : part A → A → Type
-xᵖ ≐ x = part.eval xᵖ x
+xₚ ≐ x = part.eval xₚ x
 
 converging : part A → Type
-converging xᵖ = ∃ _ (xᵖ ≐_)
+converging xₚ = ∃ _ (xₚ ≐_)
 
 diverging : part A → Type
-diverging xᵖ = ∀ x → ¬ xᵖ ≐ x
+diverging xₚ = ∀ x → ¬ xₚ ≐ x
 
 total : (f : A → part B) → Type _
 total f = ∀ x → converging (f x)
@@ -62,3 +64,26 @@ totalise f H Bset x = part.totalise (f x) Bset (H x)
 
 partialise : (A → B) → A → part B
 partialise f x = mkPart (λ _ → just (f x)) (λ p q → just-inj _ _ ((sym p) ∙ q))
+
+--------------------------------------------------------------------------------
+-- sethood of part
+
+partΣ : Type → Type
+partΣ A = Σ (ℕ → Maybe A) λ f → ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
+
+partΣIsoPart : Iso (partΣ A) (part A)
+Iso.fun       partΣIsoPart (f , p) = mkPart f p
+Iso.inv       partΣIsoPart xₚ = part.f xₚ , part.proper xₚ
+Iso.leftInv   partΣIsoPart a = refl
+Iso.rightInv  partΣIsoPart b = refl
+
+partΣ≡Part : partΣ A ≡ part A
+partΣ≡Part = isoToPath partΣIsoPart
+
+isSetPartΣ : isSet A → isSet (partΣ A)
+isSetPartΣ Aset = isSetΣ (isSet→ (isOfHLevelMaybe 0 Aset))
+  λ _ → isSetImplicitΠ λ _ → isSetImplicitΠ λ _ → isSetImplicitΠ λ _ → isSetImplicitΠ
+    λ _ → isSet→ $ isSet→ $ isProp→isSet $ Aset _ _
+
+isSetPart : isSet A → isSet (part A)
+isSetPart Aset = subst isSet partΣ≡Part (isSetPartΣ Aset)
