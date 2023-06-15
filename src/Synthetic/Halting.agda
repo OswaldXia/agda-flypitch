@@ -23,12 +23,26 @@ open import CubicalExt.Functions.Logic.Iff
 Kᶿ : ℕ → Type
 Kᶿ c = ∃ _ (Θ c c ≐_)
 
-Kᶿ-diverging : ∀ fₚ → fₚ partialDecides Kᶿ → ∃ _ λ c → diverging (fₚ c)
-Kᶿ-diverging fₚ Hₚ = {!   !}
+Kᶿ-divergent : ∀ fₚ → fₚ partialDecides Kᶿ → ∃ _ λ c → divergent (fₚ c)
+Kᶿ-divergent fₚ Hₚ = {!   !}
   where
+  eval : ℕ → ℕ → Maybe Bool
+  eval n m with fₚ n .part.eval m
+  ... | just true = nothing
+  ... | just false = just true
+  ... | nothing = nothing
+  proper : ∀ n → deterministic (eval n)
+  proper n {m₁} {m₂} p q with fₚ n .part.eval m₁ | fₚ n .part.eval m₂
+  ... | just true  | just true  = {!   !}
+  ... | just false | just false = {!   !}
+  ... | just true  | just false = {!   !}
+  ... | just false | just true  = {!   !}
+  ... | nothing    | just _     = {!   !}
+  ... | just _     | nothing    = {!   !}
+  ... | nothing    | nothing    = {!   !}
   gₚ : ℕ → part Bool
-  gₚ n = mkPart (λ m → {! fₚ n  !}) {!   !}
+  gₚ n = mkPart (eval n) (proper n)
 
 Kᶿ-¬dec : ¬ decidable Kᶿ
 Kᶿ-¬dec = ∥₁.rec isProp⊥ λ dec@(fᵈ , _) → let (fₚ , Hₚ) = dec→pDec (λ _ → squash₁) dec in
-  ∥₁.rec isProp⊥ (λ (c , div) → div (fᵈ c) ∣ 0 , refl ∣₁) (Kᶿ-diverging fₚ Hₚ)
+  ∥₁.rec isProp⊥ (λ (c , div) → div (fᵈ c) ∣ 0 , refl ∣₁) (Kᶿ-divergent fₚ Hₚ)

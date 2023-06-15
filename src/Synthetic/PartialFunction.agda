@@ -18,62 +18,65 @@ private variable
   ℓ : Level
   A B : Type ℓ
 
+deterministic : (A → Maybe B) → Type _
+deterministic f = ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
+
 record part (A : Type) : Type where
   constructor mkPart
   field
-    f : ℕ → Maybe A
-    proper : ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
+    eval : ℕ → Maybe A
+    proper : deterministic eval
 
-  eval : A → Type
-  eval x = ∃ _ λ k → f k ≡ just x
+  evalTo : A → Type
+  evalTo x = ∃ _ λ k → eval k ≡ just x
 
-  functional : isSet A → ∀ {x y} → eval x → eval y → x ≡ y
+  functional : isSet A → ∀ {x y} → evalTo x → evalTo y → x ≡ y
   functional Aset = rec2 (Aset _ _)
     (λ { (_ , Hn) (_ , Hm) → proper Hn Hm })
 
   opaque
-    totalise : isSet A → ∃ _ eval → Σ _ eval
+    totalise : isSet A → ∃ _ evalTo → Σ _ evalTo
     totalise Aset xₚ = σ .snd .fst , ∣ σ .fst , σ .snd .snd ∣₁ where
-      swapEval : ∃ _ eval → ∃ _ λ k → Σ _ λ x → f k ≡ just x
-      swapEval = ∥₁.rec squash₁ λ (x , ea) → map (λ (n , H) → n , x , H) ea
+      swapevalTo : ∃ _ evalTo → ∃ _ λ k → Σ _ λ x → eval k ≡ just x
+      swapevalTo = ∥₁.rec squash₁ λ (x , ea) → map (λ (n , H) → n , x , H) ea
       Σ[x] : ℕ → Type
-      Σ[x] n = Σ _ λ x → f n ≡ just x
+      Σ[x] n = Σ _ λ x → eval n ≡ just x
       isSetΣ[x] : ∀ n → isSet (Σ[x] n)
       isSetΣ[x] _ = isSetΣ Aset λ _ → isProp→isSet (isOfHLevelMaybe 0 (λ _ _ → Aset _ _) _ _)
       DecΣ[x] : ∀ n → Dec (Σ[x] n)
-      DecΣ[x] n with f n
+      DecΣ[x] n with eval n
       ... | nothing = no λ (_ , H) → ⊥.rec (¬nothing≡just H)
       ... | just x = yes (x , refl)
       σ : Σ _ Σ[x]
-      σ = ε isSetΣ[x] DecΣ[x] (swapEval xₚ)
+      σ = ε isSetΣ[x] DecΣ[x] (swapevalTo xₚ)
 
 _≐_ : part A → A → Type
-xₚ ≐ x = part.eval xₚ x
+xₚ ≐ x = part.evalTo xₚ x
 
-converging : part A → Type
-converging xₚ = ∃ _ (xₚ ≐_)
+convergent : part A → Type
+convergent xₚ = ∃ _ (xₚ ≐_)
 
-diverging : part A → Type
-diverging xₚ = ∀ x → ¬ xₚ ≐ x
+divergent : part A → Type
+divergent xₚ = ∀ x → ¬ xₚ ≐ x
 
-total : (f : A → part B) → Type _
-total f = ∀ x → converging (f x)
+total : (eval : A → part B) → Type _
+total eval = ∀ x → convergent (eval x)
 
-totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x ≐_))
-totalise f H Bset x = part.totalise (f x) Bset (H x)
+totalise : (eval : A → part B) → total eval → isSet B → (∀ x → Σ _ (eval x ≐_))
+totalise eval H Bset x = part.totalise (eval x) Bset (H x)
 
 partialise : (A → B) → A → part B
-partialise f x = mkPart (λ _ → just (f x)) (λ p q → just-inj _ _ ((sym p) ∙ q))
+partialise eval x = mkPart (λ _ → just (eval x)) (λ p q → just-inj _ _ ((sym p) ∙ q))
 
 --------------------------------------------------------------------------------
 -- sethood of part
 
 partΣ : Type → Type
-partΣ A = Σ (ℕ → Maybe A) λ f → ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
+partΣ A = Σ (ℕ → Maybe A) deterministic
 
 partΣIsoPart : Iso (partΣ A) (part A)
-Iso.fun       partΣIsoPart (f , p) = mkPart f p
-Iso.inv       partΣIsoPart xₚ = part.f xₚ , part.proper xₚ
+Iso.fun       partΣIsoPart (eval , p) = mkPart eval p
+Iso.inv       partΣIsoPart xₚ = part.eval xₚ , part.proper xₚ
 Iso.leftInv   partΣIsoPart a = refl
 Iso.rightInv  partΣIsoPart b = refl
 

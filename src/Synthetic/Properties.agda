@@ -34,7 +34,7 @@ semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → f
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true) ↔∎ }
 
 dec→pDec : isPredicate B → Σ (A → Bool) (_decides B) → Σ (A → part Bool) (_partialDecides B)
-dec→pDec predB (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ H₁ H₂ → just-inj _ _ $ (sym H₁) ∙ H₂) ,
+dec→pDec predB (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ p q → just-inj _ _ $ (sym p) ∙ q) ,
   λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
         ←: ∥₁.rec (predB _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)
 
