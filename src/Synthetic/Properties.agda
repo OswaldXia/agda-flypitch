@@ -96,7 +96,7 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
     ... | false     | true       | false      | true      = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
     ... | true      | _          | true       | _         = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
     separator : A → part Bool
-    separator x = record { f = fₚ x ; proper = proper x }
+    separator x = mkPart (fₚ x) (proper x)
     H₁ : ∀ x → B₁ x → separator x ≐ true
     H₁ x B₁x = map (λ (n , H) → n , subst (λ x → (if x then _ else _) ≡ _) (sym H) refl) (Hf x .to B₁x)
     H₂ : ∀ x → B₂ x → separator x ≐ false

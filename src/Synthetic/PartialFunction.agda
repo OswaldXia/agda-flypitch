@@ -17,6 +17,7 @@ private variable
   A B : Type ℓ
 
 record part (A : Type) : Type where
+  constructor mkPart
   field
     f : ℕ → Maybe A
     proper : ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
@@ -60,4 +61,4 @@ totalise : (f : A → part B) → total f → isSet B → (∀ x → Σ _ (f x �
 totalise f H Bset x = part.totalise (f x) Bset (H x)
 
 partialise : (A → B) → A → part B
-partialise f x = record { f = λ _ → just (f x) ; proper = λ p q → just-inj _ _ ((sym p) ∙ q) }
+partialise f x = mkPart (λ _ → just (f x)) (λ p q → just-inj _ _ ((sym p) ∙ q))

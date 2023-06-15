@@ -7,6 +7,7 @@ module Synthetic.Halting ((Θ , Θ-universal) : EPFᴮ) where
 open import Synthetic.PartialFunction
 open import Synthetic.Definitions
 
+open import Cubical.Foundations.Function
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Maybe
@@ -26,6 +27,6 @@ Kᶿ-¬dec : ¬ decidable Kᶿ
 Kᶿ-¬dec dec = {!   !} where
   fₚ : ℕ → part Bool
   fₚ n = rec→Set {!   !}
-    (λ { (fᵈ , Hᵈ) → record { f = λ n → just (fᵈ n) ; proper = {!   !} } })
-    {!   !}
+    (λ { (fᵈ , Hᵈ) → mkPart (λ _ → just (fᵈ n)) λ H₁ H₂ → just-inj _ _ $ (sym H₁) ∙ H₂ })
+    (λ x y → {! ΣPathP  !})
     dec

@@ -40,11 +40,14 @@ semiDecidable B = ∃ _ (_semiDecides B)
 _partialDecides_ : (A → part Bool) → (A → Type ℓ) → Type _
 fₚ partialDecides B = ∀ x → B x ↔ fₚ x ≐ true
 
+_partialDecides⁰_ : (A → part Bool) → (A → Type ℓ) → Type _
+fₚ partialDecides⁰ B = ∀ x → B x ↔ fₚ x ≐ false
+
 partialDecidable : (A → Type ℓ) → Type _
 partialDecidable B = ∃ _ (_partialDecides B)
 
 _separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
-fₚ separates B₁ and B₂ = fₚ partialDecides B₁ × fₚ partialDecides B₂
+fₚ separates B₁ and B₂ = fₚ partialDecides B₁ × fₚ partialDecides⁰ B₂
 
 separatable : (A → Type ℓ) → (A → Type ℓ') → Type _
 separatable B₁ B₂ = ∃ _ (_separates B₁ and B₂)
