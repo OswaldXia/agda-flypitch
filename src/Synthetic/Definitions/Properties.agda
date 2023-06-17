@@ -1,11 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Synthetic.Properties where
-open import Synthetic.Definitions
+module Synthetic.Definitions.Properties where
 open import Synthetic.PartialFunction
+open import Synthetic.Definitions.Base
+open import Synthetic.Definitions.Prophood
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 open import Data.Nat using (ℕ; zero; suc; _≡ᵇ_)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Cubical.Data.Bool using (true≢false; false≢true)
@@ -21,11 +23,12 @@ private variable
   A A' : Type ℓ
   B B' : A → Type ℓ
 
-decReduction : B ⪯ B' → decidable B' → decidable B
-decReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → fᵈ ∘ fᵣ , λ x →
-  B x             ↔⟨ Hᵣ x ⟩
-  B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
-  fᵈ (fᵣ x) ≡ true ↔∎ }
+decReduction : isPredicate B → B ⪯ B' → decidable B' → decidable B
+decReduction {B = B} {B' = B'} pred = ∥₁.rec (isProp→ (isPropDecidable pred))
+  λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → fᵈ ∘ fᵣ , λ x →
+    B x             ↔⟨ Hᵣ x ⟩
+    B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
+    fᵈ (fᵣ x) ≡ true ↔∎ }
 
 semiDecReduction : B ⪯ B' → semiDecidable B' → semiDecidable B
 semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → fᵈ ∘ fᵣ , λ x →
@@ -33,13 +36,30 @@ semiDecReduction {B = B} {B' = B'} = map2 λ { (fᵣ , Hᵣ) (fᵈ , Hᵈ) → f
   B' (fᵣ x)       ↔⟨ Hᵈ (fᵣ x) ⟩
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true) ↔∎ }
 
-dec→pDec : isPredicate B → Σ (A → Bool) (_decides B) → Σ (A → part Bool) (_partialDecides B)
-dec→pDec predB (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ p q → just-inj _ _ $ (sym p) ∙ q) ,
+dec→pDec : isPredicate B → decidable B → Σ (A → part Bool) (_partialDecides B)
+dec→pDec pred (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ p q → just-inj _ _ $ (sym p) ∙ q) ,
   λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
-        ←: ∥₁.rec (predB _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)
+        ←: ∥₁.rec (pred _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)
+
+discreteℕ : discrete ℕ
+discreteℕ = (λ (n , m) → n ≡ᵇ m)
+          , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)
+  where
+  ≡→≡ᵇ : {n m : ℕ} → n ≡ m → (n ≡ᵇ m) ≡ true
+  ≡→≡ᵇ {n} path with pathToEq path
+  ... | reflEq = ≡ᵇ-refl n where
+    ≡ᵇ-refl : (n : ℕ) → (n ≡ᵇ n) ≡ true
+    ≡ᵇ-refl zero = refl
+    ≡ᵇ-refl (suc n) = ≡ᵇ-refl n
+
+  ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
+  ≡ᵇ→≡ {zero} {zero} _ = refl
+  ≡ᵇ→≡ {zero} {suc m} H = ⊥.rec $ false≢true H
+  ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
+  ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
 
 enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
-enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , Hₑ) →
+enum→semiDec {_} {A} (fᵈ , Hᵈ) = ∥₁.rec squash₁ λ { (fₑ , Hₑ) →
   let open Lemma fᵈ Hᵈ fₑ Hₑ in
   ∣_∣₁ $ fᵈ⁻ , λ x → ↔-trans (Hₑ x) $
     →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ x))
@@ -62,12 +82,12 @@ enum→semiDec {_} {A} = rec2 isPropSemiDecidable λ { (fᵈ , Hᵈ) (fₑ , H�
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
   isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥) →
   semiDecidable B₁ → semiDecidable B₂ → separatable B₁ B₂
-semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
-  let open Lemma predB₁ predB₂ disjoint f g Hf Hg in
+semiDec→sep pred₁ pred₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
+  let open Lemma pred₁ pred₂ disjoint f g Hf Hg in
   separator , (λ x → →: H₁ x ←: H₃ x), (λ x → →: H₂ x ←: H₄ x) }
   where
   module Lemma {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'}
-    (predB₁ : isPredicate B₁) (predB₂ : isPredicate B₂) (disjoint : ∀ x → B₁ x → B₂ x → ⊥)
+    (pred₁ : isPredicate B₁) (pred₂ : isPredicate B₂) (disjoint : ∀ x → B₁ x → B₂ x → ⊥)
     (f g : A → ℕ → Bool) (Hf : f semiDecides B₁) (Hg : g semiDecides B₂)
     where
     fₚ : A → ℕ → Maybe Bool
@@ -94,7 +114,7 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
       ... | false = subst (λ x → (if x then _ else _) ≡ _) (sym H) refl
       ... | true = ⊥.rec $ disjoint x (Hf x .from ∣ n , eqToPath α ∣₁) B₂x
     H₃ : ∀ x → separator x ≐ true → B₁ x
-    H₃ x = ∥₁.rec (predB₁ x) λ (n , H) → Hf x .from ∣ n , aux n H ∣₁ where
+    H₃ x = ∥₁.rec (pred₁ x) λ (n , H) → Hf x .from ∣ n , aux n H ∣₁ where
       aux : ∀ n → fₚ x n ≡ just true → f x n ≡ true
       aux n H with
             f x n | g x n
@@ -102,27 +122,10 @@ semiDec→sep predB₁ predB₂ disjoint = map2 λ { (f , Hf) (g , Hg) →
       ... | false | true    = ⊥.rec $ false≢true (just-inj _ _ H)
       ... | false | false   = ⊥.rec $ ¬nothing≡just H
     H₄ : ∀ x → separator x ≐ false → B₂ x
-    H₄ x = ∥₁.rec (predB₂ x) λ (n , H) → Hg x .from ∣ n , aux n H ∣₁ where
+    H₄ x = ∥₁.rec (pred₂ x) λ (n , H) → Hg x .from ∣ n , aux n H ∣₁ where
       aux : ∀ n → fₚ x n ≡ just false → g x n ≡ true
       aux n H with
             g x n | f x n
       ... | true  | _       = refl
       ... | false | true    = ⊥.rec $ true≢false (just-inj _ _ H)
       ... | false | false   = ⊥.rec $ ¬nothing≡just H
-
-discreteℕ : discrete ℕ
-discreteℕ = ∣_∣₁ $ (λ (n , m) → n ≡ᵇ m)
-                 , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)
-  where
-  ≡→≡ᵇ : {n m : ℕ} → n ≡ m → (n ≡ᵇ m) ≡ true
-  ≡→≡ᵇ {n} path with pathToEq path
-  ... | reflEq = ≡ᵇ-refl n where
-    ≡ᵇ-refl : (n : ℕ) → (n ≡ᵇ n) ≡ true
-    ≡ᵇ-refl zero = refl
-    ≡ᵇ-refl (suc n) = ≡ᵇ-refl n
-
-  ≡ᵇ→≡ : {n m : ℕ} → (n ≡ᵇ m) ≡ true → n ≡ m
-  ≡ᵇ→≡ {zero} {zero} _ = refl
-  ≡ᵇ→≡ {zero} {suc m} H = ⊥.rec $ false≢true H
-  ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
-  ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)

@@ -2,9 +2,10 @@
 {-# OPTIONS --lossy-unification #-}
 
 module Synthetic.FormalSystem {ℓ} where
-open import Synthetic.Definitions
-open import Synthetic.Properties
 open import Synthetic.PartialFunction
+open import Synthetic.Definitions.Base
+open import Synthetic.Definitions.Properties
+open import Synthetic.Definitions.Prophood
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -41,8 +42,9 @@ record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (
     consistent ⊢-semiDec ⊢¬-semiDec
 
   complete→⊢-dec : complete → decidable (⊢_)
-  complete→⊢-dec compl = flip ∥₁.map ⊢-⊢¬-sep
-    λ { (fₚ , Hₚ) → let open Lemma fₚ Hₚ in f , H } where
+  complete→⊢-dec compl = ∥₁.rec (isPropDecidable ⊢-isPred)
+    (λ { (fₚ , Hₚ) → let open Lemma fₚ Hₚ in f , H }) ⊢-⊢¬-sep
+    where
     module Lemma (fₚ : Sentence → part Bool) (Hₚ : fₚ separates ⊢_ and (⊢_ ∘ ¬_)) where
       fₚ-total : total fₚ
       fₚ-total φ = ∥₁.map (aux φ) (compl φ) where
@@ -102,11 +104,14 @@ private variable
 represent→sound : S represents N → S soundFor N
 represent→sound = ∥₁.map λ (fᵣ , H) → fᵣ , λ n → H n .from
 
-⊢-dec→repN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) →
+⊢-dec→repN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) → isPredicate N →
   (∃ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-⊢-dec→repN→decN ext = map2 λ { (fᵈ , Hᵈ) (fᵣ , H₁ , H₂) → fᵈ ∘ fᵣ ,
-  λ n → →: (λ H → Hᵈ _ .to $ ext _ $ H₁ _ .to H) ←: λ H → H₂ n $ Hᵈ _ .from H }
+⊢-dec→repN→decN ext (fᵈ , Hᵈ) pred =
+  ∥₁.rec (isPropDecidable pred) λ { (fᵣ , H₁ , H₂) → fᵈ ∘ fᵣ , λ n →
+    →: (λ H → Hᵈ _ .to $ ext _ $ H₁ _ .to H)
+    ←: λ H → H₂ n $ Hᵈ _ .from H }
 
-com→repN→decN : S₁ ⊑ S₂ → complete S₂ →
+com→repN→decN : S₁ ⊑ S₂ → complete S₂ → isPredicate N →
   (∃ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-com→repN→decN {S₂ = S₂} ext compl = ⊢-dec→repN→decN ext (complete→⊢-dec S₂ compl)
+com→repN→decN {S₂ = S₂} ext compl pred =
+  ⊢-dec→repN→decN ext (complete→⊢-dec S₂ compl) pred

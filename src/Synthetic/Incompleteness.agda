@@ -7,8 +7,8 @@ module Synthetic.Incompleteness
   (S : FormalSystem Sentence ¬_) where
 open FormalSystem S
 
-open import Synthetic.Definitions
-open import Synthetic.Properties
+open import Synthetic.Definitions.Base
+open import Synthetic.Definitions.Properties
 
 open import Cubical.Foundations.Function
 open import Cubical.Data.Bool

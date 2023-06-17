@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --hidden-argument-puns #-}
 
-module Synthetic.Church where
+module Synthetic.Axiom.Base where
 open import Synthetic.PartialFunction
 
 open import Cubical.Foundations.Prelude
