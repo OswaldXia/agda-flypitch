@@ -72,7 +72,7 @@ open FormalSystem using (complete; independent; complete→⊢-dec) public
 
 private variable
   ℓ : Level
-  Sentence : Type ℓ
+  A Sentence : Type ℓ
   ¬_ : Sentence → Sentence
 
 _⊢_ : FormalSystem Sentence ¬_ → Sentence → Type
@@ -87,32 +87,32 @@ S₁ ⊑ S₂ = ∀ φ → S₁ ⊢ φ → S₂ ⊢ φ
 ⊑-refl : {S : FormalSystem Sentence ¬_} → S ⊑ S
 ⊑-refl _ = idfun _
 
-_represents_by_ : FormalSystem Sentence ¬_ → (ℕ → Type ℓ) → (ℕ → Sentence) → Type _
+_represents_by_ : FormalSystem Sentence ¬_ → (A → Type ℓ) → (A → Sentence) → Type _
 S represents N by fᵣ = fᵣ reducts N to (S ⊢_)
 
-_represents_ : FormalSystem Sentence ¬_ → (ℕ → Type ℓ) → Type _
+_represents_ : FormalSystem Sentence ¬_ → (A → Type ℓ) → Type _
 S represents N = N ⪯ (S ⊢_)
 
-_soundFor_by_ : FormalSystem Sentence ¬_ → (ℕ → Type ℓ) → (ℕ → Sentence) → Type _
+_soundFor_by_ : FormalSystem Sentence ¬_ → (A → Type ℓ) → (A → Sentence) → Type _
 S soundFor N by fᵣ = ∀ n → S ⊢ (fᵣ n) → N n
 
-_soundFor_ : FormalSystem Sentence ¬_ → (ℕ → Type ℓ) → Type _
-S soundFor N = Σ (ℕ → _) λ fᵣ → S soundFor N by fᵣ
+_soundFor_ : FormalSystem Sentence ¬_ → (A → Type ℓ) → Type _
+S soundFor N = Σ _ λ fᵣ → S soundFor N by fᵣ
 
 private variable
   S S₁ S₂ : FormalSystem Sentence ¬_
-  N : ℕ → Type ℓ
+  B : A → Type ℓ
 
-represent→sound : S represents N → S soundFor N
+represent→sound : S represents B → S soundFor B
 represent→sound (fᵣ , H) = fᵣ , λ n → H n .from
 
-⊢-dec→reprN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) → isPredicate N →
-  (Σ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-⊢-dec→reprN→decN ext (fᵈ , Hᵈ) pred (fᵣ , H₁ , H₂) = fᵈ ∘ fᵣ , λ n →
+⊢-dec→repr→dec : S₁ ⊑ S₂ → decidable (S₂ ⊢_) → isPredicate B →
+  (Σ _ λ fᵣ → S₁ represents B by fᵣ × S₂ soundFor B by fᵣ) → decidable B
+⊢-dec→repr→dec ext (fᵈ , Hᵈ) pred (fᵣ , H₁ , H₂) = fᵈ ∘ fᵣ , λ n →
   →: (λ H → Hᵈ _ .to $ ext _ $ H₁ _ .to H)
   ←: λ H → H₂ n $ Hᵈ _ .from H
 
-com→reprN→decN : S₁ ⊑ S₂ → complete S₂ → isPredicate N →
-  (Σ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-com→reprN→decN {S₂ = S₂} ext compl pred =
-  ⊢-dec→reprN→decN ext (complete→⊢-dec S₂ compl) pred
+com→repr→dec : S₁ ⊑ S₂ → complete S₂ → isPredicate B →
+  (Σ _ λ fᵣ → S₁ represents B by fᵣ × S₂ soundFor B by fᵣ) → decidable B
+com→repr→dec {S₂ = S₂} ext compl pred =
+  ⊢-dec→repr→dec ext (complete→⊢-dec S₂ compl) pred
