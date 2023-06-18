@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
-module Synthetic.FormalSystem {ℓ} where
+module Synthetic.FormalSystem where
 open import Synthetic.PartialFunction
 open import Synthetic.Definitions.Base
 open import Synthetic.Definitions.Properties
@@ -18,7 +18,7 @@ open import Cubical.Data.Equality using (eqToPath)
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import CubicalExt.Functions.Logic.Iff
 
-record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (ℓ-suc ℓ) where
+record FormalSystem {ℓ} (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (ℓ-suc ℓ) where
   field
     ⊢_ : Sentence → Type
     ⊢-isPred : isPredicate ⊢_
@@ -71,6 +71,7 @@ record FormalSystem (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : Type (
 open FormalSystem using (complete; independent; complete→⊢-dec) public
 
 private variable
+  ℓ : Level
   Sentence : Type ℓ
   ¬_ : Sentence → Sentence
 
@@ -82,6 +83,9 @@ S ⊬ φ = ⊬_ φ where open FormalSystem S
 
 _⊑_ : FormalSystem Sentence ¬_ → FormalSystem Sentence ¬_ → Type _
 S₁ ⊑ S₂ = ∀ φ → S₁ ⊢ φ → S₂ ⊢ φ
+
+⊑-refl : {S : FormalSystem Sentence ¬_} → S ⊑ S
+⊑-refl _ = idfun _
 
 _represents_by_ : FormalSystem Sentence ¬_ → (ℕ → Type ℓ) → (ℕ → Sentence) → Type _
 S represents N by fᵣ = fᵣ reducts N to (S ⊢_)
@@ -102,13 +106,13 @@ private variable
 represent→sound : S represents N → S soundFor N
 represent→sound (fᵣ , H) = fᵣ , λ n → H n .from
 
-⊢-dec→repN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) → isPredicate N →
+⊢-dec→reprN→decN : S₁ ⊑ S₂ → decidable (S₂ ⊢_) → isPredicate N →
   (Σ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-⊢-dec→repN→decN ext (fᵈ , Hᵈ) pred (fᵣ , H₁ , H₂) = fᵈ ∘ fᵣ , λ n →
+⊢-dec→reprN→decN ext (fᵈ , Hᵈ) pred (fᵣ , H₁ , H₂) = fᵈ ∘ fᵣ , λ n →
   →: (λ H → Hᵈ _ .to $ ext _ $ H₁ _ .to H)
   ←: λ H → H₂ n $ Hᵈ _ .from H
 
-com→repN→decN : S₁ ⊑ S₂ → complete S₂ → isPredicate N →
+com→reprN→decN : S₁ ⊑ S₂ → complete S₂ → isPredicate N →
   (Σ (ℕ → _) λ fᵣ → S₁ represents N by fᵣ × S₂ soundFor N by fᵣ) → decidable N
-com→repN→decN {S₂ = S₂} ext compl pred =
-  ⊢-dec→repN→decN ext (complete→⊢-dec S₂ compl) pred
+com→reprN→decN {S₂ = S₂} ext compl pred =
+  ⊢-dec→reprN→decN ext (complete→⊢-dec S₂ compl) pred
