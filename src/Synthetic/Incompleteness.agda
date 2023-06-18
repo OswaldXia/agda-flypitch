@@ -12,13 +12,10 @@ open import Synthetic.FormalSystem using (_represents_by_; ⊢-dec→repr→dec;
 open FormalSystem S using (⊢_; complete; complete→⊢-dec)
 
 open import Synthetic.Definitions.Base
-open import Synthetic.Definitions.Properties
 open import Synthetic.Halting epf
 
 open import Cubical.Foundations.Function
-open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-open import Cubical.Data.Sum
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import CubicalExt.Functions.Logic.Iff
