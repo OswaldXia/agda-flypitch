@@ -35,7 +35,7 @@ semiDecReduction {B = B} {B' = B'} (fᵣ , Hᵣ) (fᵈ , Hᵈ) = fᵈ ∘ fᵣ ,
   B' (fᵣ x)                       ↔⟨ Hᵈ (fᵣ x) ⟩
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true)  ↔∎
 
-dec→pDec : isPredicate B → decidable B → Σ (A → part Bool) (_partialDecides B)
+dec→pDec : isPredicate B → decidable B → decidableₚ B
 dec→pDec pred (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ p q → just-inj _ _ $ (sym p) ∙ q) ,
   λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
         ←: ∥₁.rec (pred _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)

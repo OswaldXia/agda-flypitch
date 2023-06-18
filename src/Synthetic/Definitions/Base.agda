@@ -32,17 +32,17 @@ fᵈ⁻ semiDecides B = ∀ x → B x ↔ ∃ _ λ n → fᵈ⁻ x n ≡ true
 semiDecidable : (A → Type ℓ) → Type _
 semiDecidable B = Σ _ (_semiDecides B)
 
-_partialDecides_ : (A → part Bool) → (A → Type ℓ) → Type _
-fₚ partialDecides B = ∀ x → B x ↔ fₚ x ≐ true
+_decidesₚ_ : (A → part Bool) → (A → Type ℓ) → Type _
+fₚ decidesₚ B = ∀ x → B x ↔ fₚ x ≐ true
 
-_partialDecides⁰_ : (A → part Bool) → (A → Type ℓ) → Type _
-fₚ partialDecides⁰ B = ∀ x → B x ↔ fₚ x ≐ false
+_decidesₚ⁰_ : (A → part Bool) → (A → Type ℓ) → Type _
+fₚ decidesₚ⁰ B = ∀ x → B x ↔ fₚ x ≐ false
 
-partialDecidable : (A → Type ℓ) → Type _
-partialDecidable B = Σ _ (_partialDecides B)
+decidableₚ : (A → Type ℓ) → Type _
+decidableₚ B = Σ _ (_decidesₚ B)
 
 _separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
-fₚ separates B₁ and B₂ = fₚ partialDecides B₁ × fₚ partialDecides⁰ B₂
+fₚ separates B₁ and B₂ = fₚ decidesₚ B₁ × fₚ decidesₚ⁰ B₂
 
 separatable : (A → Type ℓ) → (A → Type ℓ') → Type _
 separatable B₁ B₂ = Σ _ (_separates B₁ and B₂)

@@ -22,7 +22,7 @@ open import CubicalExt.Functions.Logic.Iff
 module _ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (pred : isPredicate B) where
 
   isPropDecides : {f : A → Bool} → isPredicate B → isProp (f decides B)
-  isPropDecides pred = isPropΠ λ _ → isPropIff (pred _) (isSetBool _ _)
+  isPropDecides pred = isPropΠ λ _ → isProp↔ (pred _) (isSetBool _ _)
 
   Dec→decidable : (∀ x → Dec (B x)) → decidable B
   Dec→decidable dec = f , H where

@@ -113,12 +113,12 @@ _ ↔∎ = ↔-refl
 
 unquoteDecl iffIsoΣ = declareRecordIsoΣ iffIsoΣ (quote _↔_)
 
-isPropIff : isProp A → isProp B → isProp (A ↔ B)
-isPropIff propA propB = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
+isProp↔ : isProp A → isProp B → isProp (A ↔ B)
+isProp↔ propA propB = subst (λ X → isProp X) (sym (isoToPath iffIsoΣ)) $
   isPropΣ (isProp→ propB) λ _ → isProp→ propA
 
 ∥∥-↔ : ∥ A ↔ B ∥₁ → ∥ A ∥₁ ↔ ∥ B ∥₁
-∥∥-↔ = rec (isPropIff squash₁ squash₁) λ iff →
+∥∥-↔ = rec (isProp↔ squash₁ squash₁) λ iff →
   →: rec squash₁ (λ x → ∣ to   iff x ∣₁)
   ←: rec squash₁ (λ x → ∣ from iff x ∣₁)
 

@@ -14,8 +14,11 @@ private variable
   ℓ : Level
   A : Type ℓ
 
+_[_]-reflects_ : ℕ → (ℕ → ℕ → part A) → (ℕ → part A) → Type
+c [ Θ ]-reflects f = ∀ x y → Θ c x ≐ y ↔ f x ≐ y
+
 universal : (ℕ → ℕ → part A) → Type
-universal {A} Θ = (f : ℕ → part A) → ∃ _ λ c → ∀ x y → f x ≐ y ↔ Θ c x ≐ y
+universal {A} Θ = (f : ℕ → part A) → ∃ ℕ (_[ Θ ]-reflects f)
 
 EPFᴺ : Type
 EPFᴺ = Σ (ℕ → ℕ → part ℕ) universal

@@ -37,18 +37,18 @@ isPropDiscrete : isSet A → isProp (discrete A)
 isPropDiscrete Aset = isPropDecidable λ _ → Aset _ _
 
 isPropSemiDecides : isPredicate B → isProp (fᵈ⁻ semiDecides B)
-isPropSemiDecides pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
+isPropSemiDecides pred = isPropΠ (λ _ → isProp↔ (pred _) squash₁)
 
-isPropPartialDecides : isPredicate B → isProp (fₚ partialDecides B)
-isPropPartialDecides pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
+isPropDecidableₚ : isPredicate B → isProp (fₚ decidesₚ B)
+isPropDecidableₚ pred = isPropΠ (λ _ → isProp↔ (pred _) squash₁)
 
 isPropSeparates : isPredicate B₁ → isPredicate B₂ → isProp (fₚ separates B₁ and B₂)
 isPropSeparates pred₁ pred₂ = isProp×
-  (isPropΠ (λ x → isPropIff (pred₁ x) squash₁))
-  (isPropΠ (λ x → isPropIff (pred₂ x) squash₁))
+  (isPropΠ (λ x → isProp↔ (pred₁ x) squash₁))
+  (isPropΠ (λ x → isProp↔ (pred₂ x) squash₁))
 
 isPropEnumerates : isPredicate B → isProp (fₑ enumerates B)
-isPropEnumerates pred = isPropΠ (λ _ → isPropIff (pred _) squash₁)
+isPropEnumerates pred = isPropΠ (λ _ → isProp↔ (pred _) squash₁)
 
 isPropReducts : isPredicate B₁ → isPredicate B₂ → isProp (fᵣ reducts B₁ to B₂)
-isPropReducts pred₁ pred₂ = isPropΠ λ _ → isPropIff (pred₁ _) (pred₂ _)
+isPropReducts pred₁ pred₂ = isPropΠ λ _ → isProp↔ (pred₁ _) (pred₂ _)

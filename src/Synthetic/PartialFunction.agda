@@ -53,6 +53,9 @@ record part (A : Type) : Type where
 _≐_ : part A → A → Type
 xₚ ≐ x = part.evalTo xₚ x
 
+≐-proper : isSet A → (xₚ : part A) {x y : A} → xₚ ≐ x → xₚ ≐ y → x ≡ y
+≐-proper Aset xₚ = rec2 (Aset _ _) λ (n , Hn) (m , Hm) → part.proper xₚ Hn Hm
+
 convergent : part A → Type
 convergent xₚ = ∃ _ (xₚ ≐_)
 
