@@ -4,7 +4,7 @@ title: Agda综合哥德尔不完备
 
 # Agda综合哥德尔不完备 (1) 偏函数
 
-传统数学广泛使用偏函数, 本讲的内容亦是如此. 然而, 在类型论中, 函数默认被视为全函数, 这就要求我们在类型论中为偏函数建立模型. 实现这一目标的方法众多, 有一篇出色的[综述](https://arxiv.org/abs/2011.00272)较为全面地考察了泛等基础中的偏函数, 可作为拓展阅读材料. 本讲所采用的形式没有综述中那么一般化, 但对于本讲的目标来说是足够的.
+传统数学广泛使用偏函数, 本讲的内容亦是如此. 然而, 在类型论中, 函数默认被视为全函数, 这就要求我们在类型论中为偏函数建立模型. 实现这一目标的方法众多, 有一篇出色的[文献](https://arxiv.org/abs/2011.00272)较为全面地考察了泛等基础中的偏函数, 可作为拓展阅读材料. 我们所采用的形式没有文献中那么一般化, 但对于本讲的目标来说是足够的.
 
 ```agda
 {-# OPTIONS --cubical --safe #-}
@@ -21,7 +21,6 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.PropositionalTruncation as ∥₁
-open import CubicalExt.Foundations.Function
 open import CubicalExt.Logic.ConstructiveEpsilon
 
 private variable
