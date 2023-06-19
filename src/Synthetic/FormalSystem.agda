@@ -51,9 +51,9 @@ record FormalSystem {ℓ} (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : 
       aux φ (inl ⊢φ)  = true  , Hₚ .fst φ .to ⊢φ
       aux φ (inr ⊢¬φ) = false , Hₚ .snd φ .to ⊢¬φ
     f : Sentence → Bool
-    f = fst ∘ totalise fₚ fₚ-total isSetBool
+    f = fst ∘ totalise isSetBool fₚ fₚ-total
     fₚ≐ : (φ : Sentence) → fₚ φ ≐ f φ
-    fₚ≐ = snd ∘ totalise fₚ fₚ-total isSetBool
+    fₚ≐ = snd ∘ totalise isSetBool fₚ fₚ-total
     H : f decides ⊢_
     H φ with f φ in α
     ... | true  = →: (λ _ → refl)
@@ -61,7 +61,7 @@ record FormalSystem {ℓ} (Sentence : Type ℓ) (¬_ : Sentence → Sentence) : 
       where
       ≐true : fₚ φ ≐ true
       ≐true = subst (fₚ φ ≐_) (eqToPath α) (fₚ≐ φ)
-    ... | false = →: (λ ⊢φ → part.functional (fₚ φ) isSetBool ≐false (≐true ⊢φ))
+    ... | false = →: (λ ⊢φ → part.functional (fₚ φ) ≐false (≐true ⊢φ))
                   ←: (λ H → ⊥.rec $ false≢true H)
       where
       ≐true : ⊢ φ → fₚ φ ≐ true

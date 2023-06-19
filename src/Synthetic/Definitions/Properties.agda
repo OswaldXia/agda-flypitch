@@ -10,7 +10,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Data.Nat using (ℕ; zero; suc; _≡ᵇ_)
 open import Data.Bool using (Bool; true; false; if_then_else_)
-open import Cubical.Data.Bool using (true≢false; false≢true)
+open import Cubical.Data.Bool using (true≢false; false≢true; isSetBool)
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Maybe as ⁇
 open import Cubical.Data.Sigma
@@ -36,9 +36,10 @@ semiDecReduction {B = B} {B' = B'} (fᵣ , Hᵣ) (fᵈ , Hᵈ) = fᵈ ∘ fᵣ ,
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true)  ↔∎
 
 dec→pDec : isPredicate B → decidable B → decidableₚ B
-dec→pDec pred (fᵈ , Hᵈ) = (λ n → mkPart (λ _ → just (fᵈ n)) λ p q → just-inj _ _ $ (sym p) ∙ q) ,
-  λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
-        ←: ∥₁.rec (pred _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H)
+dec→pDec pred (fᵈ , Hᵈ) =
+  (λ n → mkPart₂ isSetBool (λ _ → just (fᵈ n)) (λ p q → just-inj _ _ $ (sym p) ∙ q)) ,
+  (λ n → →: (λ k → ∣ 0 , cong just (Hᵈ n .to k) ∣₁)
+        ←: ∥₁.rec (pred _) λ (_ , H) → Hᵈ n .from (just-inj _ _ H))
 
 discreteℕ : discrete ℕ
 discreteℕ = (λ (n , m) → n ≡ᵇ m)
@@ -80,8 +81,8 @@ semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g
   where
   fₚ : A → ℕ → Maybe Bool
   fₚ x n = if (f x n) then just true else (if g x n then just false else nothing)
-  proper : {n m : ℕ} {a b : Bool} (x : A) → fₚ x n ≡ just a → fₚ x m ≡ just b → a ≡ b
-  proper {n} {m} x p q with
+  proper : (x : A) → deterministic₂ (fₚ x)
+  proper x {n} {m} p q with
         f x n in α | g x n in β | f x m in γ | g x m in δ
   ... | false     | false      | _          | _         = ⊥.rec $ ¬nothing≡just p
   ... | _         | _          | false      | false     = ⊥.rec $ ¬nothing≡just q
@@ -92,7 +93,7 @@ semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g
   ... | false     | true       | false      | true      = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
   ... | true      | _          | true       | _         = (sym $ just-inj _ _ p) ∙ (just-inj _ _ q)
   separator : A → part Bool
-  separator x = mkPart (fₚ x) (proper x)
+  separator x = mkPart₂ isSetBool (fₚ x) (proper x)
   H₁ : ∀ x → B₁ x → separator x ≐ true
   H₁ x B₁x = map (λ (n , H) → n , subst (λ x → (if x then _ else _) ≡ _) (sym H) refl) (Hf x .to B₁x)
   H₂ : ∀ x → B₂ x → separator x ≐ false
