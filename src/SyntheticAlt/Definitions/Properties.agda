@@ -8,7 +8,7 @@ open import SyntheticAlt.Definitions.Prophood
 open import Cubical.Foundations.Prelude hiding (_∨_)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Functions.Logic using (∥_∥ₚ; ⊤)
+open import Cubical.Functions.Logic using (∥_∥ₚ; ⊤; ⊥)
 open import Data.Nat hiding (_≟_)
 open import CubicalExt.Data.Bool hiding (_≟_)
 open import Cubical.Data.Empty as ⊥
@@ -75,39 +75,27 @@ enum→semiDec {_} {A} (fᵈ , Hᵈ) (fₑ , Hₑ) =
   fᵈ⁻ x n = x ≟ fₑ n
 
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
-  isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥) →
+  isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥.⊥) →
   semiDecidable B₁ → semiDecidable B₂ → separatable B₁ B₂
 semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g , Hg) =
   fₚ , (λ x → →: H₁ x ←: H₃ x), (λ x → →: H₂ x ←: H₄ x)
   where
-  f∨~g : ∀ x → ℕ → Bool
-  f∨~g x n = f x n ∨ not (g x n)
-  ΣTf∨~g : ∀ x → Type
-  ΣTf∨~g x = Σ ℕ (λ n → T $ f∨~g x n)
-  eval : ∀ x → ΣTf∨~g x → Bool
-  eval x (n , _) = f∨~g x n
-  2-const : ∀ x → 2-Constant (eval x)
-  2-const x (n , Hn) (m , Hm) with
-        f x n in α | g x n in β | f x m in γ | g x m in δ
-  ... | true      | _          | true       | _         = refl
-  ... | true      | _          | false      | false     = refl
-  ... | false     | false      | true       | _         = refl
-  ... | false     | false      | false      | false     = refl
-  ... | _         | _          | false      | true      = ⊥.rec Hm
-  ... | false     | true       | true       | _         = ⊥.rec Hn
-  ... | false     | true       | false      | false     = ⊥.rec Hn
+  eval : ∀ x n → T (f x n ∨ g x n) → Bool
+  eval x n with f x n | g x n
+  ... | true  | _     = λ _ → true
+  ... | false | true  = λ _ → false
+  ... | false | false = λ ()
+  2-const : ∀ x → 2-Constant λ { (n , H) → eval x n H }
+  2-const x (n , Hn) (m , Hm) = {!   !}
   fₚ : A → part Bool
-  fₚ x = ∥ ΣTf∨~g x ∥ₚ , λ _ → true
-    --λ H → f∨~g x $ ε (λ _ → isProp→isSet (isPropT _)) (λ _ → DecT _) H .fst
-    -- rec→Set isSetBool (eval x) (2-const x)
-  open ∥₁.SetElim isSetBool using (setRecLemma)
+  fₚ x = ∥ (Σ ℕ λ n → T $ f x n ∨ g x n) ∥ₚ ,
+    rec→Set isSetBool (uncurry (eval x)) (2-const x)
   H₁ : ∀ x → B₁ x → fₚ x ≐ true
-  H₁ x B₁x = map (λ (n , Hn) → n , subst (λ b → T (b ∨ _)) (sym Hn) tt) (Hf x .to B₁x) , refl
-    --Hf x .to B₁x
+  H₁ x B₁x = map (λ (n , H) → n , subst (λ b → T $ b ∨ _) (sym H) tt) (Hf x .to B₁x) ,
+    {!   !}
   H₂ : ∀ x → B₂ x → fₚ x ≐ false
-  H₂ x B₂x = map (λ (n , Hn) → n , {!   !}) (Hg x .to B₂x) , {!   !}
+  H₂ x B₂x = {!     !} , {!   !}
   H₃ : ∀ x → fₚ x ≐ true → B₁ x
-  H₃ x = {!   !}
+  H₃ x (p , H) = {!   !}
   H₄ : ∀ x → fₚ x ≐ false → B₂ x
   H₄ x = {!   !}
- 
