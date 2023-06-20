@@ -89,11 +89,11 @@ divergent xₚ = ∀ x → ¬ xₚ ≐ x
 total : (A → part B) → Type _
 total eval = ∀ x → convergent (eval x)
 
-totalise : isSet B → (eval : A → part B) → total eval → (∀ x → Σ _ (eval x ≐_))
-totalise Bset eval H x = part.totalise (eval x) Bset (H x)
+totalise : isSet B → (f : A → part B) → total f → (∀ x → Σ _ (f x ≐_))
+totalise Bset f H x = part.totalise (f x) Bset (H x)
 
 partialise : isSet B → (A → B) → A → part B
-partialise Bset eval x = mkPart (λ _ → just (eval x))
+partialise Bset f x = mkPart (λ _ → just (f x))
   (deterministic₂→ Bset λ p q → just-inj _ _ ((sym p) ∙ q))
 
 --------------------------------------------------------------------------------
