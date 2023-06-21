@@ -14,6 +14,9 @@ private variable
   ℓ ℓ' : Level
   A A' : Type ℓ
 
+isPredicate : (A → Type ℓ) → Type _
+isPredicate B = ∀ x → isProp (B x)
+
 _decides_ : (A → Bool) → (A → Type ℓ) → Type _
 fᵈ decides B = ∀ x → B x ↔ fᵈ x ≡ true
 

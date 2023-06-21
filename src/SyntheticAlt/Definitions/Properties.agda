@@ -99,11 +99,9 @@ semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g
   H₂ : ∀ x → B₂ x → fₚ x ≐ false
   H₂ x B₂x = ∣ inr $ ε (λ _ → isProp→isSet (isSetBool _ _)) (λ _ → discreteBool _ _) (Hg x .to B₂x) ∣₁ , refl
   H₃ : ∀ x → fₚ x ≐ true → B₁ x
-  H₃ x = uncurry aux where
-    aux : (p : ⟨ fst (fₚ x) ⟩) → snd (fₚ x) p ≡ true → B₁ x
-    aux ∣ inl p ∣₁ H = Hf x .from ∣ p ∣₁
-    aux ∣ inr p ∣₁ H = ⊥.rec $ false≢true H
-    aux (squash₁ p q i) H = pred₁ x (aux p {!   !}) {!   !} i
+  H₃ x = uncurry {!   !} where
+    aux : (∃ (P x) λ p → snd (fₚ x) ∣ p ∣₁ ≡ true) → B₁ x --λ p → snd (fₚ x) p ≡ true
+    aux H = {!   !}
   H₄ : ∀ x → fₚ x ≐ false → B₂ x
   H₄ x (∣ inl p ∣₁ , H) = ⊥.rec $ true≢false H
   H₄ x (∣ inr p ∣₁ , H) = Hg x .from ∣ p ∣₁
