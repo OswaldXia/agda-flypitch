@@ -1,12 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 {-# OPTIONS --hidden-argument-puns #-}
 
-module SyntheticAlt.PartialFunction where
+module Synthetic.PartialFunction where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Logic using (⊤; ⊥)
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -29,8 +30,8 @@ isPropDefined (P , _) = str P
 value : (xₚ : part A) → defined xₚ → A
 value (_ , f) H = f H
 
-undefined : part A
-undefined = ⊥ , λ ()
+∅ : part A
+∅ = ⊥ , λ ()
 
 wrap : A → part A
 wrap x = ⊤ , λ _ → x
@@ -44,6 +45,9 @@ xₚ ≐ x = Σ (defined xₚ) λ H → value xₚ H ≡ x
 
 ≐-functional : (xₚ : part A) {x y : A} → xₚ ≐ x → xₚ ≐ y → x ≡ y
 ≐-functional (P , f) (p , fp≡x) (q , fq≡y) = sym fp≡x ∙ (cong f (str P p q)) ∙ fq≡y
+
+undefined : part A → Type _
+undefined xₚ = ∀ x → ¬ xₚ ≐ x
 
 total : (A → part B) → Type _
 total f = ∀ x → defined (f x)

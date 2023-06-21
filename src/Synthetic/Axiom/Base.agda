@@ -20,8 +20,8 @@ c [ Θ ]-reflects f = ∀ x y → Θ c x ≐ y ↔ f x ≐ y
 universal : (ℕ → ℕ → part A) → Type _
 universal {A} Θ = (f : ℕ → part A) → ∃ ℕ (_[ Θ ]-reflects f)
 
-EPFᴺ : Type
+EPFᴺ : Type _
 EPFᴺ = Σ (ℕ → ℕ → part ℕ) universal
 
-EPFᴮ : Type
+EPFᴮ : Type _
 EPFᴮ = Σ (ℕ → ℕ → part Bool) universal
