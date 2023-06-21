@@ -17,11 +17,11 @@ private variable
   ℓ ℓ' : Level
   A B : Type ℓ
 
+isPredicate : (A → Type ℓ) → Type _
+isPredicate B = ∀ x → isProp (B x)
+
 part : Type ℓ → Type _
 part A = Σ (hProp ℓ-zero) λ P → ⟨ P ⟩ → A
-
-∅ : part A
-∅ = ⊥ , λ ()
 
 isOfHLevelPart : ∀ n → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (part A)
 isOfHLevelPart n lA = isOfHLevelΣ (suc (suc n))
@@ -30,8 +30,21 @@ isOfHLevelPart n lA = isOfHLevelΣ (suc (suc n))
 isSetPart : isSet A → isSet (part A)
 isSetPart = isOfHLevelPart 0
 
+defined : part A → Type _
+defined (P , _) = ⟨ P ⟩
+
+isPropDefined : isPredicate (defined {A = A})
+isPropDefined (P , _) = str P
+
+value : (xₚ : part A) → defined xₚ → A
+value (_ , f) H = f H
+
+-- canonical undefined
+∅ : part A
+∅ = ⊥ , λ ()
+
 _≐_ : part A → A → Type _
-(P , f) ≐ x = Σ ⟨ P ⟩ λ p → f p ≡ x
+xₚ ≐ x = Σ (defined xₚ) λ H → value xₚ H ≡ x
 
 isOfHLevel≐ : ∀ n → isOfHLevel (suc (suc n)) A → (xₚ : part A) (x : A) → isOfHLevel (suc n) (xₚ ≐ x)
 isOfHLevel≐ n lA (P , f) x = isOfHLevelΣ (suc n)
@@ -43,23 +56,11 @@ isProp≐ = isOfHLevel≐ 0
 ≐-functional : (xₚ : part A) {x y : A} → xₚ ≐ x → xₚ ≐ y → x ≡ y
 ≐-functional (P , f) (p , fp≡x) (q , fq≡y) = sym fp≡x ∙ (cong f (str P p q)) ∙ fq≡y
 
-convergent : part A → Type _
-convergent xₚ = ∃ _ (xₚ ≐_)
-
-divergent : part A → Type _
-divergent xₚ = ∀ x → ¬ xₚ ≐ x
-
 total : (A → part B) → Type _
-total eval = ∀ x → convergent (eval x)
+total f = ∀ x → defined (f x)
 
 totalise : isSet B → (f : A → part B) → total f → (∀ x → Σ _ (f x ≐_))
-totalise Bset f H x = rec→Set
-  (isSetΣ Bset (λ yₚ → isProp→isSet (isProp≐ Bset (f x) yₚ)))
-  (idfun _)
-  (λ { (y₁ , H₁) (y₂ , H₂) → ΣPathP $
-    ≐-functional (f x) H₁ H₂ ,
-    isProp→PathP (λ _ → isProp≐ Bset (f x) _) _ _ })
-  (H x)
+totalise Bset f H x = value (f x) (H x) , H x , refl
 
 partialise : isSet B → (A → B) → A → part B
 partialise Bset f x = ⊤ , λ _ → f x
