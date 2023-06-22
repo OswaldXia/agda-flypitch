@@ -33,13 +33,13 @@ decReduction {B = B} {B' = B'} pred (fᵣ , Hᵣ) (fᵈ , Hᵈ) =  fᵈ ∘ fᵣ
   B' (fᵣ x)         ↔⟨ Hᵈ (fᵣ x) ⟩
   fᵈ (fᵣ x) ≡ true  ↔∎
 
-semiDecReduction : B ⪯ B' → semiDecidable B' → semiDecidable B
+semiDecReduction : B ⪯ B' → SemiDecision B' → SemiDecision B
 semiDecReduction {B = B} {B' = B'} (fᵣ , Hᵣ) (fᵈ , Hᵈ) = fᵈ ∘ fᵣ , λ x →
   B x                             ↔⟨ Hᵣ x ⟩
   B' (fᵣ x)                       ↔⟨ Hᵈ (fᵣ x) ⟩
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true)  ↔∎
 
-dec→pDec : isPredicate B → decidable B → decidableₚ B
+dec→pDec : isPredicate B → decidable B → Decisionₚ B
 dec→pDec pred (fᵈ , Hᵈ) = (λ x → ⊤ , λ _ → fᵈ x) ,
   λ x → →: (λ H → tt* , Hᵈ x .to H)
         ←: (λ (_ , H) → Hᵈ x .from H)
@@ -60,7 +60,7 @@ discreteℕ = (λ (n , m) → n ≡ᵇ m)
   ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
   ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
 
-enum→semiDec : {B : A → Type ℓ} → discrete A → enumerable B → semiDecidable B
+enum→semiDec : {B : A → Type ℓ} → discrete A → Enumeration B → SemiDecision B
 enum→semiDec {_} {A} (fᵈ , Hᵈ) (fₑ , Hₑ) =
   fᵈ⁻ , λ x → ↔-trans (Hₑ x) $
     →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ x))
@@ -78,22 +78,22 @@ enum→semiDec {_} {A} (fᵈ , Hᵈ) (fₑ , Hₑ) =
 
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
   isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥.⊥) →
-  semiDecidable B₁ → semiDecidable B₂ → separatable B₁ B₂
+  SemiDecision B₁ → SemiDecision B₂ → Separation B₁ B₂
 semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g , Hg) =
   fₚ , (λ x → →: H₁ x ←: H₃ x), (λ x → →: H₂ x ←: H₄ x)
   where
   P : A → Type
   P x = (Σ ℕ λ n → f x n ≡ true) ⊎ (Σ ℕ λ n → g x n ≡ true)
-  eval : ∀ x → P x → Bool
-  eval x (inl _) = true
-  eval x (inr _) = false
-  2const : ∀ x → 2-Constant (eval x)
-  2const x (inl _) (_⊎_.inl _) = refl
-  2const x (inr _) (_⊎_.inr _) = refl
-  2const x (inl p) (_⊎_.inr q) = ⊥.rec (disjoint x (Hf x .from ∣ p ∣₁) (Hg x .from ∣ q ∣₁))
-  2const x (inr p) (_⊎_.inl q) = ⊥.rec (disjoint x (Hf x .from ∣ q ∣₁) (Hg x .from ∣ p ∣₁))
   fₚ : A → part Bool
-  fₚ x = ∥ P x ∥ₚ , rec→Set isSetBool (eval x) (2const x)
+  fₚ x = ∥ P x ∥ₚ , rec→Set isSetBool eval 2const where
+    eval : P x → Bool
+    eval (inl _) = true
+    eval (inr _) = false
+    2const : 2-Constant eval
+    2const (inl _) (_⊎_.inl _) = refl
+    2const (inr _) (_⊎_.inr _) = refl
+    2const (inl p) (_⊎_.inr q) = ⊥.rec (disjoint x (Hf x .from ∣ p ∣₁) (Hg x .from ∣ q ∣₁))
+    2const (inr p) (_⊎_.inl q) = ⊥.rec (disjoint x (Hf x .from ∣ q ∣₁) (Hg x .from ∣ p ∣₁))
   H₁ : ∀ x → B₁ x → fₚ x ≐ true
   H₁ x B₁x = ∣ inl $ ε (λ _ → isProp→isSet (isSetBool _ _)) (λ _ → discreteBool _ _) (Hf x .to B₁x) ∣₁ , refl
   H₂ : ∀ x → B₂ x → fₚ x ≐ false

@@ -1,5 +1,5 @@
 ---
-title: Agda综合哥德尔不完备
+title: Agda综合哥德尔不完备 (1) 偏函数
 ---
 
 # Agda综合哥德尔不完备 (1) 偏函数
@@ -16,15 +16,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Logic using (⊤; ⊥)
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.PropositionalTruncation as ∥₁
-```
 
-宇宙层级在本次的形式化中无关紧要, 可以直接无视. 代码中出现宇宙层级参数 `ℓ` 只是为了让整个形式化可以发生在任意层级.
-
-```agda
 private variable
   ℓ ℓ' : Level
   A B : Type ℓ
@@ -75,8 +72,8 @@ value (_ , f) H = f H
 ∅ : part A
 ∅ = ⊥ , λ ()
 
-wrap : A → part A
-wrap x = ⊤ , λ _ → x
+return : A → part A
+return x = ⊤ , λ _ → x
 
 _>>=_ : part A → (A → part B) → part B
 (P , f) >>= g = (Σ ⟨ P ⟩ (defined ∘ g ∘ f) , isPropΣ (str P) (isPropDefined ∘ g ∘ f)) ,
@@ -92,6 +89,13 @@ _≐_ : part A → A → Type _
 xₚ ≐ x = Σ (defined xₚ) λ H → value xₚ H ≡ x
 ```
 
+`≐` 还有一种等价定义但不方便处理.
+
+```agda
+_≐'_ : part A → A → Type _
+xₚ ≐' x = xₚ ≡ return x
+```
+
 可以证明 `≐` 是一个具有函数性的关系.
 
 ```agda
@@ -104,6 +108,18 @@ xₚ ≐ x = Σ (defined xₚ) λ H → value xₚ H ≡ x
 ```agda
 undefined : part A → Type _
 undefined xₚ = ∀ x → ¬ xₚ ≐ x
+```
+
+## 定义域与值域
+
+```agda
+module _ (f : A → part B) where
+
+  domain : A → Type _
+  domain x = defined (f x)
+
+  range : B → Type _
+  range y = ∃ A λ x → f x ≐ y
 ```
 
 ## 与全函数的相互转化
@@ -126,7 +142,7 @@ totalise f H x = value (f x) (H x) , H x , refl
 
 ```agda
 partialise : (A → B) → A → part B
-partialise f x = wrap (f x)
+partialise f x = return (f x)
 
 total-partialise : (f : A → B) → total (partialise f)
 total-partialise _ _ = tt*
