@@ -33,7 +33,7 @@ decReduction {B = B} {B' = B'} pred (fᵣ , Hᵣ) (fᵈ , Hᵈ) =  fᵈ ∘ fᵣ
   B' (fᵣ x)         ↔⟨ Hᵈ (fᵣ x) ⟩
   fᵈ (fᵣ x) ≡ true  ↔∎
 
-semiDecReduction : B ⪯ B' → SemiDecision B' → SemiDecision B
+semiDecReduction : B ⪯ B' → Semidecision B' → Semidecision B
 semiDecReduction {B = B} {B' = B'} (fᵣ , Hᵣ) (fᵈ , Hᵈ) = fᵈ ∘ fᵣ , λ x →
   B x                             ↔⟨ Hᵣ x ⟩
   B' (fᵣ x)                       ↔⟨ Hᵈ (fᵣ x) ⟩
@@ -60,7 +60,7 @@ discreteℕ = (λ (n , m) → n ≡ᵇ m)
   ≡ᵇ→≡ {suc n} {zero} H = ⊥.rec $ false≢true H
   ≡ᵇ→≡ {suc n} {suc m} H = cong suc (≡ᵇ→≡ H)
 
-enum→semiDec : {B : A → Type ℓ} → discrete A → Enumeration B → SemiDecision B
+enum→semiDec : {B : A → Type ℓ} → discrete A → Enumeration B → Semidecision B
 enum→semiDec {_} {A} (fᵈ , Hᵈ) (fₑ , Hₑ) =
   fᵈ⁻ , λ x → ↔-trans (Hₑ x) $
     →: map (λ (n , H) → n , subst (λ x → ⁇.rec _ _ x ≡ _) (sym H) (≡→≟ x))
@@ -78,13 +78,13 @@ enum→semiDec {_} {A} (fᵈ , Hᵈ) (fₑ , Hₑ) =
 
 semiDec→sep : {B₁ : A → Type ℓ} {B₂ : A → Type ℓ'} →
   isPredicate B₁ → isPredicate B₂ → (∀ x → B₁ x → B₂ x → ⊥.⊥) →
-  SemiDecision B₁ → SemiDecision B₂ → Separation B₁ B₂
+  Semidecision B₁ → Semidecision B₂ → Separation B₁ B₂
 semiDec→sep {_} {A} {_} {_} {B₁} {B₂} pred₁ pred₂ disjoint (f , Hf) (g , Hg) =
   fₚ , (λ x → →: H₁ x ←: H₃ x), (λ x → →: H₂ x ←: H₄ x)
   where
   P : A → Type
   P x = (Σ ℕ λ n → f x n ≡ true) ⊎ (Σ ℕ λ n → g x n ≡ true)
-  fₚ : A → part Bool
+  fₚ : A → Part Bool
   fₚ x = ∥ P x ∥ₚ , rec→Set isSetBool eval 2const where
     eval : P x → Bool
     eval (inl _) = true

@@ -29,7 +29,7 @@ CT→EPFᴺ : CT → EPFᴺ
 CT→EPFᴺ (φ , ct) = θ , H where
   P : ℕ → ℕ → Type
   P c x = Σ _ λ n → Σ _ λ y → halts φ c x n × (φ c x n ≡ just y)
-  θ : ℕ → ℕ → part ℕ
+  θ : ℕ → ℕ → Part ℕ
   θ c x = ∥ P c x ∥ₚ , rec→Set isSetℕ (fst ∘ snd)
     λ { (n₁ , y₁ , H₁ , eq₁) (n₂ , y₂ , H₂ , eq₂) → {!   !} }
   H : universal θ

@@ -4,6 +4,7 @@ module Synthetic.Definitions.Base where
 open import Synthetic.PartialFunction
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Maybe
@@ -27,19 +28,19 @@ decidable B = Σ _ (_decides B)
 discrete : Type ℓ → Type _
 discrete A = decidable {A = A × A} λ (x , y) → x ≡ y
 
-_semiDecides_ : (A → ℕ → Bool) → (A → Type ℓ) → Type _
-fᵈ⁻ semiDecides B = ∀ x → B x ↔ ∃ _ λ n → fᵈ⁻ x n ≡ true
+_semidecides_ : (A → ℕ → Bool) → (A → Type ℓ) → Type _
+fᵈ⁻ semidecides B = ∀ x → B x ↔ ∃ _ λ n → fᵈ⁻ x n ≡ true
 
-SemiDecision : (A → Type ℓ) → Type _
-SemiDecision B = Σ _ (_semiDecides B)
+Semidecision : (A → Type ℓ) → Type _
+Semidecision B = Σ _ (_semidecides B)
 
-semiDecidable : (A → Type ℓ) → Type _
-semiDecidable B = ∥ SemiDecision B ∥₁
+semidecidable : (A → Type ℓ) → Type _
+semidecidable B = ∥ Semidecision B ∥₁
 
-_decidesₚ_ : (A → part Bool) → (A → Type ℓ) → Type _
+_decidesₚ_ : (A → Part Bool) → (A → Type ℓ) → Type _
 fₚ decidesₚ B = ∀ x → B x ↔ fₚ x ≐ true
 
-_decidesₚ⁰_ : (A → part Bool) → (A → Type ℓ) → Type _
+_decidesₚ⁰_ : (A → Part Bool) → (A → Type ℓ) → Type _
 fₚ decidesₚ⁰ B = ∀ x → B x ↔ fₚ x ≐ false
 
 Decisionₚ : (A → Type ℓ) → Type _
@@ -48,7 +49,7 @@ Decisionₚ B = Σ _ (_decidesₚ B)
 decidableₚ : (A → Type ℓ) → Type _
 decidableₚ B = ∥ Decisionₚ B ∥₁
 
-_separates_and_ : (A → part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
+_separates_and_ : (A → Part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
 fₚ separates B₁ and B₂ = fₚ decidesₚ B₁ × fₚ decidesₚ⁰ B₂
 
 Separation : (A → Type ℓ) → (A → Type ℓ') → Type _

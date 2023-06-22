@@ -24,7 +24,7 @@ private variable
   A A' : Type ℓ
   B B₁ B₂ : A → Type ℓ
   fᵈ⁻ : A → ℕ → Bool
-  fₚ : A → part Bool
+  fₚ : A → Part Bool
   fₑ : ℕ → Maybe A
   fᵣ : A → A'
 
@@ -36,7 +36,7 @@ isPropDecidable pred = subst isProp
 isPropDiscrete : isSet A → isProp (discrete A)
 isPropDiscrete Aset = isPropDecidable λ _ → Aset _ _
 
-isPropSemiDecides : isPredicate B → isProp (fᵈ⁻ semiDecides B)
+isPropSemiDecides : isPredicate B → isProp (fᵈ⁻ semidecides B)
 isPropSemiDecides pred = isPropΠ (λ _ → isProp↔ (pred _) squash₁)
 
 isPropDecidableₚ : isPredicate B → isProp (fₚ decidesₚ B)

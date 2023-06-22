@@ -25,7 +25,7 @@ Kᶿ : ℕ → Type
 Kᶿ c = ∃ _ (Θ c c ≐_)
 
 Kᶿ-divergent : ∀ fₚ → fₚ decidesₚ Kᶿ → ∃ _ λ c → undefined (fₚ c)
-Kᶿ-divergent fₚ Hₚ = flip map (Θ-universal gₚ) λ { (c , Hc) → c ,
+Kᶿ-divergent fₚ Hₚ = flip map (Θ-universal gₚ {!   !}) λ { (c , Hc) → c ,
   λ { true fₚc≐T → ∥₁.rec isProp⊥
       (λ { (b , Θcc≐b) → true→undef fₚc≐T b (Hc c b .to Θcc≐b) })
       (Hₚ c .from fₚc≐T)
@@ -35,11 +35,14 @@ Kᶿ-divergent fₚ Hₚ = flip map (Θ-universal gₚ) λ { (c , Hc) → c ,
       in ⊥.rec $ true≢false $ ≐-functional (fₚ c) fₚc≐T fₚc≐F
     } }
   where
-  gₚ : ℕ → part Bool
-  gₚ n = (Σ P (T ∘ not ∘ b) , isPropΣ Pprop λ _ → isPropT _) , not ∘ b ∘ fst where
-    P = ⟨ fₚ n .fst ⟩
-    Pprop = str $ fₚ n .fst
+  module _ (n : ℕ) where
+    def = defined (fₚ n)
+    defProp = isPropDefined (fₚ n)
     b = value (fₚ n)
+    gₚ : Part Bool
+    gₚ = (Σ def (T ∘ not ∘ b) , isPropΣ defProp λ _ → isPropT _) , not ∘ b ∘ fst
+  semiDecDef : semidecidable (defined ∘ gₚ)
+  semiDecDef = ∣ (λ n _ → (not ∘ value (fₚ n)) {!   !}) , {!   !} ∣₁
   true→undef : ∀ {c} → fₚ c ≐ true → undefined (gₚ c)
   true→undef {c} (p , ≡T) b ((q , H) , _) = subst (T ∘ not) eq H where
     eq : value (fₚ c) q ≡ true
