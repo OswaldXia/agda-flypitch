@@ -187,51 +187,71 @@ Semidec A = Σ (ℕ → Bool) (_semidec A)
 
 SemidecPart : Type ℓ → (ℓ' : Level) → Type _
 SemidecPart A ℓ' = Σ (Part A ℓ') (Semidec ∘ defined)
+
+isPropSemidec : (X@(xₚ , fₛ , Hₛ) : SemidecPart A ℓ) → isProp (fₛ semidec defined xₚ)
+isPropSemidec X = {!   !}
+
+module _ ((xₚ , fₛ , Hₛ) : SemidecPart A ℓ) where
+  true→defined : ∀ n → fₛ n ≡ true → defined xₚ
+  true→defined n eq = transport (sym Hₛ) (lift ∣ n , eq ∣₁)
+
+  defined→true : defined xₚ → ∃ _ λ n → fₛ n ≡ true
+  defined→true def = lower $ transport Hₛ def
 ```
 
-## 可选值序列偏类型
+## 单值可选序列
 
 ```agda
-deterministic : (A → Maybe B) → Type _
-deterministic f = isProp (Σ _ λ y → ∃ _ λ x → f x ≡ just y)
+single : (A → Maybe B) → Type _
+single f = isProp (Σ _ λ y → ∃ _ λ x → f x ≡ just y)
 
-deterministic₂ : (A → Maybe B) → Type _
-deterministic₂ f = ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
+single₂ : (A → Maybe B) → Type _
+single₂ f = ∀ {n m x y} → f n ≡ just x → f m ≡ just y → x ≡ y
 
-deterministic→₂ : {f : A → Maybe B} → deterministic f → deterministic₂ f
-deterministic→₂ H p q = cong fst $ H (_ , ∣ _ , p ∣₁) (_ , ∣ _ , q ∣₁)
+single→₂ : {f : A → Maybe B} → single f → single₂ f
+single→₂ H p q = cong fst $ H (_ , ∣ _ , p ∣₁) (_ , ∣ _ , q ∣₁)
 
-deterministic₂→ : {f : A → Maybe B} → isSet B → deterministic₂ f → deterministic f
-deterministic₂→ Bset H (x , H₁) (y , H₂) = ΣPathP
+single₂→ : {f : A → Maybe B} → isSet B → single₂ f → single f
+single₂→ Bset H (x , H₁) (y , H₂) = ΣPathP
   $ rec2 (Bset x y) (λ (_ , p) (_ , q) → H p q) H₁ H₂
   , isProp→PathP (λ _ → squash₁) _ _
 
-MaybeSeqPart : Type ℓ → Type ℓ
-MaybeSeqPart A = Σ (ℕ → Maybe A) deterministic
+SingleMaybeSeq : Type ℓ → Type ℓ
+SingleMaybeSeq A = Σ (ℕ → Maybe A) single
 ```
 
-## 半可判定偏类型与可选值序列偏类型等价
+## 半可判定偏类型与单值可选序列同构
 
 ```agda
-module _ {ℓ} {A : Type ℓ} (Aset : isSet A) where
+module PartIso {ℓ} {A : Type ℓ} (Aset : isSet A) where
 
-  SemidecPart→MaybeSeqPart : SemidecPart A ℓ → MaybeSeqPart A
-  SemidecPart→MaybeSeqPart (xₚ , fₛ , Hₛ) = fₘ , deterministic₂→ Aset H where
-    true→defined : ∀ n → fₛ n ≡ true → defined xₚ
-    true→defined n eq = subst (idfun _) (sym Hₛ) $ lift ∣ n , eq ∣₁
+  module Fun (X@(xₚ , fₛ , Hₛ) : SemidecPart A ℓ) where
     fₘ : ℕ → Maybe A
-    fₘ n with fₛ n | true→defined n
+    fₘ n with fₛ n | true→defined X n
     ... | true  | H  = just $ value xₚ $ H refl
     ... | false | _  = nothing
-    H : deterministic₂ fₘ
-    H {n} {m} p q with fₛ n | fₛ m | true→defined n | true→defined m
+    Hₘ : single₂ fₘ
+    Hₘ {n} {m} p q with fₛ n | fₛ m | true→defined X n | true→defined X m
     ... | true  | true  | c | d = just-inj _ _ $
       (sym p) ∙ cong (just ∘ value xₚ) (isPropDefined xₚ _ _) ∙ q
-    ... | true  | false | c | d = ⊥.rec $ ¬nothing≡just q
-    ... | false | _     | c | d = ⊥.rec $ ¬nothing≡just p
+    ... | true  | false | _ | _ = ⊥.rec $ ¬nothing≡just q
+    ... | false | _     | _ | _ = ⊥.rec $ ¬nothing≡just p
+    Y : SingleMaybeSeq A
+    Y = fₘ , single₂→ Aset Hₘ
+    just→true : ∀ {n x} → fₘ n ≡ just x → fₛ n ≡ true
+    just→true {n} H with fₛ n | true→defined X n
+    ... | true  | _ = refl
+    ... | false | _ = ⊥.rec $ ¬nothing≡just H
+    true→just : ∀ {n} → fₛ n ≡ true → Σ _ λ x → fₘ n ≡ just x
+    true→just {n} H with fₛ n | true→defined X n
+    ... | true  | def = (value xₚ (def refl)) , refl
+    ... | false | _   = ⊥.rec $ false≢true H
+    true→just≡ : ∀ {n} (H : fₛ n ≡ true) (def : defined xₚ) → true→just H .fst ≡ value xₚ def
+    true→just≡ {n} H def with fₛ n | true→defined X n
+    ... | true  | _ = cong (value xₚ) (isPropDefined xₚ _ _)
+    ... | false | _ = ⊥.rec $ false≢true H
 
-  MaybeSeqPart→SemidecPart : MaybeSeqPart A → SemidecPart A _
-  MaybeSeqPart→SemidecPart (fₘ , Hₘ) = xₚ , fₛ , H where
+  module Inv (Y@(fₘ , Hₘ) : SingleMaybeSeq A) where
     P = Σ _ λ y → ∃ _ λ n → fₘ n ≡ just y
     fₛ : ℕ → Bool
     fₛ n with fₘ n
@@ -247,16 +267,30 @@ module _ {ℓ} {A : Type ℓ} (Aset : isSet A) where
     true→just {n} H with fₘ n
     ... | just x = x , refl
     ... | nothing = ⊥.rec $ false≢true H
-    H : fₛ semidec defined ((P , Hₘ) , fst)
-    H = hPropExt (isPropDefined xₚ) (isOfHLevelLift 1 squash₁)
+    Hₛ : fₛ semidec defined ((P , Hₘ) , fst)
+    Hₛ = hPropExt (isPropDefined xₚ) (isOfHLevelLift 1 squash₁)
       (lift ∘ (map $ uncurry λ n H → n , just→true H) ∘ snd)
       ((∥₁.rec (isPropDefined xₚ) (uncurry λ n H →
         let (x , H) = true→just H in x , ∣ n , H ∣₁)) ∘ lower)
+    X : SemidecPart A ℓ
+    X = xₚ , fₛ , Hₛ
 
-  SemidecPartIsoMaybeSeqPart : Iso (SemidecPart A ℓ) (MaybeSeqPart A)
-  Iso.fun       SemidecPartIsoMaybeSeqPart = SemidecPart→MaybeSeqPart
-  Iso.inv       SemidecPartIsoMaybeSeqPart = MaybeSeqPart→SemidecPart
-  Iso.leftInv SemidecPartIsoMaybeSeqPart (xₚ , fₛ , Hₛ) = ΣPathP $
-    ΣPathP (ΣPathP ({!   !} , {!   !}) , {!   !}) , ΣPathP ({!   !} , isProp→PathP (λ _ → {! is  !}) {!   !} {!   !})
-  Iso.rightInv  SemidecPartIsoMaybeSeqPart = {!   !}
+  SemidecPartIsoSingleMaybeSeq : Iso (SemidecPart A ℓ) (SingleMaybeSeq A)
+  Iso.fun       SemidecPartIsoSingleMaybeSeq = Fun.Y
+  Iso.inv       SemidecPartIsoSingleMaybeSeq = Inv.X
+  Iso.leftInv   SemidecPartIsoSingleMaybeSeq X@(xₚ , fₛ , Hₛ) =
+    let Y@(fₘ , Hₘ)          = Fun.Y X
+        X'@(xₚ' , fₛ' , Hₛ') = Inv.X Y
+        defined≡ : defined xₚ' ≡ defined xₚ
+        defined≡ = hPropExt (isPropDefined xₚ') (isPropDefined xₚ)
+          (λ { (x , H) → ∥₁.rec (isPropDefined xₚ)
+            (λ (n , H) → true→defined X n $ Fun.just→true X H) H })
+          (λ def → ∥₁.rec Hₘ
+            (λ (n , H) → let (x , H) = Fun.true→just X H in x , ∣ n , H ∣₁)
+            (defined→true X def))
+        P≡ : fst xₚ' ≡ fst xₚ
+        P≡ = ΣPathP $ defined≡ , isProp→PathP (λ _ → isPropIsProp) Hₘ (isPropDefined xₚ)
+    in ΣPathP $ ΣPathP (P≡ , toPathP (funExt λ def → {!   !}))
+    , {!   !}
+  Iso.rightInv  SemidecPartIsoSingleMaybeSeq = {!   !}
 ```
