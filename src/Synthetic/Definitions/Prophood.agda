@@ -39,9 +39,6 @@ isPropDiscrete Aset = isPropDecidable λ _ → Aset _ _
 isPropSemiDecides : isPredicate B → isProp (fᵈ⁻ semidecides B)
 isPropSemiDecides pred = isPropΠ (λ _ → isProp↔ (pred _) squash₁)
 
-isPropDecidableₚ : isPredicate B → isProp (fₚ decidesₚ B)
-isPropDecidableₚ {fₚ} pred = isPropΠ λ x → isProp↔ (pred _) (isProp≐ isSetBool (fₚ x) _)
-
 isPropSeparates : isPredicate B₁ → isPredicate B₂ → isProp (fₚ separates B₁ and B₂)
 isPropSeparates {fₚ} pred₁ pred₂ = isProp×
   (isPropΠ (λ x → isProp↔ (pred₁ x) (isProp≐ isSetBool (fₚ x) _)))

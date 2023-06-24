@@ -39,11 +39,6 @@ semiDecReduction {B = B} {B' = B'} (fᵣ , Hᵣ) (fᵈ , Hᵈ) = fᵈ ∘ fᵣ ,
   B' (fᵣ x)                       ↔⟨ Hᵈ (fᵣ x) ⟩
   ∃ ℕ (λ n → fᵈ (fᵣ x) n ≡ true)  ↔∎
 
-dec→pDec : isPredicate B → decidable B → Decisionₚ B
-dec→pDec pred (fᵈ , Hᵈ) = (λ x → ⊤ , λ _ → fᵈ x) ,
-  λ x → →: (λ H → tt* , Hᵈ x .to H)
-        ←: (λ (_ , H) → Hᵈ x .from H)
-
 discreteℕ : discrete ℕ
 discreteℕ = (λ (n , m) → n ≡ᵇ m)
           , (λ (n , m) → →: ≡→≡ᵇ ←: ≡ᵇ→≡)

@@ -43,12 +43,6 @@ fₚ decidesₚ B = ∀ x → B x ↔ fₚ x ≐ true
 _decidesₚ⁰_ : (A → Part Bool) → (A → Type ℓ) → Type _
 fₚ decidesₚ⁰ B = ∀ x → B x ↔ fₚ x ≐ false
 
-Decisionₚ : (A → Type ℓ) → Type _
-Decisionₚ B = Σ _ (_decidesₚ B)
-
-decidableₚ : (A → Type ℓ) → Type _
-decidableₚ B = ∥ Decisionₚ B ∥₁
-
 _separates_and_ : (A → Part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
 fₚ separates B₁ and B₂ = fₚ decidesₚ B₁ × fₚ decidesₚ⁰ B₂
 
