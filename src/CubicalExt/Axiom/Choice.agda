@@ -32,9 +32,9 @@ ACDep ℓ ℓ' ℓ'' = {A : Type ℓ} {B : A → Type ℓ'} {P : ∀ x → B x �
   (∀ x → ∃[ y ∈ B x ] P x y) → ∃[ f ∈ (∀ x → B x) ] ∀ x → P x (f x)
 
 ACRel : (ℓ ℓ' ℓ'' : Level) → Type _
-ACRel ℓ ℓ' ℓ'' = {A : Type ℓ} {B : Type ℓ'} {P : A → B → Type ℓ''} →
-  isSet A → isSet B → (∀ x y → isProp (P x y)) →
-  (∀ x → ∃[ y ∈ B ] P x y) → ∃[ f ∈ (A → B) ] ∀ x → P x (f x)
+ACRel ℓ ℓ' ℓ'' = {A : Type ℓ} {B : Type ℓ'} {R : A → B → Type ℓ''} →
+  isSet A → isSet B → (∀ x y → isProp (R x y)) →
+  (∀ x → ∃[ y ∈ B ] R x y) → ∃[ f ∈ (A → B) ] ∀ x → R x (f x)
 
 -- HoTT Book 3.8.3
 AC : (ℓ ℓ' : Level) → Type _
