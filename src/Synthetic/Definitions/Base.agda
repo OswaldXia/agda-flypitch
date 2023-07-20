@@ -37,14 +37,14 @@ Semidecision B = Σ _ (_semidecides B)
 semidecidable : (A → Type ℓ) → Type _
 semidecidable B = ∥ Semidecision B ∥₁
 
-_decidesₚ_ : (A → Part Bool) → (A → Type ℓ) → Type _
-fₚ decidesₚ B = ∀ x → B x ↔ fₚ x ≐ true
+_partialdecides_ : (A → Part Bool) → (A → Type ℓ) → Type _
+fₚ partialdecides B = ∀ x → B x ↔ fₚ x ≐ true
 
-_decidesₚ⁰_ : (A → Part Bool) → (A → Type ℓ) → Type _
-fₚ decidesₚ⁰ B = ∀ x → B x ↔ fₚ x ≐ false
+_partialdecides⁻_ : (A → Part Bool) → (A → Type ℓ) → Type _
+fₚ partialdecides⁻ B = ∀ x → B x ↔ fₚ x ≐ false
 
 _separates_and_ : (A → Part Bool) → (A → Type ℓ) → (A → Type ℓ') → Type _
-fₚ separates B₁ and B₂ = fₚ decidesₚ B₁ × fₚ decidesₚ⁰ B₂
+fₚ separates B₁ and B₂ = fₚ partialdecides B₁ × fₚ partialdecides⁻ B₂
 
 Separation : (A → Type ℓ) → (A → Type ℓ') → Type _
 Separation B₁ B₂ = Σ _ (_separates B₁ and B₂)
